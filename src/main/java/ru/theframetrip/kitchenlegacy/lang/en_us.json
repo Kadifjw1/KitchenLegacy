@@ -1,0 +1,42 @@
+{
+  "itemGroup.kitchenlegacy": "Kitchen Legacy",
+
+  "item.kitchenlegacy.jerusalem_artichoke": "Jerusalem Artichoke",
+  "item.kitchenlegacy.black_radish": "Black Radish",
+  "item.kitchenlegacy.turnip": "Turnip",
+  "item.kitchenlegacy.onion": "Onion",
+  "item.kitchenlegacy.garlic": "Garlic",
+  "item.kitchenlegacy.cabbage": "Cabbage",
+  "item.kitchenlegacy.broccoli": "Broccoli",
+  "item.kitchenlegacy.cauliflower": "Cauliflower",
+  "item.kitchenlegacy.cucumber": "Cucumber",
+  "item.kitchenlegacy.tomato": "Tomato",
+
+  "item.kitchenlegacy.sweet_bell_pepper": "Sweet Bell Pepper",
+  "item.kitchenlegacy.hot_chili_pepper": "Hot Chili Pepper",
+  "item.kitchenlegacy.eggplant": "Eggplant",
+  "item.kitchenlegacy.zucchini": "Zucchini",
+  "item.kitchenlegacy.pattypan_squash": "Pattypan Squash",
+  "item.kitchenlegacy.radish": "Radish",
+  "item.kitchenlegacy.white_turnip": "White Turnip",
+  "item.kitchenlegacy.sweet_potato": "Sweet Potato",
+  "item.kitchenlegacy.parsnip": "Parsnip",
+  "item.kitchenlegacy.rutabaga": "Rutabaga",
+
+  "item.kitchenlegacy.daikon_radish": "Daikon Radish",
+  "item.kitchenlegacy.pea_pod": "Pea Pod",
+  "item.kitchenlegacy.green_beans": "Green Beans",
+  "item.kitchenlegacy.lentils": "Lentils",
+  "item.kitchenlegacy.celery": "Celery",
+  "item.kitchenlegacy.asparagus": "Asparagus",
+  "item.kitchenlegacy.artichoke": "Artichoke",
+  "item.kitchenlegacy.spinach": "Spinach",
+  "item.kitchenlegacy.lettuce": "Lettuce",
+  "item.kitchenlegacy.green_onion": "Green Onion",
+
+  "item.kitchenlegacy.leek": "Leek",
+  "item.kitchenlegacy.ginger_root": "Ginger Root",
+  "item.kitchenlegacy.horseradish_root": "Horseradish Root",
+  "item.kitchenlegacy.rhubarb": "Rhubarb",
+  "item.kitchenlegacy.seaweed_kelp": "Seaweed Kelp"
+}
