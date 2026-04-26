@@ -1,0 +1,57 @@
+package ru.theframetrip.kitchenlegacy.registry;
+
+import net.minecraft.world.item.Item;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
+import ru.theframetrip.kitchenlegacy.KitchenLegacyMod;
+
+public class ModItems {
+
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, KitchenLegacyMod.MOD_ID);
+
+    public static final RegistryObject<Item> JERUSALEM_ARTICHOKE = registerItem("jerusalem_artichoke");
+    public static final RegistryObject<Item> BLACK_RADISH = registerItem("black_radish");
+    public static final RegistryObject<Item> TURNIP = registerItem("turnip");
+    public static final RegistryObject<Item> ONION = registerItem("onion");
+    public static final RegistryObject<Item> GARLIC = registerItem("garlic");
+    public static final RegistryObject<Item> CABBAGE = registerItem("cabbage");
+    public static final RegistryObject<Item> BROCCOLI = registerItem("broccoli");
+    public static final RegistryObject<Item> CAULIFLOWER = registerItem("cauliflower");
+    public static final RegistryObject<Item> CUCUMBER = registerItem("cucumber");
+    public static final RegistryObject<Item> TOMATO = registerItem("tomato");
+    public static final RegistryObject<Item> SWEET_BELL_PEPPER = registerItem("sweet_bell_pepper");
+    public static final RegistryObject<Item> HOT_CHILI_PEPPER = registerItem("hot_chili_pepper");
+    public static final RegistryObject<Item> EGGPLANT = registerItem("eggplant");
+    public static final RegistryObject<Item> ZUCCHINI = registerItem("zucchini");
+    public static final RegistryObject<Item> PATTYPAN_SQUASH = registerItem("pattypan_squash");
+    public static final RegistryObject<Item> RADISH = registerItem("radish");
+    public static final RegistryObject<Item> WHITE_TURNIP = registerItem("white_turnip");
+    public static final RegistryObject<Item> SWEET_POTATO = registerItem("sweet_potato");
+    public static final RegistryObject<Item> PARSNIP = registerItem("parsnip");
+    public static final RegistryObject<Item> RUTABAGA = registerItem("rutabaga");
+    public static final RegistryObject<Item> DAIKON_RADISH = registerItem("daikon_radish");
+    public static final RegistryObject<Item> PEA_POD = registerItem("pea_pod");
+    public static final RegistryObject<Item> GREEN_BEANS = registerItem("green_beans");
+    public static final RegistryObject<Item> LENTILS = registerItem("lentils");
+    public static final RegistryObject<Item> CELERY = registerItem("celery");
+    public static final RegistryObject<Item> ASPARAGUS = registerItem("asparagus");
+    public static final RegistryObject<Item> ARTICHOKE = registerItem("artichoke");
+    public static final RegistryObject<Item> SPINACH = registerItem("spinach");
+    public static final RegistryObject<Item> LETTUCE = registerItem("lettuce");
+    public static final RegistryObject<Item> GREEN_ONION = registerItem("green_onion");
+    public static final RegistryObject<Item> LEEK = registerItem("leek");
+    public static final RegistryObject<Item> GINGER_ROOT = registerItem("ginger_root");
+    public static final RegistryObject<Item> HORSERADISH_ROOT = registerItem("horseradish_root");
+    public static final RegistryObject<Item> RHUBARB = registerItem("rhubarb");
+    public static final RegistryObject<Item> SEAWEED_KELP = registerItem("seaweed_kelp");
+
+    private static RegistryObject<Item> registerItem(String name) {
+        return ITEMS.register(name, () -> new Item(new Item.Properties()));
+    }
+
+    public static void register(IEventBus eventBus) {
+        ITEMS.register(eventBus);
+    }
+}
