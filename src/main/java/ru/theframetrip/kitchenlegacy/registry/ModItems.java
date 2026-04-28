@@ -47,6 +47,17 @@ public class ModItems {
     public static final RegistryObject<Item> RHUBARB = registerItem("rhubarb");
     public static final RegistryObject<Item> SEAWEED_KELP = registerItem("seaweed_kelp");
 
+    public static final RegistryObject<Item> QUINCE = registerItem("quince");
+    public static final RegistryObject<Item> PEAR = registerItem("pear");
+    public static final RegistryObject<Item> PLUM = registerItem("plum");
+    public static final RegistryObject<Item> CHERRY = registerItem("cherry");
+    public static final RegistryObject<Item> PEACH = registerItem("peach");
+    public static final RegistryObject<Item> APRICOT = registerItem("apricot");
+    public static final RegistryObject<Item> LEMON = registerItem("lemon");
+    public static final RegistryObject<Item> ORANGE = registerItem("orange");
+    public static final RegistryObject<Item> MANDARIN = registerItem("mandarin");
+    public static final RegistryObject<Item> LIME = registerItem("lime");
+
     private static RegistryObject<Item> registerItem(String name) {
         return ITEMS.register(name, () -> new Item(new Item.Properties()));
     }
