@@ -11,7 +11,6 @@
   "item.kitchenlegacy.cauliflower": "Цветная капуста",
   "item.kitchenlegacy.cucumber": "Огурец",
   "item.kitchenlegacy.tomato": "Помидор",
-
   "item.kitchenlegacy.sweet_bell_pepper": "Сладкий перец",
   "item.kitchenlegacy.hot_chili_pepper": "Острый перец",
   "item.kitchenlegacy.eggplant": "Баклажан",
@@ -22,7 +21,6 @@
   "item.kitchenlegacy.sweet_potato": "Батат",
   "item.kitchenlegacy.parsnip": "Пастернак",
   "item.kitchenlegacy.rutabaga": "Брюква",
-
   "item.kitchenlegacy.daikon_radish": "Дайкон",
   "item.kitchenlegacy.pea_pod": "Стручок гороха",
   "item.kitchenlegacy.green_beans": "Стручковая фасоль",
@@ -33,10 +31,20 @@
   "item.kitchenlegacy.spinach": "Шпинат",
   "item.kitchenlegacy.lettuce": "Салат",
   "item.kitchenlegacy.green_onion": "Зелёный лук",
-
   "item.kitchenlegacy.leek": "Лук-порей",
   "item.kitchenlegacy.ginger_root": "Корень имбиря",
   "item.kitchenlegacy.horseradish_root": "Корень хрена",
   "item.kitchenlegacy.rhubarb": "Ревень",
-  "item.kitchenlegacy.seaweed_kelp": "Морская капуста"
+  "item.kitchenlegacy.seaweed_kelp": "Морская капуста",
+
+  "item.kitchenlegacy.quince": "Айва",
+  "item.kitchenlegacy.pear": "Груша",
+  "item.kitchenlegacy.plum": "Слива",
+  "item.kitchenlegacy.cherry": "Вишня",
+  "item.kitchenlegacy.peach": "Персик",
+  "item.kitchenlegacy.apricot": "Абрикос",
+  "item.kitchenlegacy.lemon": "Лимон",
+  "item.kitchenlegacy.orange": "Апельсин",
+  "item.kitchenlegacy.mandarin": "Мандарин",
+  "item.kitchenlegacy.lime": "Лайм"
 }
