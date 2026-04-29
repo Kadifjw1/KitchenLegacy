@@ -1,6 +1,5 @@
 {
   "itemGroup.kitchenlegacy": "Kitchen Legacy",
-
   "item.kitchenlegacy.jerusalem_artichoke": "Jerusalem Artichoke",
   "item.kitchenlegacy.black_radish": "Black Radish",
   "item.kitchenlegacy.turnip": "Turnip",
@@ -36,7 +35,6 @@
   "item.kitchenlegacy.horseradish_root": "Horseradish Root",
   "item.kitchenlegacy.rhubarb": "Rhubarb",
   "item.kitchenlegacy.seaweed_kelp": "Seaweed Kelp",
-
   "item.kitchenlegacy.quince": "Quince",
   "item.kitchenlegacy.pear": "Pear",
   "item.kitchenlegacy.plum": "Plum",
@@ -46,5 +44,19 @@
   "item.kitchenlegacy.lemon": "Lemon",
   "item.kitchenlegacy.orange": "Orange",
   "item.kitchenlegacy.mandarin": "Mandarin",
-  "item.kitchenlegacy.lime": "Lime"
+  "item.kitchenlegacy.lime": "Lime",
+   "item.kitchenlegacy.lime": "Lime",
+  "item.kitchenlegacy.pomegranate": "Pomegranate",
+  "item.kitchenlegacy.fig": "Fig",
+  "item.kitchenlegacy.date": "Date",
+  "item.kitchenlegacy.banana": "Banana",
+  "item.kitchenlegacy.mango": "Mango",
+  "item.kitchenlegacy.pineapple": "Pineapple",
+  "item.kitchenlegacy.coconut": "Coconut",
+  "item.kitchenlegacy.avocado": "Avocado",
+  "item.kitchenlegacy.kiwi": "Kiwi",
+  "item.kitchenlegacy.persimmon": "Persimmon",
+  "item.kitchenlegacy.papaya": "Papaya",
+  "item.kitchenlegacy.passion_fruit": "Passion Fruit",
+  "item.kitchenlegacy.dragon_fruit": "Dragon Fruit"
 }
