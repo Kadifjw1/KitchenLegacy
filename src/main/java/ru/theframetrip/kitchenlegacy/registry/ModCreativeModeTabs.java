@@ -65,6 +65,19 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.ORANGE.get());
                         output.accept(ModItems.MANDARIN.get());
                         output.accept(ModItems.LIME.get());
+                        output.accept(ModItems.POMEGRANATE.get());
+                        output.accept(ModItems.FIG.get());
+                        output.accept(ModItems.DATE.get());
+                        output.accept(ModItems.BANANA.get());
+                        output.accept(ModItems.MANGO.get());
+                        output.accept(ModItems.PINEAPPLE.get());
+                        output.accept(ModItems.COCONUT.get());
+                        output.accept(ModItems.AVOCADO.get());
+                        output.accept(ModItems.KIWI.get());
+                        output.accept(ModItems.PERSIMMON.get());
+                        output.accept(ModItems.PAPAYA.get());
+                        output.accept(ModItems.PASSION_FRUIT.get());
+                        output.accept(ModItems.DRAGON_FRUIT.get());
                     })
                     .build());
 
