@@ -57,11 +57,28 @@ public class ModItems {
     public static final RegistryObject<Item> ORANGE = registerItem("orange");
     public static final RegistryObject<Item> MANDARIN = registerItem("mandarin");
     public static final RegistryObject<Item> LIME = registerItem("lime");
+    public static final RegistryObject<Item> POMEGRANATE = registerSimpleItem("pomegranate");
+    public static final RegistryObject<Item> FIG = registerSimpleItem("fig");
+    public static final RegistryObject<Item> DATE = registerSimpleItem("date");
+    public static final RegistryObject<Item> BANANA = registerSimpleItem("banana");
+    public static final RegistryObject<Item> MANGO = registerSimpleItem("mango");
+    public static final RegistryObject<Item> PINEAPPLE = registerSimpleItem("pineapple");
+    public static final RegistryObject<Item> COCONUT = registerSimpleItem("coconut");
+    public static final RegistryObject<Item> AVOCADO = registerSimpleItem("avocado");
+    public static final RegistryObject<Item> KIWI = registerSimpleItem("kiwi");
+    public static final RegistryObject<Item> PERSIMMON = registerSimpleItem("persimmon");
+    public static final RegistryObject<Item> PAPAYA = registerSimpleItem("papaya");
+    public static final RegistryObject<Item> PASSION_FRUIT = registerSimpleItem("passion_fruit");
+    public static final RegistryObject<Item> DRAGON_FRUIT = registerSimpleItem("dragon_fruit");
 
     private static RegistryObject<Item> registerItem(String name) {
         return ITEMS.register(name, () -> new Item(new Item.Properties()));
     }
 
+    private static RegistryObject<Item> registerSimpleItem(String name) {
+        return registerItem(name);
+    }
+    
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }
