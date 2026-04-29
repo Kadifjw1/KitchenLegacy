@@ -1,6 +1,5 @@
 {
   "itemGroup.kitchenlegacy": "Наследие кухни",
-
   "item.kitchenlegacy.jerusalem_artichoke": "Топинамбур",
   "item.kitchenlegacy.black_radish": "Чёрная редька",
   "item.kitchenlegacy.turnip": "Репа",
@@ -36,7 +35,6 @@
   "item.kitchenlegacy.horseradish_root": "Корень хрена",
   "item.kitchenlegacy.rhubarb": "Ревень",
   "item.kitchenlegacy.seaweed_kelp": "Морская капуста",
-
   "item.kitchenlegacy.quince": "Айва",
   "item.kitchenlegacy.pear": "Груша",
   "item.kitchenlegacy.plum": "Слива",
@@ -46,5 +44,19 @@
   "item.kitchenlegacy.lemon": "Лимон",
   "item.kitchenlegacy.orange": "Апельсин",
   "item.kitchenlegacy.mandarin": "Мандарин",
-  "item.kitchenlegacy.lime": "Лайм"
+  "item.kitchenlegacy.lime": "Лайм",
+  "item.kitchenlegacy.lime": "Лайм",
+  "item.kitchenlegacy.pomegranate": "Гранат",
+  "item.kitchenlegacy.fig": "Инжир",
+  "item.kitchenlegacy.date": "Финик",
+  "item.kitchenlegacy.banana": "Банан",
+  "item.kitchenlegacy.mango": "Манго",
+  "item.kitchenlegacy.pineapple": "Ананас",
+  "item.kitchenlegacy.coconut": "Кокос",
+  "item.kitchenlegacy.avocado": "Авокадо",
+  "item.kitchenlegacy.kiwi": "Киви",
+  "item.kitchenlegacy.persimmon": "Хурма",
+  "item.kitchenlegacy.papaya": "Папайя",
+  "item.kitchenlegacy.passion_fruit": "Маракуйя",
+  "item.kitchenlegacy.dragon_fruit": "Драконий фрукт"
 }
