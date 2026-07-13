@@ -1,6 +1,8 @@
 package ru.theframetrip.kitchenlegacy.registry;
 
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.Tiers;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -70,6 +72,9 @@ public class ModItems {
     public static final RegistryObject<Item> PAPAYA = registerSimpleItem("papaya");
     public static final RegistryObject<Item> PASSION_FRUIT = registerSimpleItem("passion_fruit");
     public static final RegistryObject<Item> DRAGON_FRUIT = registerSimpleItem("dragon_fruit");
+
+    public static final RegistryObject<Item> FANTASY_SWORD_VARIANT_2 = ITEMS.register("fantasy_sword_variant_2",
+            () -> new SwordItem(Tiers.IRON, 3, -2.4F, new Item.Properties()));
 
     private static RegistryObject<Item> registerItem(String name) {
         return ITEMS.register(name, () -> new Item(new Item.Properties()));

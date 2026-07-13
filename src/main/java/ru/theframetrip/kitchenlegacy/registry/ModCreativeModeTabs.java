@@ -78,6 +78,8 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.PAPAYA.get());
                         output.accept(ModItems.PASSION_FRUIT.get());
                         output.accept(ModItems.DRAGON_FRUIT.get());
+
+                        output.accept(ModItems.FANTASY_SWORD_VARIANT_2.get());
                     })
                     .build());
 
