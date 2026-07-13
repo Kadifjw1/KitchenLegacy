@@ -3,7 +3,6 @@
 	"credit": "Made with Blockbench",
 	"parent": "item/handheld",
 	"ambientocclusion": false,
-	"render_type": "minecraft:cutout",
 	"texture_size": [64, 64],
 	"textures": {
 		"0": "kitchenlegacy:item/fantasy_sword_variant_2"
