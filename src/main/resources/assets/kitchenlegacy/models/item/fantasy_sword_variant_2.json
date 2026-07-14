@@ -1,6 +1,5 @@
 {
 	"credit": "Made with Blockbench",
-	"parent": "item/handheld",
 	"ambientocclusion": false,
 	"texture_size": [64, 64],
 	"textures": {
