@@ -84,9 +84,18 @@ public class ModCreativeModeTabs {
     public static final RegistryObject<CreativeModeTab> KITCHEN_LEGACY_WEAPONS_TAB = CREATIVE_MODE_TABS.register("kitchenlegacy_weapons",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.kitchenlegacy_weapons"))
-                    .icon(() -> new ItemStack(ModItems.FANTASY_SWORD_VARIANT_2.get()))
+                    .icon(() -> new ItemStack(ModItems.KOLOSS.get()))
                     .displayItems((parameters, output) -> {
-                        output.accept(ModItems.FANTASY_SWORD_VARIANT_2.get());
+                        output.accept(ModItems.KOLOSS.get());
+                        output.accept(ModItems.SHIP.get());
+                        output.accept(ModItems.STRAZH.get());
+                        output.accept(ModItems.YADRO.get());
+                        output.accept(ModItems.BEZDNA.get());
+                        output.accept(ModItems.RAZLOM.get());
+                        output.accept(ModItems.SERP.get());
+                        output.accept(ModItems.PALACH.get());
+                        output.accept(ModItems.MONOLIT.get());
+                        output.accept(ModItems.OSKOLOK.get());
                     })
                     .build());
 

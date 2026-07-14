@@ -3,7 +3,7 @@
 	"ambientocclusion": false,
 	"texture_size": [64, 64],
 	"textures": {
-		"0": "kitchenlegacy:item/fantasy_sword_variant_2"
+		"0": "kitchenlegacy:item/koloss"
 	},
 	"elements": [
 		{

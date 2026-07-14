@@ -1,13 +1,13 @@
 package ru.theframetrip.kitchenlegacy.registry;
 
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tiers;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import ru.theframetrip.kitchenlegacy.KitchenLegacyMod;
+import ru.theframetrip.kitchenlegacy.item.BlankSwordItem;
 
 public class ModItems {
 
@@ -73,8 +73,16 @@ public class ModItems {
     public static final RegistryObject<Item> PASSION_FRUIT = registerSimpleItem("passion_fruit");
     public static final RegistryObject<Item> DRAGON_FRUIT = registerSimpleItem("dragon_fruit");
 
-    public static final RegistryObject<Item> FANTASY_SWORD_VARIANT_2 = ITEMS.register("fantasy_sword_variant_2",
-            () -> new SwordItem(Tiers.IRON, 3, -2.4F, new Item.Properties()));
+    public static final RegistryObject<Item> KOLOSS = registerBlankSword("koloss", 9, -3.1F);
+    public static final RegistryObject<Item> SHIP = registerBlankSword("ship", 5, -2.4F);
+    public static final RegistryObject<Item> STRAZH = registerBlankSword("strazh", 6, -2.6F);
+    public static final RegistryObject<Item> YADRO = registerBlankSword("yadro", 6, -2.5F);
+    public static final RegistryObject<Item> BEZDNA = registerBlankSword("bezdna", 8, -3.0F);
+    public static final RegistryObject<Item> RAZLOM = registerBlankSword("razlom", 7, -2.8F);
+    public static final RegistryObject<Item> SERP = registerBlankSword("serp", 4, -2.2F);
+    public static final RegistryObject<Item> PALACH = registerBlankSword("palach", 10, -3.2F);
+    public static final RegistryObject<Item> MONOLIT = registerBlankSword("monolit", 11, -3.3F);
+    public static final RegistryObject<Item> OSKOLOK = registerBlankSword("oskolok", 7, -2.7F);
 
     private static RegistryObject<Item> registerItem(String name) {
         return ITEMS.register(name, () -> new Item(new Item.Properties()));
@@ -82,6 +90,10 @@ public class ModItems {
 
     private static RegistryObject<Item> registerSimpleItem(String name) {
         return registerItem(name);
+    }
+
+    private static RegistryObject<Item> registerBlankSword(String name, int attackDamageModifier, float attackSpeedModifier) {
+        return ITEMS.register(name, () -> new BlankSwordItem(Tiers.IRON, attackDamageModifier, attackSpeedModifier, new Item.Properties()));
     }
     
     public static void register(IEventBus eventBus) {
