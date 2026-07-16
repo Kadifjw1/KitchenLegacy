@@ -7,6 +7,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 import ru.theframetrip.kitchenlegacy.registry.ModCreativeModeTabs;
 import ru.theframetrip.kitchenlegacy.registry.ModItems;
+import ru.theframetrip.kitchenlegacy.registry.ModParticleTypes;
 
 @Mod(KitchenLegacyMod.MOD_ID)
 public class KitchenLegacyMod {
@@ -19,6 +20,7 @@ public class KitchenLegacyMod {
 
         ModItems.register(modEventBus);
         ModCreativeModeTabs.register(modEventBus);
+        ModParticleTypes.register(modEventBus);
 
         LOGGER.info("Наследие кухни загружается...");
     }
