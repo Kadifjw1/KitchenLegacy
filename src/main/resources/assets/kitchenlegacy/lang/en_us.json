@@ -70,5 +70,7 @@
   "item.kitchenlegacy.palach": "Executioner",
   "item.kitchenlegacy.monolit": "Monolith",
   "item.kitchenlegacy.oskolok": "Shard",
-  "item.kitchenlegacy.blank_sword.desc": "A sword blank for something greater..."
+  "item.kitchenlegacy.blank_sword.desc": "A sword blank for something greater...",
+  "entity.kitchenlegacy.hamster": "Hamster",
+  "item.kitchenlegacy.hamster_spawn_egg": "Hamster Spawn Egg"
 }
