@@ -70,5 +70,7 @@
   "item.kitchenlegacy.palach": "Палач",
   "item.kitchenlegacy.monolit": "Монолит",
   "item.kitchenlegacy.oskolok": "Осколок",
-  "item.kitchenlegacy.blank_sword.desc": "Заготовка меча для большего..."
+  "item.kitchenlegacy.blank_sword.desc": "Заготовка меча для большего...",
+  "entity.kitchenlegacy.hamster": "Хомяк",
+  "item.kitchenlegacy.hamster_spawn_egg": "Яйцо призыва хомяка"
 }

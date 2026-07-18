@@ -2,6 +2,7 @@ package ru.theframetrip.kitchenlegacy.registry;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tiers;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -83,6 +84,9 @@ public class ModItems {
     public static final RegistryObject<Item> PALACH = registerBlankSword("palach", 10, -3.2F);
     public static final RegistryObject<Item> MONOLIT = registerBlankSword("monolit", 11, -3.3F);
     public static final RegistryObject<Item> OSKOLOK = registerBlankSword("oskolok", 7, -2.7F);
+
+    public static final RegistryObject<Item> HAMSTER_SPAWN_EGG = ITEMS.register("hamster_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntities.HAMSTER, 0xC98B43, 0xD98F94, new Item.Properties()));
 
     private static RegistryObject<Item> registerItem(String name) {
         return ITEMS.register(name, () -> new Item(new Item.Properties()));
