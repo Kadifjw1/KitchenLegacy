@@ -5,9 +5,11 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.SimpleParticleType;
+import ru.theframetrip.kitchenlegacy.registry.ModParticleTypes;
 
 /**
- * Sharp flash on landing a hit with a fire sword.
+ * Sharp, almost stationary flash at the exact point of impact. Also spawns
+ * a handful of flame_spark particles for extra punch.
  */
 public class FireHitParticle extends AbstractFireParticle {
 
@@ -17,14 +19,25 @@ public class FireHitParticle extends AbstractFireParticle {
                                double xSpeed, double ySpeed, double zSpeed, SpriteSet sprites) {
         super(level, x, y, z, xSpeed, ySpeed, zSpeed, sprites);
         this.friction = 0.85F;
-        this.quadSize = 0.35F + this.random.nextFloat() * 0.1F;
-        this.lifetime = 8;
+        this.quadSize = 0.5F + this.random.nextFloat() * 0.5F;
+        this.lifetime = 6 + this.random.nextInt(3);
         this.alpha = 1.0F;
+        this.xd = xSpeed * 0.2;
+        this.yd = ySpeed * 0.2;
+        this.zd = zSpeed * 0.2;
+
+        int sparkCount = 4 + this.random.nextInt(7);
+        for (int i = 0; i < sparkCount; i++) {
+            double vx = (this.random.nextFloat() - 0.5F) * 0.3F;
+            double vy = this.random.nextFloat() * 0.25F;
+            double vz = (this.random.nextFloat() - 0.5F) * 0.3F;
+            level.addParticle(ModParticleTypes.FLAME_SPARK.get(), x, y, z, vx, vy, vz);
+        }
     }
 
     @Override
-    public void tick() {
-        super.tick();
+    protected void updateSprite() {
+        this.setSpriteFromAge(this.sprites);
         this.quadSize *= 1.03F;
         float lifeFraction = (float) this.age / (float) this.lifetime;
         if (lifeFraction > DECAY_START_FRACTION) {

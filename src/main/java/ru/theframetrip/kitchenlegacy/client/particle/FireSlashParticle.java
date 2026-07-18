@@ -7,28 +7,27 @@ import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.SimpleParticleType;
 
 /**
- * Quick flame streak that traces a sword swing.
+ * One flame arc per swing, fixed in the plane of the strike rather than
+ * facing the camera. Does not move after appearing.
  */
-public class FireSlashParticle extends AbstractFireParticle {
+public class FireSlashParticle extends OrientedFireParticle {
 
     private static final float DECAY_START_FRACTION = 0.75F;
 
     protected FireSlashParticle(ClientLevel level, double x, double y, double z,
                                  double xSpeed, double ySpeed, double zSpeed, SpriteSet sprites) {
         super(level, x, y, z, xSpeed, ySpeed, zSpeed, sprites);
-        this.friction = 0.9F;
-        this.quadSize = 0.4F + this.random.nextFloat() * 0.1F;
-        this.lifetime = 8;
+        this.quadSize = 1.2F + this.random.nextFloat();
+        this.lifetime = 6 + this.random.nextInt(5);
+        this.alpha = 1.0F;
     }
 
     @Override
-    public void tick() {
-        super.tick();
+    protected void updateSprite() {
+        this.setSpriteFromAge(this.sprites);
         float lifeFraction = (float) this.age / (float) this.lifetime;
         if (lifeFraction > DECAY_START_FRACTION) {
             this.alpha = 1.0F - (lifeFraction - DECAY_START_FRACTION) / (1.0F - DECAY_START_FRACTION);
-        } else {
-            this.alpha = 1.0F;
         }
     }
 

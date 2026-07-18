@@ -8,10 +8,14 @@ import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.particles.SimpleParticleType;
 
+/**
+ * Ember that flies off the blade, rises briefly then falls under gravity
+ * and air resistance. Spawn 2-6 per burst from the calling code.
+ */
 public class FlameEmberParticle extends TextureSheetParticle {
 
-    private static final float FADE_IN_FRACTION = 0.15F;
-    private static final float DECAY_START_FRACTION = 0.55F;
+    private static final float FADE_IN_FRACTION = 0.1F;
+    private static final float DECAY_START_FRACTION = 0.7F;
 
     private final SpriteSet sprites;
 
@@ -19,11 +23,14 @@ public class FlameEmberParticle extends TextureSheetParticle {
                                   double xSpeed, double ySpeed, double zSpeed, SpriteSet sprites) {
         super(level, x, y, z, xSpeed, ySpeed, zSpeed);
         this.sprites = sprites;
-        this.gravity = 0.35F;
-        this.friction = 0.92F;
+        this.gravity = 0.5F;
+        this.friction = 0.91F;
         this.hasPhysics = true;
-        this.quadSize = 0.08F + this.random.nextFloat() * 0.06F;
-        this.lifetime = 15 + this.random.nextInt(10);
+        this.quadSize = 0.08F + this.random.nextFloat() * 0.07F;
+        this.lifetime = 10 + this.random.nextInt(9);
+        this.xd = xSpeed + (this.random.nextFloat() - 0.5F) * 0.04F;
+        this.yd = ySpeed + 0.05F + this.random.nextFloat() * 0.04F;
+        this.zd = zSpeed + (this.random.nextFloat() - 0.5F) * 0.04F;
         this.setSpriteFromAge(sprites);
     }
 
@@ -36,8 +43,7 @@ public class FlameEmberParticle extends TextureSheetParticle {
         if (lifeFraction < FADE_IN_FRACTION) {
             this.alpha = lifeFraction / FADE_IN_FRACTION;
         } else if (lifeFraction > DECAY_START_FRACTION) {
-            float decayFraction = (lifeFraction - DECAY_START_FRACTION) / (1.0F - DECAY_START_FRACTION);
-            this.alpha = 1.0F - decayFraction;
+            this.alpha = 1.0F - (lifeFraction - DECAY_START_FRACTION) / (1.0F - DECAY_START_FRACTION);
         } else {
             this.alpha = 1.0F;
         }

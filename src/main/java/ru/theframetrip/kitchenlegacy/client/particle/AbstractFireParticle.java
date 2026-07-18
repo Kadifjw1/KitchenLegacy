@@ -21,6 +21,15 @@ public abstract class AbstractFireParticle extends TextureSheetParticle {
     @Override
     public void tick() {
         super.tick();
+        this.updateSprite();
+    }
+
+    /**
+     * Picks the current animation frame. Default is a straight linear
+     * playthrough of all frames over the particle's lifetime; override to
+     * customize (e.g. looping the middle frames for a long-lived effect).
+     */
+    protected void updateSprite() {
         this.setSpriteFromAge(this.sprites);
     }
 
