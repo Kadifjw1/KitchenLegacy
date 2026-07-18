@@ -16,6 +16,12 @@ public class ModParticleTypes {
     public static final RegistryObject<SimpleParticleType> FLAME_SPARK =
             PARTICLE_TYPES.register("flame_spark", () -> new SimpleParticleType(false));
 
+    public static final RegistryObject<SimpleParticleType> FLAME_EMBER =
+            PARTICLE_TYPES.register("flame_ember", () -> new SimpleParticleType(false));
+
+    public static final RegistryObject<SimpleParticleType> FLAME_SMOKE =
+            PARTICLE_TYPES.register("flame_smoke", () -> new SimpleParticleType(false));
+
     public static void register(IEventBus eventBus) {
         PARTICLE_TYPES.register(eventBus);
     }
