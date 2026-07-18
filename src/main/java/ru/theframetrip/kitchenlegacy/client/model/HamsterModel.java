@@ -7,6 +7,6 @@ import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
 public final class HamsterModel extends DefaultedEntityGeoModel<HamsterEntity> {
     public HamsterModel() {
-        super(new ResourceLocation(KitchenLegacyMod.MOD_ID, "entity/hamster"));
+        super(new ResourceLocation(KitchenLegacyMod.MOD_ID, "hamster"));
     }
 }
