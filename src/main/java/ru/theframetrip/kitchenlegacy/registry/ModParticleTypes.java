@@ -43,6 +43,15 @@ public class ModParticleTypes {
     public static final RegistryObject<SimpleParticleType> FIRE_WAVE =
             PARTICLE_TYPES.register("fire_wave", () -> new SimpleParticleType(false));
 
+        public static final RegistryObject<SimpleParticleType> VOID_MOTE =
+            PARTICLE_TYPES.register("void_mote", () -> new SimpleParticleType(false));
+
+    public static final RegistryObject<SimpleParticleType> VOID_SHARD =
+            PARTICLE_TYPES.register("void_shard", () -> new SimpleParticleType(false));
+
+    public static final RegistryObject<SimpleParticleType> VOID_RIFT =
+            PARTICLE_TYPES.register("void_rift", () -> new SimpleParticleType(false));
+
     public static void register(IEventBus eventBus) {
         PARTICLE_TYPES.register(eventBus);
     }

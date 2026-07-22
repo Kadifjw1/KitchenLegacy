@@ -46,7 +46,6 @@
   "item.kitchenlegacy.orange": "Апельсин",
   "item.kitchenlegacy.mandarin": "Мандарин",
   "item.kitchenlegacy.lime": "Лайм",
-  "item.kitchenlegacy.lime": "Лайм",
   "item.kitchenlegacy.pomegranate": "Гранат",
   "item.kitchenlegacy.fig": "Инжир",
   "item.kitchenlegacy.date": "Финик",
@@ -72,5 +71,12 @@
   "item.kitchenlegacy.oskolok": "Осколок",
   "item.kitchenlegacy.blank_sword.desc": "Заготовка меча для большего...",
   "entity.kitchenlegacy.hamster": "Хомяк",
-  "item.kitchenlegacy.hamster_spawn_egg": "Яйцо призыва хомяка"
+  "item.kitchenlegacy.hamster_spawn_egg": "Яйцо призыва хомяка",
+  "item.kitchenlegacy.predel": "Предел",
+  "tooltip.kitchenlegacy.predel.ability": "Активная способность: Разлом",
+  "tooltip.kitchenlegacy.predel.description": "Временно выводит выбранные блоки из материального мира.",
+  "tooltip.kitchenlegacy.predel.key": "[R] Использовать способность",
+  "tooltip.kitchenlegacy.predel.cooldown": "Перезарядка: 12 сек.",
+  "key.kitchenlegacy.predel_ability": "Использовать способность Предела",
+  "key.categories.kitchenlegacy": "Наследие кухни"
 }

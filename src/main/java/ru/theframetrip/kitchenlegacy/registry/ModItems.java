@@ -9,6 +9,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import ru.theframetrip.kitchenlegacy.KitchenLegacyMod;
 import ru.theframetrip.kitchenlegacy.item.BlankSwordItem;
+import ru.theframetrip.kitchenlegacy.item.PredelItem;
 
 public class ModItems {
 
@@ -84,6 +85,7 @@ public class ModItems {
     public static final RegistryObject<Item> PALACH = registerBlankSword("palach", 10, -3.2F);
     public static final RegistryObject<Item> MONOLIT = registerBlankSword("monolit", 11, -3.3F);
     public static final RegistryObject<Item> OSKOLOK = registerBlankSword("oskolok", 7, -2.7F);
+    public static final RegistryObject<Item> PREDEL = ITEMS.register("predel", () -> new PredelItem(Tiers.IRON, 8, -2.8F, new Item.Properties()));
 
     public static final RegistryObject<Item> HAMSTER_SPAWN_EGG = ITEMS.register("hamster_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.HAMSTER, 0xC98B43, 0xD98F94, new Item.Properties()));

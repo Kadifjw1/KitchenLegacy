@@ -35,6 +35,9 @@ public class ClientModEvents {
         event.registerSpriteSet(ModParticleTypes.FIRE_TRAIL.get(), FireTrailParticle.Provider::new);
         event.registerSpriteSet(ModParticleTypes.FIRE_GROUND.get(), FireGroundParticle.Provider::new);
         event.registerSpriteSet(ModParticleTypes.FIRE_WAVE.get(), FireWaveParticle.Provider::new);
+        event.registerSpriteSet(ModParticleTypes.VOID_MOTE.get(), FlameSparkParticle.Provider::new);
+        event.registerSpriteSet(ModParticleTypes.VOID_SHARD.get(), FireSlashParticle.Provider::new);
+        event.registerSpriteSet(ModParticleTypes.VOID_RIFT.get(), FireWaveParticle.Provider::new);
     }
 
     @SubscribeEvent

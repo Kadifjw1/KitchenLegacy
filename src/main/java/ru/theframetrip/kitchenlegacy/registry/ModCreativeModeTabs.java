@@ -96,6 +96,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.PALACH.get());
                         output.accept(ModItems.MONOLIT.get());
                         output.accept(ModItems.OSKOLOK.get());
+                        output.accept(ModItems.PREDEL.get());
                     })
                     .build());
 

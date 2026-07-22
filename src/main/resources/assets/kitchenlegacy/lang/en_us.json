@@ -46,7 +46,6 @@
   "item.kitchenlegacy.orange": "Orange",
   "item.kitchenlegacy.mandarin": "Mandarin",
   "item.kitchenlegacy.lime": "Lime",
-   "item.kitchenlegacy.lime": "Lime",
   "item.kitchenlegacy.pomegranate": "Pomegranate",
   "item.kitchenlegacy.fig": "Fig",
   "item.kitchenlegacy.date": "Date",
@@ -72,5 +71,12 @@
   "item.kitchenlegacy.oskolok": "Shard",
   "item.kitchenlegacy.blank_sword.desc": "A sword blank for something greater...",
   "entity.kitchenlegacy.hamster": "Hamster",
-  "item.kitchenlegacy.hamster_spawn_egg": "Hamster Spawn Egg"
+  "item.kitchenlegacy.hamster_spawn_egg": "Hamster Spawn Egg",
+  "item.kitchenlegacy.predel": "Predel",
+  "tooltip.kitchenlegacy.predel.ability": "Active ability: Rift",
+  "tooltip.kitchenlegacy.predel.description": "Temporarily phases selected blocks out of the material world.",
+  "tooltip.kitchenlegacy.predel.key": "[R] Use ability",
+  "tooltip.kitchenlegacy.predel.cooldown": "Cooldown: 12 sec.",
+  "key.kitchenlegacy.predel_ability": "Use Predel ability",
+  "key.categories.kitchenlegacy": "Kitchen Legacy"
 }
