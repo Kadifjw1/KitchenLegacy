@@ -3,31 +3,24 @@ loaderVersion="[47,)"
 license="All Rights Reserved"
 
 [[mods]]
-modId="kitchenlegacy"
+modId="worldsmith"
 version="0.1.0"
-displayName="Наследие кухни"
+displayName="Worldsmith"
 authors="TheFrameTrip"
 description='''
-Наследие кухни — мод про еду, культуру, готовку, рецепты и кухонные традиции в Minecraft.
+Worldsmith — fantasy weapons, abilities and artifacts for Minecraft.
 '''
 
-[[dependencies.kitchenlegacy]]
+[[dependencies.worldsmith]]
 modId="forge"
 mandatory=true
 versionRange="[47,)"
 ordering="NONE"
 side="BOTH"
 
-[[dependencies.kitchenlegacy]]
+[[dependencies.worldsmith]]
 modId="minecraft"
 mandatory=true
 versionRange="[1.20.1,1.21)"
-ordering="NONE"
-side="BOTH"
-
-[[dependencies.kitchenlegacy]]
-modId="geckolib"
-mandatory=true
-versionRange="[4.7,5)"
 ordering="NONE"
 side="BOTH"
