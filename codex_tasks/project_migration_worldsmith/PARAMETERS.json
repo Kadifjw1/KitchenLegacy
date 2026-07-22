@@ -16,33 +16,15 @@
     "java_version": 17
   },
   "legacy_identity": {
-    "display_names": [
-      "KitchenLegacy",
-      "Наследие кухни"
-    ],
-    "mod_ids": [
-      "kitchenlegacy"
-    ],
-    "group_ids": [
-      "ru.theframetrip.kitchenlegacy"
-    ],
-    "resource_namespaces": [
-      "kitchenlegacy"
-    ]
+    "display_names": ["KitchenLegacy", "Наследие кухни"],
+    "mod_ids": ["kitchenlegacy"],
+    "group_ids": ["ru.theframetrip.kitchenlegacy"],
+    "resource_namespaces": ["kitchenlegacy"]
   },
   "preserve": {
-    "task_directories": [
-      "codex_tasks/predel_rift",
-      "codex_tasks/project_migration_worldsmith"
-    ],
-    "approved_resource_ids": [
-      "worldsmith:predel_void",
-      "worldsmith:tex_predel"
-    ],
-    "approved_filenames_when_present": [
-      "predel_void.json",
-      "tex_predel.png"
-    ]
+    "task_directories": ["codex_tasks/predel_rift", "codex_tasks/project_migration_worldsmith"],
+    "approved_resource_ids": ["worldsmith:predel_void", "worldsmith:tex_predel"],
+    "approved_filenames_when_present": ["predel_void.json", "tex_predel.png"]
   },
   "remove_content_categories": [
     "food items and FoodProperties",

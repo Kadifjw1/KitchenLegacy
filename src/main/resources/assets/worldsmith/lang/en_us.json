@@ -1,0 +1,20 @@
+{
+  "itemGroup.worldsmith": "Worldsmith",
+  "item.worldsmith.predel": "Predel",
+  "tooltip.worldsmith.predel.ability": "Active ability: Rift",
+  "tooltip.worldsmith.predel.description": "Temporarily phases selected blocks out of the material world.",
+  "tooltip.worldsmith.predel.key": "[R] Use ability",
+  "tooltip.worldsmith.predel.cooldown": "Cooldown: 12 sec.",
+  "key.worldsmith.predel_ability": "Use Predel ability",
+  "key.categories.worldsmith": "Worldsmith",
+  "item.worldsmith.koloss": "Koloss",
+  "item.worldsmith.ship": "Spike",
+  "item.worldsmith.strazh": "Guardian",
+  "item.worldsmith.yadro": "Core",
+  "item.worldsmith.bezdna": "Abyss",
+  "item.worldsmith.razlom": "Rift",
+  "item.worldsmith.serp": "Sickle",
+  "item.worldsmith.palach": "Executioner",
+  "item.worldsmith.monolit": "Monolith",
+  "item.worldsmith.oskolok": "Shard"
+}
