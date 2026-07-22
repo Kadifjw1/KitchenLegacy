@@ -1,4 +1,4 @@
-# Codex instructions for KitchenLegacy
+# Codex instructions for Worldsmith
 
 ## Worldsmith task workflow
 

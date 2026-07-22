@@ -1,0 +1,20 @@
+{
+  "itemGroup.worldsmith": "Worldsmith",
+  "item.worldsmith.predel": "Предел",
+  "tooltip.worldsmith.predel.ability": "Активная способность: Разлом",
+  "tooltip.worldsmith.predel.description": "Временно выводит выбранные блоки из материального мира.",
+  "tooltip.worldsmith.predel.key": "[R] Использовать способность",
+  "tooltip.worldsmith.predel.cooldown": "Перезарядка: 12 сек.",
+  "key.worldsmith.predel_ability": "Использовать способность Предела",
+  "key.categories.worldsmith": "Worldsmith",
+  "item.worldsmith.koloss": "Колосс",
+  "item.worldsmith.ship": "Шип",
+  "item.worldsmith.strazh": "Страж",
+  "item.worldsmith.yadro": "Ядро",
+  "item.worldsmith.bezdna": "Бездна",
+  "item.worldsmith.razlom": "Разлом",
+  "item.worldsmith.serp": "Серп",
+  "item.worldsmith.palach": "Палач",
+  "item.worldsmith.monolit": "Монолит",
+  "item.worldsmith.oskolok": "Осколок"
+}
