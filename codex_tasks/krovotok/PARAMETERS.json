@@ -1,0 +1,40 @@
+{
+  "task_id": "krovotok_integration",
+  "repository": "Kadifjw1/KitchenLegacy",
+  "minecraft_version": "1.20.1",
+  "forge_version": "47.4.20",
+  "java_version": 17,
+  "mod_id": "worldsmith",
+  "java_package": "ru.theframetrip.worldsmith",
+  "item_id": "krovotok",
+  "display_name_ru": "Кровоток",
+  "display_name_en": "Bloodflow",
+  "ability": {
+    "id": "crimson_rhythm",
+    "display_name_ru": "Багровый ритм",
+    "max_charge": 5,
+    "combo_timeout_ticks": 60,
+    "damage_per_charge": 0.6,
+    "attack_speed_per_charge": 0.06,
+    "discharge_bonus_damage": 6.0,
+    "max_heal": 4.0,
+    "heal_multiplier": 0.5
+  },
+  "item": {
+    "tier": "IRON",
+    "attack_damage_modifier": 7,
+    "attack_speed_modifier": -2.6,
+    "geometry_elements": 170
+  },
+  "particles": [
+    "krovotok_blood_mist",
+    "krovotok_blood_spark",
+    "krovotok_blood_pulse",
+    "krovotok_blood_burst",
+    "krovotok_life_drain"
+  ],
+  "nbt": {
+    "charge": "KrovotokCharge",
+    "last_hit_game_time": "KrovotokLastHitGameTime"
+  }
+}
