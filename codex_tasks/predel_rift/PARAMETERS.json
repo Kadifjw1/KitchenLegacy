@@ -1,0 +1,65 @@
+{
+  "document_version": "1.0",
+  "status": "approved_for_first_prototype",
+  "minecraft_version": "1.20.1",
+  "loader": "Forge",
+  "mod_id": "worldsmith",
+  "item": {
+    "display_name_ru": "Предел",
+    "id": "worldsmith:predel",
+    "ability_name_ru": "Разлом",
+    "ability_type": "active",
+    "model_file": "predel_void.json",
+    "texture_file": "tex_predel.png",
+    "blockbench_source": "worldsmith_sword7_void.bbmodel"
+  },
+  "activation": {
+    "default_key": "R",
+    "key_remappable": true,
+    "main_hand_required": true,
+    "server_authoritative_raycast": true,
+    "range_blocks": 8.0
+  },
+  "rift": {
+    "width": 3,
+    "height": 3,
+    "depth": 1,
+    "maximum_blocks": 9,
+    "duration_ticks": 80,
+    "duration_seconds": 4,
+    "service_block_id": "worldsmith:void_phase_block",
+    "immune_tag": "worldsmith:rift_immune"
+  },
+  "cooldown": {
+    "ticks": 240,
+    "seconds": 12,
+    "scope": "player_and_item_type",
+    "starts_only_after_success": true,
+    "cannot_be_bypassed_by_swapping_items": true
+  },
+  "cost": {
+    "durability": 0,
+    "experience": 0,
+    "other_resource": 0
+  },
+  "entity_safety": {
+    "safe_position_search_radius": 3,
+    "fallback_damage": 2.0,
+    "fallback_damage_hearts": 1.0
+  },
+  "chunks": {
+    "force_load": false,
+    "persist_active_rifts": true,
+    "restore_expired_rifts_after_restart": true,
+    "restore_unloaded_positions_on_chunk_load": true
+  },
+  "particles": {
+    "idle": "worldsmith:void_mote",
+    "swing": "worldsmith:void_shard",
+    "rift": "worldsmith:void_rift"
+  },
+  "audio": {
+    "music": false,
+    "sound_effects": false
+  }
+}
