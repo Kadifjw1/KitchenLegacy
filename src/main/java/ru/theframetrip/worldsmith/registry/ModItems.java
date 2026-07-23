@@ -7,6 +7,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import ru.theframetrip.worldsmith.WorldsmithMod;
+import ru.theframetrip.worldsmith.item.KrovotokItem;
 import ru.theframetrip.worldsmith.item.PredelItem;
 import ru.theframetrip.worldsmith.item.WorldsmithSwordItem;
 
@@ -25,6 +26,8 @@ public class ModItems {
     public static final RegistryObject<Item> OSKOLOK = registerSword("oskolok", 7, -2.7F);
     public static final RegistryObject<Item> PREDEL = ITEMS.register("predel",
             () -> new PredelItem(Tiers.IRON, 8, -2.8F, new Item.Properties()));
+    public static final RegistryObject<Item> KROVOTOK = ITEMS.register("krovotok",
+            () -> new KrovotokItem(Tiers.IRON, 7, -2.6F, new Item.Properties()));
 
     private static RegistryObject<Item> registerSword(String name, int attackDamageModifier, float attackSpeedModifier) {
         return ITEMS.register(name, () -> new WorldsmithSwordItem(Tiers.IRON, attackDamageModifier, attackSpeedModifier, new Item.Properties()));
