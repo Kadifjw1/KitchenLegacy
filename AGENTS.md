@@ -53,9 +53,9 @@ Rules:
 - Implement the complete task, then run the available Gradle build and tests.
 - Report changed files, build result, and any unresolved compatibility issue.
 
-## Krovotok asset workflow
+## Krovotok workflow
 
-The Java implementation of **Кровоток** and **Багровый ритм** is already present in `main`. PR #24 is only for completing the approved binary asset pipeline and build verification.
+The approved Java item, registries and ability for **Кровоток / Багровый ритм** were integrated through PR #25. The verified text-only asset pipeline and approved 170-element model were integrated through PR #24. Runtime completion and particle corrections are tracked in PR #26.
 
 Open:
 
@@ -78,11 +78,13 @@ python3 codex_tasks/krovotok/materialize_krovotok_resources.py
 
 Rules:
 
-- Work only in `fix/krovotok-complete-integration` and update PR #24. Do not create another branch and do not merge automatically.
-- Do not reimplement item registration, creative-tab registration, localization, NBT charge logic, item-property registration or particle registration already present in `main` unless a verified bug requires a focused fix.
+- Create a dedicated branch and Pull Request for focused Krovotok fixes. Do not merge automatically.
 - Approved ZIP and PNG assets remain stored as text-only Base64 fragments. Edit only text files.
 - Never manually upload, patch or commit PNG, GIF, ZIP or generated resources.
-- Preserve the approved 170-element geometry and display transforms.
-- Generated resources belong in `src/generated/resources` and must be present in the built JAR but absent from Git status.
+- Preserve the approved 170-element geometry, UV and display transforms.
+- Generated resources belong in `src/generated/resources`, must be included in the built JAR and must remain absent from Git status.
+- Keep combo state authoritative on the logical server and preserve the 60-tick timeout.
+- Krovotok particle JSON texture lists must exactly match the generated frames.
+- Krovotok effects must use the dedicated crimson particle provider, not `VoidParticle`.
 - Preserve Predel/Rift and all other swords.
 - Run archive verification, materialization, `./gradlew clean build`, JAR-content checks, dev-client checks and dedicated-server checks before declaring completion.
