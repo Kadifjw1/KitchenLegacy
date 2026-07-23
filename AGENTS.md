@@ -55,36 +55,14 @@ Rules:
 
 ## Krovotok workflow
 
-The approved Java item, registries and ability for **Кровоток / Багровый ритм** were integrated through PR #25. The verified text-only asset pipeline and approved 170-element model were integrated through PR #24. Runtime completion and particle corrections are tracked in PR #26.
-
-Open:
-
-`codex_tasks/krovotok/`
-
-Read files in this order:
-
-1. `TASK.md`
-2. `BINARY_ASSETS.md`
-3. `PARAMETERS.json`
-4. `TECH_SPEC.md`
-5. `ACCEPTANCE.md`
-
-Before every local build or game launch, run:
-
-```bash
-python3 codex_tasks/krovotok/verify_asset_archive.py
-python3 codex_tasks/krovotok/materialize_krovotok_resources.py
-```
+The Java implementation of **Кровоток / Багровый ритм** remains in the repository. The approved model, item textures, charge textures, particle frames and particle JSON are maintained outside Git as a user-owned media package.
 
 Rules:
 
-- Create a dedicated branch and Pull Request for focused Krovotok fixes. Do not merge automatically.
-- Approved ZIP and PNG assets remain stored as text-only Base64 fragments. Edit only text files.
-- Never manually upload, patch or commit PNG, GIF, ZIP or generated resources.
-- Preserve the approved 170-element geometry, UV and display transforms.
-- Generated resources belong in `src/generated/resources`, must be included in the built JAR and must remain absent from Git status.
-- Keep combo state authoritative on the logical server and preserve the 60-tick timeout.
-- Krovotok particle JSON texture lists must exactly match the generated frames.
-- Krovotok effects must use the dedicated crimson particle provider, not `VoidParticle`.
+- Create a dedicated branch and Pull Request for focused Krovotok code changes. Do not merge automatically.
+- Do not recreate, regenerate, upload or commit Krovotok PNG, GIF, ZIP, Base64 fragments, particle JSON or item-model JSON unless the user explicitly asks to restore the external package.
+- Do not add a materialization script or CI step that reconstructs Krovotok media inside the repository.
+- Preserve the existing server-authoritative combo logic and the dedicated crimson particle provider.
 - Preserve Predel/Rift and all other swords.
-- Run archive verification, materialization, `./gradlew clean build`, JAR-content checks, dev-client checks and dedicated-server checks before declaring completion.
+- A repository-only JAR intentionally does not contain Krovotok rendering media. Runtime visual testing requires the separately supplied media/resource package.
+- Run `./gradlew clean build` before reporting code changes.
