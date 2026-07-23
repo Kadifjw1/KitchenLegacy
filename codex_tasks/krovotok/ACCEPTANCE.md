@@ -27,13 +27,13 @@
 
 ## Автоматические проверки PR #26
 
-- [ ] `Krovotok assets check` проходит.
-- [ ] `Build Worldsmith` проходит.
-- [ ] Итоговый JAR содержит `krovotok_base.json` и утверждённую анимированную текстуру.
-- [ ] Итоговый JAR содержит шесть charge-текстур.
-- [ ] Итоговый JAR содержит пять particle JSON и ровно 30 generated PNG-кадров.
-- [ ] Итоговый JAR содержит `KrovotokParticle`.
-- [ ] После материализации `git status --short --untracked-files=all` пуст.
+- [x] `Krovotok assets check` проходит.
+- [x] `Build Worldsmith` проходит.
+- [x] Итоговый JAR содержит `krovotok_base.json` и утверждённую анимированную текстуру.
+- [x] Итоговый JAR содержит шесть charge-текстур.
+- [x] Итоговый JAR содержит пять particle JSON и ровно 30 generated PNG-кадров.
+- [x] Итоговый JAR содержит `KrovotokParticle`.
+- [x] После материализации `git status --short --untracked-files=all` пуст.
 
 ## Ручные проверки перед слиянием
 
