@@ -1,32 +1,29 @@
-# Инструкция для Codex
+# Готовый промпт для Codex
 
-Работай в репозитории `Kadifjw1/KitchenLegacy` в текущей ветке.
+Работай в репозитории `Kadifjw1/KitchenLegacy` и только в существующей ветке `fix/krovotok-complete-integration`. Обновляй PR #24, не создавай новую ветку и не сливай PR.
 
-Твоя задача: полностью интегрировать меч `worldsmith:krovotok` и пассивную способность «Багровый ритм» в существующий Forge 1.20.1 мод Worldsmith.
+Прочитай `AGENTS.md` и документы в `codex_tasks/krovotok/`.
 
-Сначала прочитай:
+Java-интеграция Кровотока уже находится в `main`. Не добавляй повторно `KrovotokItem`, регистрации, creative tab, локализацию, item property, charge-модели и пять particle JSON.
 
-1. `codex_tasks/krovotok/TECH_SPEC.md`
-2. `codex_tasks/krovotok/PARAMETERS.json`
-3. `codex_tasks/krovotok/ACCEPTANCE.md`
+Задача PR #24:
 
-Затем выполни:
+- восстановить утверждённый ZIP из текстовых Base64-фрагментов;
+- применить только зафиксированные исправления;
+- проверить SHA-256, ZIP и 170 элементов `.bbmodel`;
+- материализовать настоящую базовую модель, item-текстуры и 30 PNG-кадров частиц;
+- использовать пять particle JSON из `src/main/resources`, не создавая дубликаты;
+- обеспечить материализацию перед Gradle-сборкой и проверку ресурсов внутри JAR.
+
+Команды:
 
 ```bash
-bash codex_tasks/krovotok/decode_assets.sh
+python3 codex_tasks/krovotok/verify_asset_archive.py
+python3 codex_tasks/krovotok/materialize_krovotok_resources.py
+./gradlew clean build
+git status --short --untracked-files=all
 ```
 
-Используй распакованные материалы как источник моделей, текстур, particle JSON и визуальных референсов. Черновой Java-код из архива не копируй вслепую: он использует неправильный package `com.worldsmith`. Интегрируй всё в уже существующие классы и package `ru.theframetrip.worldsmith`.
+Не используй PNG 1×1, искусственные 170 кубиков и fallback-заглушки. Не загружай, не патчь и не коммить бинарные файлы. Сгенерированные ресурсы должны отсутствовать в Git status, но присутствовать в JAR.
 
-Обязательно:
-
-- сначала изучи существующие `ModItems`, `ModParticleTypes`, `ClientModEvents`, creative tab и реализацию `PredelItem`;
-- не создавай дублирующие реестры;
-- сохрани работоспособность Предела и Разлома;
-- реализуй механику сервер-авторитетно;
-- защити dedicated server от client-only imports;
-- после изменений запусти `./gradlew clean build`;
-- исправляй ошибки до успешной сборки;
-- в итоговом сообщении перечисли изменённые файлы, механику, результаты сборки и оставшиеся риски.
-
-Не ограничивайся написанием плана: внеси все изменения в код и ресурсы.
+После CI проверь dev client, dedicated server, модель, состояния заряда и сохранность Предела/Разлома. PR не сливать до подтверждения ручных критериев.

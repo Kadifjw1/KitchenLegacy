@@ -1,6 +1,8 @@
 {
-  "task_id": "krovotok_integration",
+  "task_id": "krovotok_asset_completion",
   "repository": "Kadifjw1/KitchenLegacy",
+  "working_branch": "fix/krovotok-complete-integration",
+  "pull_request": 24,
   "minecraft_version": "1.20.1",
   "forge_version": "47.4.20",
   "java_version": 17,
@@ -9,9 +11,18 @@
   "item_id": "krovotok",
   "display_name_ru": "Кровоток",
   "display_name_en": "Bloodflow",
+  "main_status": {
+    "java_item_integrated": true,
+    "registries_integrated": true,
+    "localization_integrated": true,
+    "charge_models_integrated": true,
+    "particle_jsons_committed": 5,
+    "asset_pipeline_uses_placeholders": true
+  },
   "ability": {
     "id": "crimson_rhythm",
     "display_name_ru": "Багровый ритм",
+    "display_name_en": "Crimson Rhythm",
     "max_charge": 5,
     "combo_timeout_ticks": 60,
     "damage_per_charge": 0.6,
@@ -36,5 +47,15 @@
   "nbt": {
     "charge": "KrovotokCharge",
     "last_hit_game_time": "KrovotokLastHitGameTime"
+  },
+  "assets": {
+    "verification_script": "codex_tasks/krovotok/verify_asset_archive.py",
+    "decode_script": "codex_tasks/krovotok/decode_assets.sh",
+    "materialization_script": "codex_tasks/krovotok/materialize_krovotok_resources.py",
+    "expected_zip_sha256": "3f31f68727da3a6e9d40b0e25e7cc26c6868c7317ca7fbdb516b7ea1e22bf902",
+    "expected_base64_length": 199932,
+    "committed_particle_jsons": 5,
+    "generated_particle_jsons": 0,
+    "generated_particle_pngs": 30
   }
 }

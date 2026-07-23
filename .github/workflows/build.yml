@@ -1,4 +1,4 @@
-name: Build Kitchen Legacy
+name: Build Worldsmith
 
 on:
   push:
@@ -20,6 +20,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
@@ -32,11 +37,27 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
+      - name: Verify Krovotok source archive
+        run: python3 codex_tasks/krovotok/verify_asset_archive.py
+
+      - name: Materialize Krovotok resources
+        run: python3 codex_tasks/krovotok/materialize_krovotok_resources.py
+
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew clean build
+
+      - name: Verify Krovotok assets inside JAR
+        shell: bash
+        run: |
+          jar_file="$(find build/libs -maxdepth 1 -name '*.jar' ! -name '*-sources.jar' | head -n 1)"
+          test -n "$jar_file"
+          jar tf "$jar_file" | grep -F 'assets/worldsmith/models/item/krovotok_base.json'
+          jar tf "$jar_file" | grep -F 'assets/worldsmith/textures/item/krovotok.png'
+          jar tf "$jar_file" | grep -F 'assets/worldsmith/particles/krovotok_blood_mist.json'
+          jar tf "$jar_file" | grep -F 'assets/worldsmith/textures/particle/krovotok/blood_burst_0.png'
 
       - name: Upload mod jar
         uses: actions/upload-artifact@v4
         with:
-          name: kitchenlegacy-jar
+          name: worldsmith-jar
           path: build/libs/*.jar
