@@ -1,1 +1,8 @@
-{"textures":["worldsmith:krovotok/krovotok_blood_spark"]}
+{
+  "textures": [
+    "worldsmith:krovotok/blood_spark_0",
+    "worldsmith:krovotok/blood_spark_1",
+    "worldsmith:krovotok/blood_spark_2",
+    "worldsmith:krovotok/blood_spark_3"
+  ]
+}
