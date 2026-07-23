@@ -9,3 +9,25 @@ pluginManagement {
 }
 
 rootProject.name = 'worldsmith'
+
+// The legacy Krovotok materializer still writes charge textures to
+// src/generated/resources, while the approved stage textures are now committed
+// under src/main/resources. Keep only the committed copies during resource
+// processing and normalize the texture references exported by Blockbench.
+gradle.beforeProject { project ->
+    project.plugins.withId('java') {
+        project.tasks.named('processResources').configure { task ->
+            task.exclude { details ->
+                String path = details.file.absolutePath.replace('\\', '/')
+                path.contains('/src/generated/resources/assets/worldsmith/textures/item/krovotok_charge_')
+                        && path.endsWith('.png')
+            }
+
+            task.filesMatching('assets/worldsmith/models/item/krovotok_charge_*.json') {
+                filter { line ->
+                    line.replace('"worldsmith:krovotok_charge_', '"worldsmith:item/krovotok_charge_')
+                }
+            }
+        }
+    }
+}
