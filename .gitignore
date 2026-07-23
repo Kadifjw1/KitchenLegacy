@@ -1,0 +1,7 @@
+src/generated/resources/
+codex_tasks/krovotok/unpacked/
+codex_tasks/krovotok/Krovotok_complete_v2_with_particles.zip
+codex_tasks/krovotok/assets/Krovotok_complete_v2_with_particles.zip.b64
+.gradle/
+build/
+run/

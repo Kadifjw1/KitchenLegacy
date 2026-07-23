@@ -16,5 +16,9 @@
   "item.worldsmith.serp": "Серп",
   "item.worldsmith.palach": "Палач",
   "item.worldsmith.monolit": "Монолит",
-  "item.worldsmith.oskolok": "Осколок"
+  "item.worldsmith.oskolok": "Осколок",
+  "item.worldsmith.krovotok": "Кровоток",
+  "tooltip.worldsmith.krovotok.ability": "Пассивная способность: Багровый ритм",
+  "tooltip.worldsmith.krovotok.charge": "Заряд: %s/%s",
+  "tooltip.worldsmith.krovotok.description": "Накапливает ритм на живых целях; пятый заряд разряжается бонусным уроном и лечением."
 }

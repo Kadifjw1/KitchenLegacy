@@ -16,5 +16,9 @@
   "item.worldsmith.serp": "Sickle",
   "item.worldsmith.palach": "Executioner",
   "item.worldsmith.monolit": "Monolith",
-  "item.worldsmith.oskolok": "Shard"
+  "item.worldsmith.oskolok": "Shard",
+  "item.worldsmith.krovotok": "Bloodflow",
+  "tooltip.worldsmith.krovotok.ability": "Passive ability: Crimson Rhythm",
+  "tooltip.worldsmith.krovotok.charge": "Charge: %s/%s",
+  "tooltip.worldsmith.krovotok.description": "Build momentum on living targets; the fifth charge discharges for bonus damage and healing."
 }
