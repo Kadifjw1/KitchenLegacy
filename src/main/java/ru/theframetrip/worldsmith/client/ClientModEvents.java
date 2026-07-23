@@ -1,16 +1,17 @@
 package ru.theframetrip.worldsmith.client;
 
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import ru.theframetrip.worldsmith.item.KrovotokItem;
-import ru.theframetrip.worldsmith.registry.ModItems;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import ru.theframetrip.worldsmith.WorldsmithMod;
+import ru.theframetrip.worldsmith.client.particle.KrovotokParticle;
 import ru.theframetrip.worldsmith.client.particle.VoidParticle;
+import ru.theframetrip.worldsmith.item.KrovotokItem;
+import ru.theframetrip.worldsmith.registry.ModItems;
 import ru.theframetrip.worldsmith.registry.ModParticleTypes;
 
 @Mod.EventBusSubscriber(modid = WorldsmithMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -20,11 +21,12 @@ public class ClientModEvents {
         event.registerSpriteSet(ModParticleTypes.VOID_MOTE.get(), VoidParticle.Provider::new);
         event.registerSpriteSet(ModParticleTypes.VOID_SHARD.get(), VoidParticle.Provider::new);
         event.registerSpriteSet(ModParticleTypes.VOID_RIFT.get(), VoidParticle.Provider::new);
-        event.registerSpriteSet(ModParticleTypes.KROVOTOK_BLOOD_MIST.get(), VoidParticle.Provider::new);
-        event.registerSpriteSet(ModParticleTypes.KROVOTOK_BLOOD_SPARK.get(), VoidParticle.Provider::new);
-        event.registerSpriteSet(ModParticleTypes.KROVOTOK_BLOOD_PULSE.get(), VoidParticle.Provider::new);
-        event.registerSpriteSet(ModParticleTypes.KROVOTOK_BLOOD_BURST.get(), VoidParticle.Provider::new);
-        event.registerSpriteSet(ModParticleTypes.KROVOTOK_LIFE_DRAIN.get(), VoidParticle.Provider::new);
+
+        event.registerSpriteSet(ModParticleTypes.KROVOTOK_BLOOD_MIST.get(), KrovotokParticle.MistProvider::new);
+        event.registerSpriteSet(ModParticleTypes.KROVOTOK_BLOOD_SPARK.get(), KrovotokParticle.SparkProvider::new);
+        event.registerSpriteSet(ModParticleTypes.KROVOTOK_BLOOD_PULSE.get(), KrovotokParticle.PulseProvider::new);
+        event.registerSpriteSet(ModParticleTypes.KROVOTOK_BLOOD_BURST.get(), KrovotokParticle.BurstProvider::new);
+        event.registerSpriteSet(ModParticleTypes.KROVOTOK_LIFE_DRAIN.get(), KrovotokParticle.LifeDrainProvider::new);
     }
 
     @SubscribeEvent

@@ -21,7 +21,6 @@ import net.minecraft.world.level.Level;
 import ru.theframetrip.worldsmith.registry.ModParticleTypes;
 
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 public class KrovotokItem extends SwordItem {
@@ -34,6 +33,7 @@ public class KrovotokItem extends SwordItem {
     private static final float DISCHARGE_BONUS_DAMAGE = 6.0F;
     private static final float MAX_HEAL = 4.0F;
     private static final float HEAL_MULTIPLIER = 0.5F;
+    private static final UUID DAMAGE_MODIFIER_ID = UUID.fromString("fc09d5d8-7191-495c-94ce-452f2b2ff429");
     private static final UUID SPEED_MODIFIER_ID = UUID.fromString("2ebd5c5b-4ec9-4a83-9100-0ed4c61dde12");
 
     public KrovotokItem(Tier tier, int attackDamageModifier, float attackSpeedModifier, Properties properties) {
@@ -41,11 +41,35 @@ public class KrovotokItem extends SwordItem {
     }
 
     public static int getCharge(ItemStack stack) {
-        return Math.max(0, Math.min(MAX_CHARGE, stack.getOrCreateTag().getInt(CHARGE_TAG)));
+        CompoundTag tag = stack.getTag();
+        if (tag == null) {
+            return 0;
+        }
+        return Math.max(0, Math.min(MAX_CHARGE, tag.getInt(CHARGE_TAG)));
     }
 
     private static void setCharge(ItemStack stack, int charge) {
         stack.getOrCreateTag().putInt(CHARGE_TAG, Math.max(0, Math.min(MAX_CHARGE, charge)));
+    }
+
+    private static boolean isComboExpired(ItemStack stack, long gameTime) {
+        CompoundTag tag = stack.getTag();
+        if (tag == null || getCharge(stack) <= 0 || !tag.contains(LAST_HIT_TAG)) {
+            return false;
+        }
+        return gameTime - tag.getLong(LAST_HIT_TAG) > COMBO_TIMEOUT_TICKS;
+    }
+
+    private static void resetCombo(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        if (tag == null) {
+            return;
+        }
+        tag.remove(CHARGE_TAG);
+        tag.remove(LAST_HIT_TAG);
+        if (tag.isEmpty()) {
+            stack.setTag(null);
+        }
     }
 
     @Override
@@ -57,47 +81,58 @@ public class KrovotokItem extends SwordItem {
     }
 
     private void handleCrimsonRhythm(ItemStack stack, LivingEntity target, LivingEntity attacker, ServerLevel level) {
-        CompoundTag tag = stack.getOrCreateTag();
         long gameTime = level.getGameTime();
-        int charge = getCharge(stack);
-        long lastHit = tag.getLong(LAST_HIT_TAG);
-        if (lastHit > 0L && gameTime - lastHit > COMBO_TIMEOUT_TICKS) {
-            charge = 0;
+        if (isComboExpired(stack, gameTime)) {
+            resetCombo(stack);
         }
 
+        int charge = getCharge(stack);
         if (charge >= MAX_CHARGE) {
-            float before = target.getHealth();
-            boolean damaged = target.hurt(attacker.damageSources().mobAttack(attacker), DISCHARGE_BONUS_DAMAGE);
-            float dealt = damaged ? Math.max(0.0F, before - target.getHealth()) : 0.0F;
-            if (dealt > 0.0F) {
-                attacker.heal(Math.min(MAX_HEAL, dealt * HEAL_MULTIPLIER));
-                spawnLifeDrain(level, target, attacker);
+            float healing = Math.min(MAX_HEAL, DISCHARGE_BONUS_DAMAGE * HEAL_MULTIPLIER);
+            if (healing > 0.0F) {
+                attacker.heal(healing);
             }
-            spawnTargetParticles(level, ModParticleTypes.KROVOTOK_BLOOD_BURST.get(), target, 10, 0.35D);
-            setCharge(stack, 0);
-        } else {
-            if (charge > 0) {
-                target.hurt(attacker.damageSources().mobAttack(attacker), charge * DAMAGE_PER_CHARGE);
-            }
-            spawnTargetParticles(level, ModParticleTypes.KROVOTOK_BLOOD_PULSE.get(), target, 3 + charge, 0.18D);
-            setCharge(stack, charge + 1);
+            spawnLifeDrain(level, target, attacker);
+            spawnTargetParticles(level, ModParticleTypes.KROVOTOK_BLOOD_BURST.get(), target, 12, 0.38D);
+            resetCombo(stack);
+            return;
         }
-        tag.putLong(LAST_HIT_TAG, gameTime);
+
+        spawnTargetParticles(level, ModParticleTypes.KROVOTOK_BLOOD_PULSE.get(), target, 3 + charge, 0.18D);
+        setCharge(stack, charge + 1);
+        stack.getOrCreateTag().putLong(LAST_HIT_TAG, gameTime);
     }
 
     private static void spawnTargetParticles(ServerLevel level, SimpleParticleType type, LivingEntity target, int count, double spread) {
-        level.sendParticles(type, target.getX(), target.getY() + target.getBbHeight() * 0.55D, target.getZ(), count, spread, spread * 0.7D, spread, 0.015D);
+        level.sendParticles(type, target.getX(), target.getY() + target.getBbHeight() * 0.55D, target.getZ(), count, spread, spread * 0.7D, spread, 0.04D);
     }
 
     private static void spawnLifeDrain(ServerLevel level, LivingEntity target, LivingEntity attacker) {
-        Random random = new Random();
-        int count = 8 + random.nextInt(7);
+        int count = 8 + level.random.nextInt(7);
+        double destinationX = attacker.getX();
+        double destinationY = attacker.getY() + attacker.getBbHeight() * 0.55D;
+        double destinationZ = attacker.getZ();
+
         for (int i = 0; i < count; i++) {
-            double t = (i + 1.0D) / (count + 1.0D);
-            double x = target.getX() + (attacker.getX() - target.getX()) * t;
-            double y = target.getY() + target.getBbHeight() * 0.55D + (attacker.getY() + attacker.getBbHeight() * 0.45D - (target.getY() + target.getBbHeight() * 0.55D)) * t;
-            double z = target.getZ() + (attacker.getZ() - target.getZ()) * t;
-            level.sendParticles(ModParticleTypes.KROVOTOK_LIFE_DRAIN.get(), x, y, z, 1, 0.025D, 0.025D, 0.025D, 0.0D);
+            double startX = target.getX() + (level.random.nextDouble() - 0.5D) * target.getBbWidth() * 0.65D;
+            double startY = target.getY() + target.getBbHeight() * (0.30D + level.random.nextDouble() * 0.45D);
+            double startZ = target.getZ() + (level.random.nextDouble() - 0.5D) * target.getBbWidth() * 0.65D;
+            double travelTicks = 12.0D + level.random.nextDouble() * 7.0D;
+            double velocityX = (destinationX - startX) / travelTicks;
+            double velocityY = (destinationY - startY) / travelTicks;
+            double velocityZ = (destinationZ - startZ) / travelTicks;
+
+            level.sendParticles(
+                    ModParticleTypes.KROVOTOK_LIFE_DRAIN.get(),
+                    startX,
+                    startY,
+                    startZ,
+                    0,
+                    velocityX,
+                    velocityY,
+                    velocityZ,
+                    1.0D
+            );
         }
     }
 
@@ -107,29 +142,63 @@ public class KrovotokItem extends SwordItem {
         if (slot != EquipmentSlot.MAINHAND) {
             return base;
         }
+
         int charge = getCharge(stack);
         if (charge <= 0) {
             return base;
         }
+
+        float damageBonus = charge * DAMAGE_PER_CHARGE;
+        if (charge >= MAX_CHARGE) {
+            damageBonus += DISCHARGE_BONUS_DAMAGE;
+        }
+
         ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
         builder.putAll(base);
-        builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(SPEED_MODIFIER_ID, "Krovotok charge speed", charge * ATTACK_SPEED_PER_CHARGE, AttributeModifier.Operation.ADDITION));
+        builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(
+                DAMAGE_MODIFIER_ID,
+                "Krovotok charge damage",
+                damageBonus,
+                AttributeModifier.Operation.ADDITION
+        ));
+        builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(
+                SPEED_MODIFIER_ID,
+                "Krovotok charge speed",
+                charge * ATTACK_SPEED_PER_CHARGE,
+                AttributeModifier.Operation.ADDITION
+        ));
         return builder.build();
     }
 
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
         super.inventoryTick(stack, level, entity, slot, selected);
-        if (!level.isClientSide || !selected || !(entity instanceof LivingEntity living)) {
+
+        if (!level.isClientSide) {
+            if (isComboExpired(stack, level.getGameTime())) {
+                resetCombo(stack);
+            }
             return;
         }
+
+        if (!selected || !(entity instanceof LivingEntity living)) {
+            return;
+        }
+
         int charge = getCharge(stack);
-        Random random = new Random();
-        if (charge == 0 && random.nextInt(45) == 0) {
+        if (charge == 0 && level.random.nextInt(45) == 0) {
             level.addParticle(ModParticleTypes.KROVOTOK_BLOOD_MIST.get(), living.getX(), living.getEyeY() - 0.45D, living.getZ(), 0.0D, 0.005D, 0.0D);
-        } else if (charge < MAX_CHARGE && random.nextInt(Math.max(8, 22 - charge * 3)) == 0) {
-            level.addParticle(ModParticleTypes.KROVOTOK_BLOOD_SPARK.get(), living.getX(), living.getEyeY() - 0.4D, living.getZ(), (random.nextDouble() - 0.5D) * 0.02D, 0.01D, (random.nextDouble() - 0.5D) * 0.02D);
-        } else if (charge == MAX_CHARGE && level.getGameTime() % (8 + random.nextInt(5)) == 0) {
+        } else if (charge < MAX_CHARGE && level.random.nextInt(Math.max(8, 22 - charge * 3)) == 0) {
+            level.addParticle(
+                    ModParticleTypes.KROVOTOK_BLOOD_SPARK.get(),
+                    living.getX(),
+                    living.getEyeY() - 0.4D,
+                    living.getZ(),
+                    (level.random.nextDouble() - 0.5D) * 0.02D,
+                    0.01D,
+                    (level.random.nextDouble() - 0.5D) * 0.02D
+            );
+        } else if (charge == MAX_CHARGE && level.getGameTime() % (8 + level.random.nextInt(5)) == 0) {
             level.addParticle(ModParticleTypes.KROVOTOK_BLOOD_PULSE.get(), living.getX(), living.getEyeY() - 0.4D, living.getZ(), 0.0D, 0.01D, 0.0D);
             level.addParticle(ModParticleTypes.KROVOTOK_BLOOD_SPARK.get(), living.getX(), living.getEyeY() - 0.35D, living.getZ(), 0.0D, 0.015D, 0.0D);
         }

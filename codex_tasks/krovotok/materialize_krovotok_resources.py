@@ -15,13 +15,14 @@ UNPACKED_DIR = TASK_DIR / "unpacked"
 SOURCE_ASSETS = UNPACKED_DIR / "resourcepack" / "assets" / "worldsmith"
 DEFAULT_OUTPUT = REPO_ROOT / "src" / "generated" / "resources"
 MAIN_PARTICLES = REPO_ROOT / "src" / "main" / "resources" / "assets" / "worldsmith" / "particles"
-PARTICLE_NAMES = (
-    "krovotok_blood_mist",
-    "krovotok_blood_spark",
-    "krovotok_blood_pulse",
-    "krovotok_blood_burst",
-    "krovotok_life_drain",
-)
+PARTICLE_TEXTURES = {
+    "krovotok_blood_mist": [f"worldsmith:krovotok/blood_mist_{frame}" for frame in range(6)],
+    "krovotok_blood_spark": [f"worldsmith:krovotok/blood_spark_{frame}" for frame in range(4)],
+    "krovotok_blood_pulse": [f"worldsmith:krovotok/blood_pulse_{frame}" for frame in range(6)],
+    "krovotok_blood_burst": [f"worldsmith:krovotok/blood_burst_{frame}" for frame in range(8)],
+    "krovotok_life_drain": [f"worldsmith:krovotok/life_drain_{frame}" for frame in range(6)],
+}
+PARTICLE_NAMES = tuple(PARTICLE_TEXTURES)
 
 
 def sha256(path: Path) -> str:
@@ -45,6 +46,20 @@ def verify_committed_particle_jsons() -> None:
         raise FileNotFoundError(
             "Missing committed Krovotok particle JSON files: " + ", ".join(missing)
         )
+
+    for name, expected_textures in PARTICLE_TEXTURES.items():
+        particle_path = MAIN_PARTICLES / f"{name}.json"
+        try:
+            particle_data = json.loads(particle_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            raise ValueError(f"Invalid Krovotok particle JSON {particle_path}: {error}") from error
+
+        actual_textures = particle_data.get("textures")
+        if actual_textures != expected_textures:
+            raise ValueError(
+                f"{particle_path}: texture list does not match generated frames; "
+                f"expected {expected_textures}, got {actual_textures}"
+            )
 
 
 def clean_generated_targets(worldsmith_output: Path) -> None:
@@ -146,6 +161,7 @@ def materialize(output_root: Path) -> dict[str, str]:
                 "generated": True,
                 "source_archive_sha256": "3f31f68727da3a6e9d40b0e25e7cc26c6868c7317ca7fbdb516b7ea1e22bf902",
                 "committed_particle_jsons": [f"assets/worldsmith/particles/{name}.json" for name in PARTICLE_NAMES],
+                "particle_textures": PARTICLE_TEXTURES,
                 "files": manifest,
             },
             ensure_ascii=False,
@@ -161,8 +177,8 @@ def materialize(output_root: Path) -> dict[str, str]:
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Repair and decode the text-only Krovotok archive, then materialize missing binary game assets "
-            "under src/generated/resources without duplicating committed particle JSON files."
+            "Repair and decode the text-only Krovotok archive, validate committed particle JSON references, "
+            "then materialize missing binary game assets under src/generated/resources."
         )
     )
     parser.add_argument(
@@ -177,7 +193,7 @@ def main() -> int:
     manifest = materialize(output)
     print(f"Krovotok generated resources: {output}")
     print(f"Materialized files: {len(manifest)}")
-    print("Particle JSON files are reused from src/main/resources; no duplicate resources were generated.")
+    print("Particle JSON texture lists match all generated frames; no duplicate resources were generated.")
     return 0
 
 

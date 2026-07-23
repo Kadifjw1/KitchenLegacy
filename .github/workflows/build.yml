@@ -49,12 +49,30 @@ jobs:
       - name: Verify Krovotok assets inside JAR
         shell: bash
         run: |
+          set -euo pipefail
           jar_file="$(find build/libs -maxdepth 1 -name '*.jar' ! -name '*-sources.jar' | head -n 1)"
           test -n "$jar_file"
-          jar tf "$jar_file" | grep -F 'assets/worldsmith/models/item/krovotok_base.json'
-          jar tf "$jar_file" | grep -F 'assets/worldsmith/textures/item/krovotok.png'
-          jar tf "$jar_file" | grep -F 'assets/worldsmith/particles/krovotok_blood_mist.json'
-          jar tf "$jar_file" | grep -F 'assets/worldsmith/textures/particle/krovotok/blood_burst_0.png'
+
+          jar tf "$jar_file" | grep -Fx 'assets/worldsmith/models/item/krovotok_base.json'
+          jar tf "$jar_file" | grep -Fx 'assets/worldsmith/textures/item/krovotok.png'
+          jar tf "$jar_file" | grep -Fx 'assets/worldsmith/textures/item/krovotok.png.mcmeta'
+          jar tf "$jar_file" | grep -Fx 'ru/theframetrip/worldsmith/client/particle/KrovotokParticle.class'
+
+          for charge in 0 1 2 3 4 5; do
+            jar tf "$jar_file" | grep -Fx "assets/worldsmith/textures/item/krovotok_charge_${charge}.png"
+          done
+
+          for particle in \
+            krovotok_blood_mist \
+            krovotok_blood_spark \
+            krovotok_blood_pulse \
+            krovotok_blood_burst \
+            krovotok_life_drain; do
+            jar tf "$jar_file" | grep -Fx "assets/worldsmith/particles/${particle}.json"
+          done
+
+          particle_frame_count="$(jar tf "$jar_file" | grep -Ec '^assets/worldsmith/textures/particle/krovotok/.*\.png$')"
+          test "$particle_frame_count" -eq 30
 
       - name: Upload mod jar
         uses: actions/upload-artifact@v4
