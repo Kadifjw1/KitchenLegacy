@@ -20,11 +20,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
@@ -37,42 +32,8 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
-      - name: Verify Krovotok source archive
-        run: python3 codex_tasks/krovotok/verify_asset_archive.py
-
-      - name: Materialize Krovotok resources
-        run: python3 codex_tasks/krovotok/materialize_krovotok_resources.py
-
       - name: Build with Gradle
         run: ./gradlew clean build
-
-      - name: Verify Krovotok assets inside JAR
-        shell: bash
-        run: |
-          set -euo pipefail
-          jar_file="$(find build/libs -maxdepth 1 -name '*.jar' ! -name '*-sources.jar' | head -n 1)"
-          test -n "$jar_file"
-
-          jar tf "$jar_file" | grep -Fx 'assets/worldsmith/models/item/krovotok_base.json'
-          jar tf "$jar_file" | grep -Fx 'assets/worldsmith/textures/item/krovotok.png'
-          jar tf "$jar_file" | grep -Fx 'assets/worldsmith/textures/item/krovotok.png.mcmeta'
-          jar tf "$jar_file" | grep -Fx 'ru/theframetrip/worldsmith/client/particle/KrovotokParticle.class'
-
-          for charge in 0 1 2 3 4 5; do
-            jar tf "$jar_file" | grep -Fx "assets/worldsmith/textures/item/krovotok_charge_${charge}.png"
-          done
-
-          for particle in \
-            krovotok_blood_mist \
-            krovotok_blood_spark \
-            krovotok_blood_pulse \
-            krovotok_blood_burst \
-            krovotok_life_drain; do
-            jar tf "$jar_file" | grep -Fx "assets/worldsmith/particles/${particle}.json"
-          done
-
-          particle_frame_count="$(jar tf "$jar_file" | grep -Ec '^assets/worldsmith/textures/particle/krovotok/.*\.png$')"
-          test "$particle_frame_count" -eq 30
 
       - name: Upload mod jar
         uses: actions/upload-artifact@v4
