@@ -52,3 +52,37 @@ Rules:
 - Before editing, inspect the repository and locate the actual mod ID, package root, registries, network setup, and resource paths.
 - Implement the complete task, then run the available Gradle build and tests.
 - Report changed files, build result, and any unresolved compatibility issue.
+
+## Krovotok asset workflow
+
+The Java implementation of **Кровоток** and **Багровый ритм** is already present in `main`. PR #24 is only for completing the approved binary asset pipeline and build verification.
+
+Open:
+
+`codex_tasks/krovotok/`
+
+Read files in this order:
+
+1. `TASK.md`
+2. `BINARY_ASSETS.md`
+3. `PARAMETERS.json`
+4. `TECH_SPEC.md`
+5. `ACCEPTANCE.md`
+
+Before every local build or game launch, run:
+
+```bash
+python3 codex_tasks/krovotok/verify_asset_archive.py
+python3 codex_tasks/krovotok/materialize_krovotok_resources.py
+```
+
+Rules:
+
+- Work only in `fix/krovotok-complete-integration` and update PR #24. Do not create another branch and do not merge automatically.
+- Do not reimplement item registration, creative-tab registration, localization, NBT charge logic, item-property registration or particle registration already present in `main` unless a verified bug requires a focused fix.
+- Approved ZIP and PNG assets remain stored as text-only Base64 fragments. Edit only text files.
+- Never manually upload, patch or commit PNG, GIF, ZIP or generated resources.
+- Preserve the approved 170-element geometry and display transforms.
+- Generated resources belong in `src/generated/resources` and must be present in the built JAR but absent from Git status.
+- Preserve Predel/Rift and all other swords.
+- Run archive verification, materialization, `./gradlew clean build`, JAR-content checks, dev-client checks and dedicated-server checks before declaring completion.

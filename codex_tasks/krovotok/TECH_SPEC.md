@@ -1,187 +1,108 @@
-# Кровоток — техническое задание для Codex
+# Кровоток — техническое задание PR #24
 
-## Контекст проекта
+## Контекст
 
 - Репозиторий: `Kadifjw1/KitchenLegacy`
-- Minecraft: Java Edition 1.20.1
-- Forge: 47.4.20
-- Java: 17
-- Mod ID / namespace: `worldsmith`
-- Основной Java package: `ru.theframetrip.worldsmith`
-- Работать поверх текущей ветки задачи, не удаляя и не ломая меч `Предел` и способность `Разлом`.
+- Ветка: `fix/krovotok-complete-integration`
+- PR: `#24`
+- Minecraft: `1.20.1`
+- Forge: `47.4.20`
+- Java: `17`
+- Mod ID: `worldsmith`
+
+Java-интеграция `worldsmith:krovotok` и способности «Багровый ритм» уже находится в `main`. Этот PR не повторяет предмет, реестры, локализацию, item property, charge-модели и particle JSON.
 
 ## Цель
 
-Полностью интегрировать новый меч `worldsmith:krovotok` («Кровоток»): модель, анимированную текстуру, шесть состояний заряда, пять типов частиц и пассивную способность «Багровый ритм».
+Заменить заглушечный asset pipeline из `main` на воспроизводимое восстановление утверждённого комплекта Кровотока из текстовых Base64-фрагментов.
 
-Исходные материалы находятся в:
+После слияния чистый checkout должен:
 
-- `codex_tasks/krovotok/assets/Krovotok_complete_v2_with_particles.zip.b64`
-- `codex_tasks/krovotok/assets/krovotok_JE_1.20.1.bbmodel`
+1. проверить и восстановить исходный ZIP;
+2. материализовать настоящую базовую модель, item-текстуры и кадры частиц;
+3. использовать пять particle JSON, уже committed в `src/main/resources`;
+4. собрать JAR без duplicate-resource ошибок;
+5. не добавлять бинарные результаты в Git.
 
-Перед работой выполнить:
+## Источник ассетов
 
-```bash
-bash codex_tasks/krovotok/decode_assets.sh
-```
+Фрагменты находятся в `codex_tasks/krovotok/assets/`. Исправления задаются только через `ARCHIVE_REPAIR_PATCHES.json`.
 
-Архив будет распакован в `codex_tasks/krovotok/unpacked/`.
+Ожидаемые параметры:
 
-## Важные ограничения
+- длина Base64: `199932`;
+- SHA-256 ZIP: `3f31f68727da3a6e9d40b0e25e7cc26c6868c7317ca7fbdb516b7ea1e22bf902`;
+- элементов `.bbmodel`: `170`;
+- particle JSON в архиве: `5`;
+- particle JSON в `src/main/resources`: `5`;
+- generated particle JSON: `0`;
+- generated PNG-кадров: `30`.
 
-1. Не менять геометрию меча. Исходный `.bbmodel` содержит 170 элементов.
-2. Не использовать package `com.worldsmith.*` из черновых файлов архива. Всё адаптировать под `ru.theframetrip.worldsmith.*`.
-3. Не создавать второй независимый реестр предметов или частиц. Расширять существующие:
-   - `ru.theframetrip.worldsmith.registry.ModItems`
-   - `ru.theframetrip.worldsmith.registry.ModParticleTypes`
-   - `ru.theframetrip.worldsmith.client.ClientModEvents`
-4. Механика урона и зарядов должна быть серверной. Клиент отвечает только за рендер и визуальные эффекты.
-5. Не использовать GeckoLib для меча: это обычная Java item model.
-6. Не оставлять namespace `kitchenlegacy` в новых ресурсах Кровотока.
+## Проверка архива
 
-## Ресурсы меча
+`verify_asset_archive.py` должен:
 
-Скопировать и привести к рабочей структуре:
+- читать фрагменты в фиксированном порядке;
+- проверять исходные участки перед исправлением;
+- применять только описанные операции;
+- сверять Git blob SHA восстановленных фрагментов;
+- проверять длину Base64 и SHA-256 ZIP;
+- выполнять `ZipFile.testzip()`;
+- проверять обязательные пути;
+- разбирать `.bbmodel` и проверять 170 элементов;
+- по `--extract` распаковывать архив в `codex_tasks/krovotok/unpacked/`.
 
-- `resourcepack/assets/worldsmith/models/item/krovotok.json`
-  → `src/main/resources/assets/worldsmith/models/item/krovotok_base.json`
-- `resourcepack/assets/worldsmith/textures/item/krovotok.png`
-  → `src/main/resources/assets/worldsmith/textures/item/krovotok.png`
-- `resourcepack/assets/worldsmith/textures/item/krovotok.png.mcmeta`
-  → рядом с текстурой
-- `krovotok_charge_0.png` … `krovotok_charge_5.png`
-  → `src/main/resources/assets/worldsmith/textures/item/`
+Любая ошибка должна завершать скрипт с ненулевым кодом. Fallback-заглушки запрещены.
 
-Создать основную модель `assets/worldsmith/models/item/krovotok.json` с parent `worldsmith:item/krovotok_base` и overrides для шести состояний заряда. Зарегистрировать item property:
+## Материализация
 
-- ResourceLocation: `worldsmith:krovotok_charge`
-- Значения: `0.0`, `0.2`, `0.4`, `0.6`, `0.8`, `1.0`
+`materialize_krovotok_resources.py` сначала запускает строгую проверку с распаковкой, затем проверяет наличие пяти committed particle JSON в:
 
-Создать модели `krovotok_charge_0.json` … `krovotok_charge_5.json`, наследующие `krovotok_base` и подменяющие texture `0` и `particle` на соответствующую текстуру.
+`src/main/resources/assets/worldsmith/particles/`
 
-## Регистрация предмета
+После этого копирует в `src/generated/resources` только недостающие ресурсы:
 
-В `ModItems` добавить:
+- `krovotok_base.json` из утверждённой модели;
+- `krovotok.png`, `.mcmeta`, `krovotok_static.png`;
+- `krovotok_charge_0.png` … `krovotok_charge_5.png`;
+- 30 PNG-кадров из `textures/particle/krovotok/`;
+- manifest с SHA-256 результатов и перечнем reused particle JSON.
 
-```java
-public static final RegistryObject<Item> KROVOTOK = ITEMS.register("krovotok", ...);
-```
+Материализатор обязан удалять старые generated-копии particle JSON от прежнего placeholder pipeline, чтобы Gradle не видел дубликаты.
 
-Создать `ru.theframetrip.worldsmith.item.KrovotokItem`.
+Запрещено:
 
-Базовые параметры:
+- генерировать PNG 1×1;
+- создавать искусственную геометрию из микрокубов;
+- повторно копировать particle JSON в generated resources;
+- менять UV, элементы или display transforms;
+- использовать частично восстановленный архив.
 
-- Tier: `Tiers.IRON`
-- attackDamageModifier: `7`
-- attackSpeedModifier: `-2.6F`
-- durability берётся из tier, без отдельной кастомной прочности
+## Сборка
 
-Добавить меч в существующую вкладку Worldsmith.
-
-## Способность «Багровый ритм»
-
-### Данные ItemStack
-
-Хранить в NBT самого меча:
-
-- `KrovotokCharge`: int, диапазон 0–5
-- `KrovotokLastHitGameTime`: long
-
-### Накопление
-
-- Заряд выдаётся только при успешном ударе живой сущности этим мечом.
-- Максимум: 5.
-- Окно серии: 60 тиков (3 секунды) между успешными ударами.
-- Если следующий удар сделан позже 60 тиков, перед обработкой сбросить заряд до 0.
-- Если до удара было 0–4 зарядов: нанести бонус текущего заряда, затем увеличить заряд на 1.
-- Если до удара было 5 зарядов: выполнить разрядку и сбросить заряд до 0.
-
-### Бонусы зарядов
-
-За каждый накопленный заряд:
-
-- дополнительный урон при попадании: `+0.6` единицы;
-- скорость атаки: `+0.06` к attack speed modifier.
-
-Для динамической скорости атаки переопределить Forge-метод атрибутов ItemStack либо использовать безопасный transient modifier. Не накапливать дубликаты UUID. После смены предмета/заряда старый модификатор должен корректно исчезать.
-
-### Разрядка
-
-При ударе с 5 зарядами:
-
-- дополнительный урон: `6.0`;
-- лечение владельца: `min(4.0, фактически нанесённый дополнительный урон * 0.5)`;
-- сбросить заряд в 0;
-- создать `krovotok_blood_burst` в точке цели;
-- создать поток `krovotok_life_drain` от цели к владельцу.
-
-Не лечить владельца при ударе по неуязвимой цели, если дополнительный урон фактически не прошёл.
-
-## Частицы
-
-Зарегистрировать в существующем `ModParticleTypes`:
-
-- `krovotok_blood_mist`
-- `krovotok_blood_spark`
-- `krovotok_blood_pulse`
-- `krovotok_blood_burst`
-- `krovotok_life_drain`
-
-Скопировать JSON из:
-
-`unpacked/resourcepack/assets/worldsmith/particles/`
-
-Скопировать PNG-кадры из:
-
-`unpacked/resourcepack/assets/worldsmith/textures/particle/krovotok/`
-
-Черновые Java-классы в архиве использовать только как визуальный/алгоритмический референс. Переписать их под архитектуру репозитория.
-
-### Визуальное поведение
-
-- В руке, 0 зарядов: очень редкая дымка у гарды.
-- 1–4 заряда: редкие искры; частота немного растёт с зарядом.
-- 5 зарядов: пульс вокруг руки/гарды раз в 8–12 тиков и дополнительные искры.
-- Обычное получение заряда: короткий `blood_pulse` у поражённой цели.
-- Разрядка: `blood_burst` у цели.
-- Лечение: 8–14 частиц `life_drain` по интерполированной линии цель → игрок.
-
-Не создавать плотное постоянное облако. Частицы должны быть приглушёнными, тёмно-багровыми, без неонового эффекта.
-
-## Локализация
-
-Добавить в `assets/worldsmith/lang/ru_ru.json`:
-
-```json
-"item.worldsmith.krovotok": "Кровоток"
-```
-
-Добавить в `en_us.json`:
-
-```json
-"item.worldsmith.krovotok": "Bloodflow"
-```
-
-Tooltip на русском/английском:
-
-- название способности: «Багровый ритм» / “Crimson Rhythm”
-- строка заряда: `Заряд: X/5`
-- краткое описание разрядки и лечения
-
-## Проверки
-
-Выполнить:
+Основной workflow перед Gradle выполняет:
 
 ```bash
+python3 codex_tasks/krovotok/verify_asset_archive.py
+python3 codex_tasks/krovotok/materialize_krovotok_resources.py
 ./gradlew clean build
 ```
 
-Дополнительно проверить запуск клиента и dedicated server. В dedicated server не должно быть загрузки client-only классов.
+После сборки проверяется наличие в JAR:
 
-## Что не делать
+- `assets/worldsmith/models/item/krovotok_base.json`;
+- `assets/worldsmith/textures/item/krovotok.png`;
+- committed particle JSON;
+- generated PNG-кадра частиц.
 
-- Не менять существующие мечи и их ID.
-- Не удалять ресурсы `Предела`.
-- Не переносить проект обратно в `kitchenlegacy`.
-- Не коммитить распакованную временную папку `codex_tasks/krovotok/unpacked/`; она должна быть в `.gitignore` или удалена после интеграции.
-- Не добавлять огромные кровавые облака, брызги на экран или постоянный яркий glow.
+Отдельный workflow проверяет полный набор из пяти committed particle JSON и 30 generated PNG-кадров, отсутствие generated particle JSON и чистый Git status.
+
+## Git
+
+Разрешены только текстовые Base64-фрагменты, JSON исправлений, скрипты, workflow, документация и конфигурация.
+
+Не коммитить ZIP, PNG/GIF, `unpacked/`, материализованные ресурсы и generated manifest.
+
+## Ручная приёмка
+
+После CI обязательны dev-client и dedicated-server тесты, проверка модели во всех item-режимах, анимации, состояний заряда и регрессия Предела/Разлома.

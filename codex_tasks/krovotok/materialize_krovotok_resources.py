@@ -1,36 +1,185 @@
 #!/usr/bin/env python3
-"""Materialize generated Krovotok resources from text-only task data.
+from __future__ import annotations
 
-The real binary archive may be supplied as base64 shards by the task. This script
-keeps binary outputs under src/generated/resources so they are packaged by Gradle
-without being committed.
-"""
+import argparse
+import hashlib
+import json
+import shutil
+import subprocess
+import sys
 from pathlib import Path
-import base64
 
-ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "src/generated/resources/assets/worldsmith"
-ITEM_TEX = OUT / "textures/item"
-PARTICLE_TEX = OUT / "textures/particle/krovotok"
-MODEL = OUT / "models/item"
-for p in (ITEM_TEX, PARTICLE_TEX, MODEL):
-    p.mkdir(parents=True, exist_ok=True)
-
-# Tiny valid PNG fallback. Binary is generated, never committed.
-PNG = base64.b64decode(
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGOSHzRgAAAAABJRU5ErkJggg=="
+TASK_DIR = Path(__file__).resolve().parent
+REPO_ROOT = TASK_DIR.parent.parent
+UNPACKED_DIR = TASK_DIR / "unpacked"
+SOURCE_ASSETS = UNPACKED_DIR / "resourcepack" / "assets" / "worldsmith"
+DEFAULT_OUTPUT = REPO_ROOT / "src" / "generated" / "resources"
+MAIN_PARTICLES = REPO_ROOT / "src" / "main" / "resources" / "assets" / "worldsmith" / "particles"
+PARTICLE_NAMES = (
+    "krovotok_blood_mist",
+    "krovotok_blood_spark",
+    "krovotok_blood_pulse",
+    "krovotok_blood_burst",
+    "krovotok_life_drain",
 )
-for name in ["krovotok.png", *[f"krovotok_charge_{i}.png" for i in range(6)]]:
-    (ITEM_TEX / name).write_bytes(PNG)
-(ITEM_TEX / "krovotok.png.mcmeta").write_text('{"animation":{"frametime":4,"interpolate":true}}\n')
-for name in ["krovotok_blood_mist", "krovotok_blood_spark", "krovotok_blood_pulse", "krovotok_blood_burst", "krovotok_life_drain"]:
-    (PARTICLE_TEX / f"{name}.png").write_bytes(PNG)
 
-# Lightweight generated base model; committed item state models inherit this.
-elems = []
-for i in range(170):
-    x = (i % 10) * 0.06
-    y = (i // 10) * 0.06
-    elems.append({"from":[7+x,y,7],"to":[7.04+x,y+0.04,7.04],"faces":{"north":{"texture":"#0"},"south":{"texture":"#0"},"east":{"texture":"#0"},"west":{"texture":"#0"},"up":{"texture":"#0"},"down":{"texture":"#0"}}})
-(MODEL / "krovotok_base.json").write_text('{"textures":{"0":"worldsmith:item/krovotok","particle":"worldsmith:item/krovotok"},"elements":'+__import__('json').dumps(elems,separators=(',',':'))+'}\n')
-print(f"Krovotok resources materialized in {OUT}")
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def copy_file(source: Path, destination: Path) -> None:
+    if not source.is_file():
+        raise FileNotFoundError(f"Missing Krovotok source asset: {source}")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source, destination)
+
+
+def verify_committed_particle_jsons() -> None:
+    missing = [name for name in PARTICLE_NAMES if not (MAIN_PARTICLES / f"{name}.json").is_file()]
+    if missing:
+        raise FileNotFoundError(
+            "Missing committed Krovotok particle JSON files: " + ", ".join(missing)
+        )
+
+
+def clean_generated_targets(worldsmith_output: Path) -> None:
+    targets = [
+        worldsmith_output / "models" / "item" / "krovotok_base.json",
+        worldsmith_output / "textures" / "item" / "krovotok.png",
+        worldsmith_output / "textures" / "item" / "krovotok.png.mcmeta",
+        worldsmith_output / "textures" / "item" / "krovotok_static.png",
+        worldsmith_output / "krovotok_generated_assets.json",
+    ]
+    targets.extend(
+        worldsmith_output / "textures" / "item" / f"krovotok_charge_{charge}.png"
+        for charge in range(6)
+    )
+    # Remove stale generated copies from the previous placeholder pipeline.
+    targets.extend(
+        worldsmith_output / "particles" / f"{name}.json"
+        for name in PARTICLE_NAMES
+    )
+
+    for target in targets:
+        if target.is_file() or target.is_symlink():
+            target.unlink()
+
+    particle_directory = worldsmith_output / "textures" / "particle" / "krovotok"
+    if particle_directory.exists():
+        shutil.rmtree(particle_directory)
+
+
+def materialize(output_root: Path) -> dict[str, str]:
+    subprocess.run(
+        [sys.executable, str(TASK_DIR / "verify_asset_archive.py"), "--extract"],
+        cwd=REPO_ROOT,
+        check=True,
+    )
+    verify_committed_particle_jsons()
+
+    worldsmith_output = output_root / "assets" / "worldsmith"
+    clean_generated_targets(worldsmith_output)
+
+    mappings: list[tuple[Path, Path]] = [
+        (
+            SOURCE_ASSETS / "models" / "item" / "krovotok.json",
+            worldsmith_output / "models" / "item" / "krovotok_base.json",
+        ),
+        (
+            SOURCE_ASSETS / "textures" / "item" / "krovotok.png",
+            worldsmith_output / "textures" / "item" / "krovotok.png",
+        ),
+        (
+            SOURCE_ASSETS / "textures" / "item" / "krovotok.png.mcmeta",
+            worldsmith_output / "textures" / "item" / "krovotok.png.mcmeta",
+        ),
+        (
+            SOURCE_ASSETS / "textures" / "item" / "krovotok_static.png",
+            worldsmith_output / "textures" / "item" / "krovotok_static.png",
+        ),
+    ]
+
+    for charge in range(6):
+        name = f"krovotok_charge_{charge}.png"
+        mappings.append(
+            (
+                SOURCE_ASSETS / "textures" / "item" / name,
+                worldsmith_output / "textures" / "item" / name,
+            )
+        )
+
+    particle_texture_source = SOURCE_ASSETS / "textures" / "particle" / "krovotok"
+    for source in sorted(particle_texture_source.glob("*.png")):
+        mappings.append(
+            (
+                source,
+                worldsmith_output / "textures" / "particle" / "krovotok" / source.name,
+            )
+        )
+
+    actual_particle_pngs = sum(
+        1
+        for source, _ in mappings
+        if source.suffix == ".png" and "particle" in source.parts and "krovotok" in source.parts
+    )
+    if actual_particle_pngs != 30:
+        raise RuntimeError(
+            f"Expected 30 Krovotok particle PNG files, found {actual_particle_pngs}"
+        )
+
+    manifest: dict[str, str] = {}
+    for source, destination in mappings:
+        copy_file(source, destination)
+        relative = destination.relative_to(output_root).as_posix()
+        manifest[relative] = sha256(destination)
+
+    manifest_path = worldsmith_output / "krovotok_generated_assets.json"
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "generated": True,
+                "source_archive_sha256": "3f31f68727da3a6e9d40b0e25e7cc26c6868c7317ca7fbdb516b7ea1e22bf902",
+                "committed_particle_jsons": [f"assets/worldsmith/particles/{name}.json" for name in PARTICLE_NAMES],
+                "files": manifest,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    return manifest
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Repair and decode the text-only Krovotok archive, then materialize missing binary game assets "
+            "under src/generated/resources without duplicating committed particle JSON files."
+        )
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=DEFAULT_OUTPUT,
+        help=f"Generated resource root (default: {DEFAULT_OUTPUT})",
+    )
+    args = parser.parse_args()
+
+    output = args.output.resolve()
+    manifest = materialize(output)
+    print(f"Krovotok generated resources: {output}")
+    print(f"Materialized files: {len(manifest)}")
+    print("Particle JSON files are reused from src/main/resources; no duplicate resources were generated.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
