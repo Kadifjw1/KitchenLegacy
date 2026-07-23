@@ -1,7 +1,0 @@
-3f31f68727da3a6e9d40b0e25e7cc26c6868c7317ca7fbdb516b7ea1e22bf902  Krovotok_complete_v2_with_particles.zip
-
-Verification command:
-python3 codex_tasks/krovotok/verify_asset_archive.py
-
-Extraction command:
-bash codex_tasks/krovotok/decode_assets.sh
