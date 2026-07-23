@@ -1,1 +1,10 @@
-{"textures":["worldsmith:krovotok/krovotok_blood_pulse"]}
+{
+  "textures": [
+    "worldsmith:krovotok/blood_pulse_0",
+    "worldsmith:krovotok/blood_pulse_1",
+    "worldsmith:krovotok/blood_pulse_2",
+    "worldsmith:krovotok/blood_pulse_3",
+    "worldsmith:krovotok/blood_pulse_4",
+    "worldsmith:krovotok/blood_pulse_5"
+  ]
+}
