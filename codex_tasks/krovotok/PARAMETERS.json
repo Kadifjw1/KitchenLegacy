@@ -1,8 +1,8 @@
 {
-  "task_id": "krovotok_asset_completion",
+  "task_id": "krovotok_runtime_completion",
   "repository": "Kadifjw1/KitchenLegacy",
-  "working_branch": "fix/krovotok-complete-integration",
-  "pull_request": 24,
+  "working_branch": "fix/krovotok-runtime-completion",
+  "pull_request": 26,
   "minecraft_version": "1.20.1",
   "forge_version": "47.4.20",
   "java_version": 17,
@@ -17,7 +17,9 @@
     "localization_integrated": true,
     "charge_models_integrated": true,
     "particle_jsons_committed": 5,
-    "asset_pipeline_uses_placeholders": true
+    "asset_pipeline_uses_placeholders": false,
+    "verified_geometry_elements": 170,
+    "generated_particle_pngs": 30
   },
   "ability": {
     "id": "crimson_rhythm",
@@ -29,7 +31,9 @@
     "attack_speed_per_charge": 0.06,
     "discharge_bonus_damage": 6.0,
     "max_heal": 4.0,
-    "heal_multiplier": 0.5
+    "heal_multiplier": 0.5,
+    "discharge_heal": 3.0,
+    "discharge_trigger": "next_hit_after_reaching_max_charge"
   },
   "item": {
     "tier": "IRON",
@@ -37,13 +41,17 @@
     "attack_speed_modifier": -2.6,
     "geometry_elements": 170
   },
-  "particles": [
-    "krovotok_blood_mist",
-    "krovotok_blood_spark",
-    "krovotok_blood_pulse",
-    "krovotok_blood_burst",
-    "krovotok_life_drain"
-  ],
+  "particles": {
+    "provider": "ru.theframetrip.worldsmith.client.particle.KrovotokParticle",
+    "types": {
+      "krovotok_blood_mist": 6,
+      "krovotok_blood_spark": 4,
+      "krovotok_blood_pulse": 6,
+      "krovotok_blood_burst": 8,
+      "krovotok_life_drain": 6
+    },
+    "total_generated_frames": 30
+  },
   "nbt": {
     "charge": "KrovotokCharge",
     "last_hit_game_time": "KrovotokLastHitGameTime"
