@@ -5,7 +5,7 @@
 	"ambientocclusion": false,
 	"texture_size": [64, 64],
 	"textures": {
-		"0": "worldsmith:krovotok_charge_1"
+		"0": "worldsmith:item/krovotok_charge_1"
 	},
 	"elements": [
 		{
