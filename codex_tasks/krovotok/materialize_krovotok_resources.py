@@ -19,6 +19,7 @@ MAIN_ASSETS = REPO_ROOT / "src" / "main" / "resources" / "assets" / "worldsmith"
 MAIN_MODELS = MAIN_ASSETS / "models" / "item"
 MAIN_ITEM_TEXTURES = MAIN_ASSETS / "textures" / "item"
 MAIN_PARTICLES = MAIN_ASSETS / "particles"
+EXPECTED_ELEMENT_COUNTS = {0: 170, 1: 170, 2: 171, 3: 170, 4: 170, 5: 170}
 
 PARTICLE_TEXTURES = {
     "krovotok_blood_mist": [f"worldsmith:krovotok/blood_mist_{frame}" for frame in range(6)],
@@ -65,8 +66,8 @@ def png_size(path: Path) -> tuple[int, int]:
 def normalize_item_model_uv(model_path: Path) -> None:
     """Convert Blockbench pixel UVs (0..64) to Minecraft model UV units (0..16)."""
     model = read_json(model_path)
-
     uv_values: list[float] = []
+
     for element in model.get("elements", []):
         for face in element.get("faces", {}).values():
             uv = face.get("uv")
@@ -75,16 +76,14 @@ def normalize_item_model_uv(model_path: Path) -> None:
 
     if not uv_values:
         raise ValueError(f"Krovotok base model has no face UV coordinates: {model_path}")
-
     if max(uv_values) <= 16:
         return
 
-    scale = 16.0 / 64.0
     for element in model.get("elements", []):
         for face in element.get("faces", {}).values():
             uv = face.get("uv")
             if isinstance(uv, list) and len(uv) == 4:
-                face["uv"] = [round(float(value) * scale, 6) for value in uv]
+                face["uv"] = [round(float(value) * 0.25, 6) for value in uv]
 
     model["texture_size"] = [64, 64]
     model_path.write_text(
@@ -102,13 +101,45 @@ def verify_committed_particle_jsons() -> None:
 
     for name, expected_textures in PARTICLE_TEXTURES.items():
         particle_path = MAIN_PARTICLES / f"{name}.json"
-        particle_data = read_json(particle_path)
-        actual_textures = particle_data.get("textures")
+        actual_textures = read_json(particle_path).get("textures")
         if actual_textures != expected_textures:
             raise ValueError(
-                f"{particle_path}: texture list does not match generated frames; "
-                f"expected {expected_textures}, got {actual_textures}"
+                f"{particle_path}: expected textures {expected_textures}, got {actual_textures}"
             )
+
+
+def find_element(elements: list[dict], name: str, from_: list[float], to: list[float]) -> dict | None:
+    return next(
+        (
+            element
+            for element in elements
+            if element.get("name") == name
+            and element.get("from") == from_
+            and element.get("to") == to
+        ),
+        None,
+    )
+
+
+def verify_stage_two_split(elements: list[dict], model_path: Path) -> None:
+    left = find_element(
+        elements,
+        "Blade_2_16",
+        [6.5, 22.5, 7.3],
+        [7, 23.5, 8.7],
+    )
+    right = find_element(
+        elements,
+        "Blade_2_17",
+        [7, 22.5, 7.3],
+        [7.5, 23.5, 8.7],
+    )
+    if left is None or right is None:
+        raise ValueError(
+            f"{model_path}: intentional split Blade_2_16 half-cubes are missing"
+        )
+    if left.get("rotation") != right.get("rotation"):
+        raise ValueError(f"{model_path}: split half-cubes use different rotations")
 
 
 def verify_committed_charge_assets() -> dict[int, str]:
@@ -138,9 +169,14 @@ def verify_committed_charge_assets() -> dict[int, str]:
 
         model = read_json(model_path)
         elements = model.get("elements")
-        if not isinstance(elements, list) or len(elements) != 170:
+        expected_count = EXPECTED_ELEMENT_COUNTS[charge]
+        if not isinstance(elements, list) or len(elements) != expected_count:
             actual_count = len(elements) if isinstance(elements, list) else None
-            raise ValueError(f"{model_path}: expected 170 elements, got {actual_count}")
+            raise ValueError(
+                f"{model_path}: expected {expected_count} elements, got {actual_count}"
+            )
+        if charge == 2:
+            verify_stage_two_split(elements, model_path)
 
         if model.get("texture_size") != [64, 64]:
             raise ValueError(f"{model_path}: expected texture_size [64, 64]")
@@ -173,13 +209,10 @@ def clean_generated_targets(worldsmith_output: Path) -> None:
         worldsmith_output / "textures" / "item" / "krovotok_static.png",
         worldsmith_output / "krovotok_generated_assets.json",
     ]
-
-    # Remove stale archive-derived charge textures from older materializer versions.
     targets.extend(
         worldsmith_output / "textures" / "item" / f"krovotok_charge_{charge}.png"
         for charge in range(6)
     )
-    # Remove generated compatibility aliases before recreating them from the committed user PNGs.
     targets.extend(
         worldsmith_output / "textures" / f"krovotok_charge_{charge}.png"
         for charge in range(6)
@@ -229,10 +262,8 @@ def materialize(output_root: Path) -> dict[str, str]:
         ),
     ]
 
-    # The committed PNGs are now authoritative. The historical archive must never overwrite them.
-    # Current exported JSONs reference worldsmith:krovotok_charge_X (texture root), so generate
-    # byte-identical compatibility aliases from textures/item. If the JSONs are later corrected
-    # to worldsmith:item/krovotok_charge_X, no alias is needed.
+    # User PNGs are authoritative. Only create a compatibility alias when an exported JSON
+    # references the texture namespace root instead of textures/item.
     for charge, texture_reference in charge_texture_references.items():
         if texture_reference == f"worldsmith:krovotok_charge_{charge}":
             mappings.append(
@@ -266,8 +297,7 @@ def materialize(output_root: Path) -> dict[str, str]:
         copy_file(source, destination)
         if destination.name == "krovotok_base.json":
             normalize_item_model_uv(destination)
-        relative = destination.relative_to(output_root).as_posix()
-        manifest[relative] = sha256(destination)
+        manifest[destination.relative_to(output_root).as_posix()] = sha256(destination)
 
     manifest_path = worldsmith_output / "krovotok_generated_assets.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -277,6 +307,8 @@ def materialize(output_root: Path) -> dict[str, str]:
                 "generated": True,
                 "source_archive_sha256": "3f31f68727da3a6e9d40b0e25e7cc26c6868c7317ca7fbdb516b7ea1e22bf902",
                 "user_charge_assets_authoritative": True,
+                "expected_element_counts": EXPECTED_ELEMENT_COUNTS,
+                "stage_2_intentional_split_cube": True,
                 "user_charge_models": [
                     f"assets/worldsmith/models/item/krovotok_charge_{charge}.json"
                     for charge in range(6)
@@ -286,7 +318,9 @@ def materialize(output_root: Path) -> dict[str, str]:
                     for charge in range(6)
                 ],
                 "charge_texture_references": charge_texture_references,
-                "committed_particle_jsons": [f"assets/worldsmith/particles/{name}.json" for name in PARTICLE_NAMES],
+                "committed_particle_jsons": [
+                    f"assets/worldsmith/particles/{name}.json" for name in PARTICLE_NAMES
+                ],
                 "particle_textures": PARTICLE_TEXTURES,
                 "files": manifest,
             },
@@ -303,8 +337,8 @@ def materialize(output_root: Path) -> dict[str, str]:
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Repair and decode the text-only Krovotok archive, validate committed user charge assets "
-            "and particle JSON references, then materialize only the remaining generated resources."
+            "Validate committed user Krovotok charge assets, repair the historical text archive, "
+            "and materialize only non-authoritative generated resources."
         )
     )
     parser.add_argument(
@@ -319,7 +353,7 @@ def main() -> int:
     manifest = materialize(output)
     print(f"Krovotok generated resources: {output}")
     print(f"Materialized files: {len(manifest)}")
-    print("Committed krovotok_charge_0..5 JSON/PNG files are authoritative and archive textures are not generated.")
+    print("Committed charge JSON/PNG files are authoritative; archive charge textures were not generated.")
     return 0
 
 
