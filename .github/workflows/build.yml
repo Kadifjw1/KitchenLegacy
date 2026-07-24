@@ -64,7 +64,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build
 
-      - name: Verify Krovotok assets inside JAR
+      - name: Verify sword models inside JAR
         shell: bash
         run: |
           set -euo pipefail
@@ -73,6 +73,8 @@ jobs:
 
           jar tf "$jar_file" | grep -Fx 'assets/worldsmith/models/item/krovotok.json'
           jar tf "$jar_file" | grep -Fx 'assets/worldsmith/models/item/krovotok_base.json'
+          jar tf "$jar_file" | grep -Fx 'assets/worldsmith/models/item/prah.json'
+          jar tf "$jar_file" | grep -Fx 'assets/worldsmith/textures/item/tex_prah.png'
           jar tf "$jar_file" | grep -Fx 'assets/worldsmith/textures/item/krovotok.png'
           jar tf "$jar_file" | grep -Fx 'assets/worldsmith/textures/item/krovotok.png.mcmeta'
           jar tf "$jar_file" | grep -Fx 'ru/theframetrip/worldsmith/client/particle/KrovotokParticle.class'
@@ -111,29 +113,24 @@ jobs:
               assert manifest['user_charge_assets_authoritative'] is True
               assert manifest['stage_2_intentional_split_cube'] is True
 
+              prah = json.loads(
+                  archive.read('assets/worldsmith/models/item/prah.json')
+              )
+              assert prah['textures']['0'] == 'worldsmith:item/tex_prah'
+
               for charge in range(6):
                   model_name = f'assets/worldsmith/models/item/krovotok_charge_{charge}.json'
                   item_texture_name = f'assets/worldsmith/textures/item/krovotok_charge_{charge}.png'
-                  root_texture_name = f'assets/worldsmith/textures/krovotok_charge_{charge}.png'
 
                   model = json.loads(archive.read(model_name))
                   assert len(model['elements']) == expected_counts[charge]
                   assert model['texture_size'] == [64, 64]
+                  assert model['textures']['0'] == f'worldsmith:item/krovotok_charge_{charge}'
 
                   source_texture = (
                       source_root / 'textures' / 'item' / f'krovotok_charge_{charge}.png'
                   ).read_bytes()
                   assert archive.read(item_texture_name) == source_texture
-
-                  texture_reference = model['textures']['0']
-                  if texture_reference == f'worldsmith:krovotok_charge_{charge}':
-                      assert archive.read(root_texture_name) == source_texture
-                  elif texture_reference == f'worldsmith:item/krovotok_charge_{charge}':
-                      pass
-                  else:
-                      raise AssertionError(
-                          f'Unexpected texture reference in {model_name}: {texture_reference}'
-                      )
           PY
 
       - name: Upload Krovotok diagnostics
