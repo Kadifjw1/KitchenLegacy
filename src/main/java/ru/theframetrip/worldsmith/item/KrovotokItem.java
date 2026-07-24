@@ -3,6 +3,7 @@ package ru.theframetrip.worldsmith.item;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -18,10 +19,13 @@ import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import ru.theframetrip.worldsmith.client.render.KrovotokItemRenderer;
 import ru.theframetrip.worldsmith.registry.ModParticleTypes;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class KrovotokItem extends SwordItem {
     public static final String CHARGE_TAG = "KrovotokCharge";
@@ -38,6 +42,21 @@ public class KrovotokItem extends SwordItem {
 
     public KrovotokItem(Tier tier, int attackDamageModifier, float attackSpeedModifier, Properties properties) {
         super(tier, attackDamageModifier, attackSpeedModifier, properties);
+    }
+
+    @Override
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(new IClientItemExtensions() {
+            private KrovotokItemRenderer renderer;
+
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                if (renderer == null) {
+                    renderer = new KrovotokItemRenderer();
+                }
+                return renderer;
+            }
+        });
     }
 
     public static int getCharge(ItemStack stack) {
