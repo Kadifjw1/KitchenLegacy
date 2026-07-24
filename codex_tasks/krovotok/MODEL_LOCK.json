@@ -1,0 +1,75 @@
+{
+  "status": "approved_locked",
+  "model_id": "worldsmith:krovotok",
+  "base_model": "koloss",
+  "approved_name_ru": "Кровоток",
+  "element_count": 170,
+  "geometry_sha256": "414a5ecdf02b9ded8183e2b02e0c9eb88fa6d9f93e60b15c5573f63e491f2429",
+  "position_profile": "koloss_approved_display_v1",
+  "bounds_y": [
+    -7.5,
+    31.5
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [14, -88, 21],
+      "translation": [0, 3, 0.5],
+      "scale": [0.65, 0.65, 0.65]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [0, 90, -55],
+      "translation": [0, 3.5, 1],
+      "scale": [0.42, 0.42, 0.42]
+    },
+    "firstperson_righthand": {
+      "rotation": [0, -90, 25],
+      "translation": [1.1, 3.4, 1.1],
+      "scale": [0.65, 0.65, 0.65]
+    },
+    "firstperson_lefthand": {
+      "rotation": [0, 90, -25],
+      "translation": [1.1, 3.4, 1.1],
+      "scale": [0.52, 0.52, 0.52]
+    },
+    "ground": {
+      "rotation": [94, 42, -180],
+      "translation": [0, 1, 0],
+      "scale": [0.28, 0.28, 0.28]
+    },
+    "gui": {
+      "rotation": [16, -180, 41],
+      "translation": [-0.75, -0.75, -1.5],
+      "scale": [0.48, 0.48, 0.48]
+    },
+    "head": {
+      "rotation": [0, -180, 0],
+      "translation": [0, 10, 0],
+      "scale": [0.6, 0.6, 0.6]
+    },
+    "fixed": {
+      "rotation": [0, -180, -36],
+      "translation": [0.25, -1.5, 0],
+      "scale": [0.55, 0.55, 0.55]
+    },
+    "on_shelf": {
+      "scale": [0.75, 0.75, 0.75]
+    }
+  },
+  "editable": [
+    "textures",
+    "emissive_masks",
+    "particles",
+    "non_geometric_visual_effects"
+  ],
+  "frozen": [
+    "elements.from",
+    "elements.to",
+    "elements.origin",
+    "elements.rotation",
+    "outliner.origins",
+    "display",
+    "element_count",
+    "bounds"
+  ],
+  "approval_note_ru": "Эта версия модели Кровотока утверждена. Любое изменение геометрии, размеров, pivot/origin или display-параметров требует отдельного повторного утверждения."
+}
