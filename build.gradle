@@ -180,10 +180,10 @@ tasks.named('processResources', ProcessResources).configure {
     inputs.file(prahDisplayProfileFile)
 
     doLast {
-        def prahModelFile = destinationDirectory
-                .file('assets/worldsmith/models/item/prah.json')
-                .get()
-                .asFile
+        def prahModelFile = new File(
+                destinationDir,
+                'assets/worldsmith/models/item/prah.json'
+        )
         if (!prahModelFile.isFile()) {
             throw new GradleException("Processed Prah model not found: ${prahModelFile}")
         }
