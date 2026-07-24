@@ -38,13 +38,28 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Verify committed Krovotok charge assets
-        run: python3 codex_tasks/krovotok/verify_user_charge_assets.py
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p build/krovotok-diagnostics
+          python3 codex_tasks/krovotok/verify_user_charge_assets.py 2>&1 \
+            | tee build/krovotok-diagnostics/verify-user-charge-assets.log
 
       - name: Verify Krovotok source archive
-        run: python3 codex_tasks/krovotok/verify_asset_archive.py
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p build/krovotok-diagnostics
+          python3 codex_tasks/krovotok/verify_asset_archive.py 2>&1 \
+            | tee build/krovotok-diagnostics/verify-archive.log
 
       - name: Materialize Krovotok resources
-        run: python3 codex_tasks/krovotok/materialize_krovotok_resources.py
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p build/krovotok-diagnostics
+          python3 codex_tasks/krovotok/materialize_krovotok_resources.py 2>&1 \
+            | tee build/krovotok-diagnostics/materialize.log
 
       - name: Build with Gradle
         run: ./gradlew clean build
@@ -118,6 +133,14 @@ jobs:
                           f'Unexpected texture reference in {model_name}: {texture_reference}'
                       )
           PY
+
+      - name: Upload Krovotok diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: krovotok-build-diagnostics
+          path: build/krovotok-diagnostics/*.log
+          if-no-files-found: ignore
 
       - name: Upload mod jar
         uses: actions/upload-artifact@v4
