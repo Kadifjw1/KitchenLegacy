@@ -37,11 +37,29 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
+      - name: Verify committed Krovotok charge assets
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p build/krovotok-diagnostics
+          python3 codex_tasks/krovotok/verify_user_charge_assets.py 2>&1 \
+            | tee build/krovotok-diagnostics/verify-user-charge-assets.log
+
       - name: Verify Krovotok source archive
-        run: python3 codex_tasks/krovotok/verify_asset_archive.py
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p build/krovotok-diagnostics
+          python3 codex_tasks/krovotok/verify_asset_archive.py 2>&1 \
+            | tee build/krovotok-diagnostics/verify-archive.log
 
       - name: Materialize Krovotok resources
-        run: python3 codex_tasks/krovotok/materialize_krovotok_resources.py
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p build/krovotok-diagnostics
+          python3 codex_tasks/krovotok/materialize_krovotok_resources.py 2>&1 \
+            | tee build/krovotok-diagnostics/materialize.log
 
       - name: Build with Gradle
         run: ./gradlew clean build
@@ -53,12 +71,14 @@ jobs:
           jar_file="$(find build/libs -maxdepth 1 -name '*.jar' ! -name '*-sources.jar' | head -n 1)"
           test -n "$jar_file"
 
+          jar tf "$jar_file" | grep -Fx 'assets/worldsmith/models/item/krovotok.json'
           jar tf "$jar_file" | grep -Fx 'assets/worldsmith/models/item/krovotok_base.json'
           jar tf "$jar_file" | grep -Fx 'assets/worldsmith/textures/item/krovotok.png'
           jar tf "$jar_file" | grep -Fx 'assets/worldsmith/textures/item/krovotok.png.mcmeta'
           jar tf "$jar_file" | grep -Fx 'ru/theframetrip/worldsmith/client/particle/KrovotokParticle.class'
 
           for charge in 0 1 2 3 4 5; do
+            jar tf "$jar_file" | grep -Fx "assets/worldsmith/models/item/krovotok_charge_${charge}.json"
             jar tf "$jar_file" | grep -Fx "assets/worldsmith/textures/item/krovotok_charge_${charge}.png"
           done
 
@@ -73,6 +93,56 @@ jobs:
 
           particle_frame_count="$(jar tf "$jar_file" | grep -Ec '^assets/worldsmith/textures/particle/krovotok/.*\.png$')"
           test "$particle_frame_count" -eq 30
+
+          python3 - "$jar_file" <<'PY'
+          import json
+          import pathlib
+          import sys
+          import zipfile
+
+          jar_path = pathlib.Path(sys.argv[1])
+          source_root = pathlib.Path('src/main/resources/assets/worldsmith')
+          expected_counts = {0: 170, 1: 170, 2: 171, 3: 170, 4: 170, 5: 170}
+
+          with zipfile.ZipFile(jar_path) as archive:
+              manifest = json.loads(
+                  archive.read('assets/worldsmith/krovotok_generated_assets.json')
+              )
+              assert manifest['user_charge_assets_authoritative'] is True
+              assert manifest['stage_2_intentional_split_cube'] is True
+
+              for charge in range(6):
+                  model_name = f'assets/worldsmith/models/item/krovotok_charge_{charge}.json'
+                  item_texture_name = f'assets/worldsmith/textures/item/krovotok_charge_{charge}.png'
+                  root_texture_name = f'assets/worldsmith/textures/krovotok_charge_{charge}.png'
+
+                  model = json.loads(archive.read(model_name))
+                  assert len(model['elements']) == expected_counts[charge]
+                  assert model['texture_size'] == [64, 64]
+
+                  source_texture = (
+                      source_root / 'textures' / 'item' / f'krovotok_charge_{charge}.png'
+                  ).read_bytes()
+                  assert archive.read(item_texture_name) == source_texture
+
+                  texture_reference = model['textures']['0']
+                  if texture_reference == f'worldsmith:krovotok_charge_{charge}':
+                      assert archive.read(root_texture_name) == source_texture
+                  elif texture_reference == f'worldsmith:item/krovotok_charge_{charge}':
+                      pass
+                  else:
+                      raise AssertionError(
+                          f'Unexpected texture reference in {model_name}: {texture_reference}'
+                      )
+          PY
+
+      - name: Upload Krovotok diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: krovotok-build-diagnostics
+          path: build/krovotok-diagnostics/*.log
+          if-no-files-found: ignore
 
       - name: Upload mod jar
         uses: actions/upload-artifact@v4

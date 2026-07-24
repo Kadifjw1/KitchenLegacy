@@ -15,6 +15,7 @@ run/
 /src/generated/resources/assets/worldsmith/textures/item/krovotok.png.mcmeta
 /src/generated/resources/assets/worldsmith/textures/item/krovotok_static.png
 /src/generated/resources/assets/worldsmith/textures/item/krovotok_charge_*.png
+/src/generated/resources/assets/worldsmith/textures/krovotok_charge_*.png
 /src/generated/resources/assets/worldsmith/particles/krovotok_*.json
 /src/generated/resources/assets/worldsmith/textures/particle/krovotok/
 /src/generated/resources/assets/worldsmith/krovotok_generated_assets.json
