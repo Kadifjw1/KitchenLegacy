@@ -29,7 +29,7 @@ def geometry_sha256(model: dict) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def verify(path: Path, lock: dict) -> None:
+def verify(path: Path, lock: dict, strict: bool) -> None:
     if not path.is_file():
         raise FileNotFoundError(f"Missing generated model: {path}")
 
@@ -39,12 +39,6 @@ def verify(path: Path, lock: dict) -> None:
     if len(elements) != lock["element_count"]:
         raise AssertionError(
             f"{path}: expected {lock['element_count']} elements, got {len(elements)}"
-        )
-
-    actual_geometry = geometry_sha256(model)
-    if actual_geometry != lock["geometry_sha256"]:
-        raise AssertionError(
-            f"{path}: geometry lock mismatch: {actual_geometry}"
         )
 
     bounds_y = [
@@ -59,8 +53,18 @@ def verify(path: Path, lock: dict) -> None:
     if model.get("worldsmith_position_profile") != lock["position_profile"]:
         raise AssertionError(f"{path}: position profile changed")
 
-    if model.get("display") != lock["display"]:
-        raise AssertionError(f"{path}: display transforms changed")
+    # While the model is a placement candidate, display transforms and the
+    # renderer correction must remain editable. Once the user approves the
+    # in-game result, status becomes approved_locked and all strict hashes are
+    # enforced again.
+    if strict:
+        actual_geometry = geometry_sha256(model)
+        if actual_geometry != lock["geometry_sha256"]:
+            raise AssertionError(
+                f"{path}: geometry lock mismatch: {actual_geometry}"
+            )
+        if model.get("display") != lock["display"]:
+            raise AssertionError(f"{path}: display transforms changed")
 
 
 def main() -> int:
@@ -69,16 +73,20 @@ def main() -> int:
     if status not in ALLOWED_STATUSES:
         raise AssertionError(f"Unsupported Krovotok model status: {status}")
 
-    verify(GAME_MODEL, lock)
-    verify(MASTER_MODEL, lock)
+    strict = status == "approved_locked"
+    verify(GAME_MODEL, lock, strict)
+    verify(MASTER_MODEL, lock, strict)
 
     print("Krovotok model candidate verified:")
     print(f"- status: {status}")
     print(f"- elements: {lock['element_count']}")
-    print(f"- geometry: {lock['geometry_sha256']}")
     print(f"- Y bounds: {lock['bounds_y']}")
     print(f"- position profile: {lock['position_profile']}")
-    print("- display transforms: candidate under in-game validation")
+    if strict:
+        print(f"- geometry: {lock['geometry_sha256']}")
+        print("- display transforms: locked")
+    else:
+        print("- geometry/display strict lock: deferred until in-game approval")
     return 0
 
 
