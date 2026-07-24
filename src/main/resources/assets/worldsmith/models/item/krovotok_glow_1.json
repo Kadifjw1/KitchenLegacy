@@ -1,0 +1,8 @@
+{
+  "render_type": "minecraft:translucent",
+  "parent": "worldsmith:item/krovotok_base",
+  "textures": {
+    "0": "worldsmith:item/krovotok_glow_1",
+    "particle": "worldsmith:item/krovotok_glow_1"
+  }
+}
