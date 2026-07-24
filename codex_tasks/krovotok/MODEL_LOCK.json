@@ -1,15 +1,12 @@
 {
-  "status": "approved_locked",
+  "status": "candidate_pending_ingame_validation",
   "model_id": "worldsmith:krovotok",
   "base_model": "koloss",
   "approved_name_ru": "Кровоток",
   "element_count": 170,
-  "geometry_sha256": "414a5ecdf02b9ded8183e2b02e0c9eb88fa6d9f93e60b15c5573f63e491f2429",
+  "geometry_sha256": "a212b354cebcd321f9979fb57e353136e30ec246b444767e9660f594b556db28",
   "position_profile": "koloss_approved_display_v1",
-  "bounds_y": [
-    -7.5,
-    31.5
-  ],
+  "bounds_y": [-7.5, 31.5],
   "display": {
     "thirdperson_righthand": {
       "rotation": [14, -88, 21],
@@ -56,6 +53,8 @@
     }
   },
   "editable": [
+    "display while candidate is under in-game review",
+    "renderer centering correction",
     "textures",
     "emissive_masks",
     "particles",
@@ -67,9 +66,8 @@
     "elements.origin",
     "elements.rotation",
     "outliner.origins",
-    "display",
     "element_count",
     "bounds"
   ],
-  "approval_note_ru": "Эта версия модели Кровотока утверждена. Любое изменение геометрии, размеров, pivot/origin или display-параметров требует отдельного повторного утверждения."
+  "approval_note_ru": "Фиксация снята: пользователь подтвердил, что проблема положения осталась. Текущая версия является кандидатом и должна быть проверена в игре после исправления двойного центрирования в KrovotokItemRenderer."
 }
