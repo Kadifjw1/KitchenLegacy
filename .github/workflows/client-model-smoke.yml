@@ -8,6 +8,7 @@ on:
     branches:
       - main
     paths:
+      - 'src/main/java/ru/theframetrip/worldsmith/client/ClientModelProbe.java'
       - 'src/main/resources/assets/worldsmith/models/item/**'
       - 'src/main/resources/assets/worldsmith/textures/item/**'
       - 'build.gradle'
@@ -17,7 +18,9 @@ on:
 jobs:
   client-model-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 10
+    env:
+      WORLDSMITH_MODEL_PROBE: '1'
 
     steps:
       - name: Checkout repository
@@ -45,11 +48,11 @@ jobs:
           python3 codex_tasks/krovotok/verify_asset_archive.py
           python3 codex_tasks/krovotok/materialize_krovotok_resources.py
 
-      - name: Launch client through model loading
+      - name: Launch client and inspect baked models
         shell: bash
         run: |
           set +e
-          timeout 360s xvfb-run -a ./gradlew runClient --no-daemon \
+          timeout 300s xvfb-run -a ./gradlew runClient --no-daemon \
             > client-console.log 2>&1
           status=$?
           echo "client_exit_status=$status" | tee client-exit-status.txt
@@ -62,12 +65,14 @@ jobs:
           fi
 
           grep -Eai \
-            'krovotok|prah|unable to load model|failed to load model|missing model|model loading|exception loading model|texture.*not found|using missing texture|could not load' \
+            'WORLDSMITH_MODEL_PROBE|krovotok|prah|unable to load model|failed to load model|missing model|exception loading model|texture.*not found|using missing texture|could not load' \
             latest.log client-console.log \
             > model-diagnostics.txt || true
 
           cat model-diagnostics.txt
           test -s latest.log
+          grep -q 'WORLDSMITH_MODEL_PROBE_COMPLETE' model-diagnostics.txt
+          test "$(grep -c 'WORLDSMITH_MODEL_PROBE_FAILED' model-diagnostics.txt || true)" -eq 0
 
       - name: Upload client diagnostics
         if: always()
