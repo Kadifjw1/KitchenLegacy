@@ -23,7 +23,7 @@ minecraft {
     // parchment  YYYY.MM.DD-MCVersion  Open community-sourced parameter names and javadocs layered on top of official
     //
     // You must be aware of the Mojang license when using the 'official' or 'parchment' mappings.
-    // See more information here: https://docs.minecraftforge.net/en/latest/advanced/accesstransformers/ for more information.
+    // See more information here: https://github.com/MinecraftForge/MCPConfig/blob/master/Mojang.md
     //
     // Parchment is an unofficial project maintained by ParchmentMC, separate from MinecraftForge
     // Additional setup is needed to use their mappings: https://parchmentmc.org/docs/getting-started
@@ -49,18 +49,28 @@ minecraft {
 
     // This property enables access transformers for use in development.
     // They will be applied to the Minecraft artifact.
+    // The access transformer file can be anywhere in the project.
+    // However, it must be in the META-INF directory.
+    // This default location is a best practice to automatically put the file in the right place.
+    // See https://docs.minecraftforge.net/en/latest/advanced/accesstransformers/ for more information.
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     // Default run configurations.
+    // These can be tweaked, removed, or duplicated as needed.
     runs {
         // applies to all the run configs below
         configureEach {
             workingDirectory project.file('run')
 
             // Recommended logging data for a userdev environment
+            // The markers can be changed at any time.
+            // "SCAN": For mods scan.
+            // "REGISTRIES": For firing of registry events.
+            // "REGISTRYDUMP": For dumping all registries.
             property 'forge.logging.markers', 'REGISTRIES'
 
             // Recommended logging level for the console
+            // You can set various levels here.
             property 'forge.logging.console.level', 'debug'
 
             mods {
@@ -71,6 +81,7 @@ minecraft {
         }
 
         client {
+            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             property 'forge.enabledGameTestNamespaces', mod_id
         }
 
@@ -79,12 +90,18 @@ minecraft {
             args '--nogui'
         }
 
+        // This run config launches GameTestServer and runs all registered gametests, then exits.
+        // By default, the server will crash when no gametests are provided.
+        // The gametest system is also enabled by default for other run configurations.
         gameTestServer {
             property 'forge.enabledGameTestNamespaces', mod_id
         }
 
         data {
+            // example of overriding the workingDirectory set in configureEach
             workingDirectory project.file('run-data')
+
+            // Specify the modid for data generation, output folder, and existing resources.
             args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
         }
     }
@@ -95,10 +112,29 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
     // Put repositories for dependencies here
+    // ForgeGradle automatically adds the Forge maven and Maven Central for you
+
+    // If you have mod jar dependencies in ./libs, you can declare them as a repository like so.
+    // flatDir {
+    //     dir 'libs'
+    // }
 }
 
 dependencies {
+    // Specify the version of Minecraft to use.
+    // Any artifact can be supplied so long as it has a "userdev" classifier artifact.
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+
+    // Example mod dependency with JEI.
+    // compileOnly fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}")
+    // compileOnly fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}")
+    // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}")
+
+    // Example mod dependency using a mod jar from ./libs.
+    // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
+
+    // For more info:
+    // http://www.gradle.org/current/userguide/artifact_dependencies_tutorial.html
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
@@ -120,8 +156,7 @@ tasks.named('processResources', ProcessResources).configure {
     }
 
     // Blockbench exports these texture references without the item/ folder.
-    // Minecraft resolves worldsmith:<name> from textures/<name>.png, while the actual
-    // files live in textures/item/. Normalize the paths in both built JARs and IDE runs.
+    // Normalize them for built JARs and for IDE launches handled by copyIdeResources.
     filesMatching([
             'assets/worldsmith/models/item/prah.json',
             'assets/worldsmith/models/item/krovotok_charge_*.json'
@@ -148,9 +183,16 @@ tasks.named('jar', Jar).configure {
         ])
     }
 
+    // This is the preferred method to reobfuscate your jar file
     finalizedBy 'reobfJar'
 }
 
+// However if you are in a multi-project build, you can delay reobfuscation until publishing.
+// tasks.named('publish').configure {
+//     dependsOn 'reobfJar'
+// }
+
+// Example configuration to allow publishing using the maven-publish plugin
 publishing {
     publications {
         register('mavenJava', MavenPublication) {
