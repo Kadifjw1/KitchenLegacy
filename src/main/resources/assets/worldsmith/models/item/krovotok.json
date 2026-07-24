@@ -1,6 +1,6 @@
 {
   "parent": "worldsmith:item/krovotok_base",
   "textures": {
-    "0": "worldsmith:item/krovotok_static"
+    "0": "worldsmith:item/krovotok_charge_0"
   }
 }
