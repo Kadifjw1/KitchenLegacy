@@ -5,7 +5,7 @@
   "tooltip.worldsmith.predel.description": "Временно выводит выбранные блоки из материального мира.",
   "tooltip.worldsmith.predel.key": "[R] Использовать способность",
   "tooltip.worldsmith.predel.cooldown": "Перезарядка: 12 сек.",
-  "key.worldsmith.predel_ability": "Использовать способность Предела",
+  "key.worldsmith.predel_ability": "Использовать активную способность меча",
   "key.categories.worldsmith": "Worldsmith",
   "item.worldsmith.koloss": "Колосс",
   "item.worldsmith.ship": "Шип",
@@ -21,5 +21,12 @@
   "tooltip.worldsmith.krovotok.ability": "Пассивная способность: Багровый ритм",
   "tooltip.worldsmith.krovotok.charge": "Заряд: %s/%s",
   "tooltip.worldsmith.krovotok.description": "Удары накапливают ритм; после 5 зарядов следующий удар наносит бонусный урон, лечит владельца и сбрасывает серию.",
-  "item.worldsmith.prah": "Прах"
+  "item.worldsmith.prah": "Прах",
+  "entity.worldsmith.prah_echo": "Пепельный след",
+  "tooltip.worldsmith.prah.ability": "Активная способность: След их праха",
+  "tooltip.worldsmith.prah.description": "Создаёт пепельный слепок, повторяющий последние 5 секунд движения и ударов. Он нажимает плиты и отвлекает врагов.",
+  "tooltip.worldsmith.prah.key": "[R] Призвать пепельный слепок",
+  "tooltip.worldsmith.prah.cooldown": "Перезарядка: 20 сек.",
+  "message.worldsmith.prah.activated": "След их праха пробудился",
+  "message.worldsmith.prah.not_enough_history": "Праху пока нечего повторить"
 }
