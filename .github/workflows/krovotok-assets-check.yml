@@ -43,6 +43,9 @@ jobs:
       - name: Materialize emissive stages
         run: python3 codex_tasks/krovotok/materialize_krovotok_resources.py
 
+      - name: Apply approved Koloss item transforms
+        run: python3 codex_tasks/krovotok/apply_krovotok_display_transform.py
+
       - name: Validate complete resource set
         shell: bash
         run: |
@@ -62,12 +65,30 @@ jobs:
           python3 - <<'PY'
           import json
           from pathlib import Path
+
           master = json.loads(Path('build/generated/krovotok/krovotok_stages_master.bbmodel').read_text())
+          model = json.loads(Path('src/generated/resources/assets/worldsmith/models/item/krovotok_base.json').read_text())
           manifest = json.loads(Path('src/generated/resources/assets/worldsmith/krovotok_generated_assets.json').read_text())
-          assert len(master['elements']) == 170
+
+          for current in (master, model):
+              assert len(current['elements']) == 170
+              assert current['worldsmith_position_profile'] == 'koloss_approved_display_v1'
+              assert min(element['from'][1] for element in current['elements']) == -7.5
+              assert max(element['to'][1] for element in current['elements']) == 31.5
+              assert current['display']['thirdperson_righthand'] == {
+                  'rotation': [14, -88, 21],
+                  'translation': [0, 3, 0.5],
+                  'scale': [0.65, 0.65, 0.65],
+              }
+              assert current['display']['firstperson_righthand']['scale'] == [0.65, 0.65, 0.65]
+              assert current['display']['gui']['rotation'] == [16, -180, 41]
+              assert current['display']['ground']['rotation'] == [94, 42, -180]
+              assert current['display']['fixed']['rotation'] == [0, -180, -36]
+
           assert len(master['textures']) == 12
           assert manifest['element_count'] == 170
           assert manifest['stage_count'] == 6
           assert manifest['emissive_masks'] == 6
+          assert manifest['position_profile'] == 'koloss_approved_display_v1'
           PY
           test -z "$(git status --short --untracked-files=all)"
