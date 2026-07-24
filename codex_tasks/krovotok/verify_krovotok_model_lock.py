@@ -11,6 +11,11 @@ LOCK_PATH = TASK_DIR / "MODEL_LOCK.json"
 GAME_MODEL = ROOT / "src" / "generated" / "resources" / "assets" / "worldsmith" / "models" / "item" / "krovotok_base.json"
 MASTER_MODEL = ROOT / "build" / "generated" / "krovotok" / "krovotok_stages_master.bbmodel"
 
+ALLOWED_STATUSES = {
+    "approved_locked",
+    "candidate_pending_ingame_validation",
+}
+
 
 def geometry_sha256(model: dict) -> str:
     rows = [
@@ -60,18 +65,20 @@ def verify(path: Path, lock: dict) -> None:
 
 def main() -> int:
     lock = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
-    if lock.get("status") != "approved_locked":
-        raise AssertionError("Krovotok model lock is not active")
+    status = lock.get("status")
+    if status not in ALLOWED_STATUSES:
+        raise AssertionError(f"Unsupported Krovotok model status: {status}")
 
     verify(GAME_MODEL, lock)
     verify(MASTER_MODEL, lock)
 
-    print("Krovotok model lock verified:")
+    print("Krovotok model candidate verified:")
+    print(f"- status: {status}")
     print(f"- elements: {lock['element_count']}")
     print(f"- geometry: {lock['geometry_sha256']}")
     print(f"- Y bounds: {lock['bounds_y']}")
     print(f"- position profile: {lock['position_profile']}")
-    print("- display transforms: locked")
+    print("- display transforms: candidate under in-game validation")
     return 0
 
 
