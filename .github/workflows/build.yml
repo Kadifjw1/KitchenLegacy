@@ -116,6 +116,8 @@ jobs:
               prah = json.loads(
                   archive.read('assets/worldsmith/models/item/prah.json')
               )
+              assert prah.get('parent') != 'item/handheld'
+              assert len(prah['elements']) == 194
               assert prah['textures']['0'] == 'worldsmith:item/tex_prah'
 
               for charge in range(6):
@@ -123,6 +125,7 @@ jobs:
                   item_texture_name = f'assets/worldsmith/textures/item/krovotok_charge_{charge}.png'
 
                   model = json.loads(archive.read(model_name))
+                  assert model.get('parent') != 'item/handheld'
                   assert len(model['elements']) == expected_counts[charge]
                   assert model['texture_size'] == [64, 64]
                   assert model['textures']['0'] == f'worldsmith:item/krovotok_charge_{charge}'
