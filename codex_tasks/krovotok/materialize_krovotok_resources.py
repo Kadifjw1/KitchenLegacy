@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import json
 import shutil
@@ -13,8 +14,11 @@ TASK_DIR = Path(__file__).resolve().parent
 REPO_ROOT = TASK_DIR.parent.parent
 UNPACKED_DIR = TASK_DIR / "unpacked"
 SOURCE_ASSETS = UNPACKED_DIR / "resourcepack" / "assets" / "worldsmith"
+SOURCE_BBMODEL = TASK_DIR / "source" / "krovotok_stages_master.bbmodel"
+SOURCE_BBMODEL_PARTS = TASK_DIR / "source" / "krovotok_stages_master.parts"
 DEFAULT_OUTPUT = REPO_ROOT / "src" / "generated" / "resources"
 MAIN_PARTICLES = REPO_ROOT / "src" / "main" / "resources" / "assets" / "worldsmith" / "particles"
+EXPECTED_GEOMETRY_SHA256 = "414a5ecdf02b9ded8183e2b02e0c9eb88fa6d9f93e60b15c5573f63e491f2429"
 PARTICLE_TEXTURES = {
     "krovotok_blood_mist": [f"worldsmith:krovotok/blood_mist_{frame}" for frame in range(6)],
     "krovotok_blood_spark": [f"worldsmith:krovotok/blood_spark_{frame}" for frame in range(4)],
@@ -33,94 +37,97 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def copy_file(source: Path, destination: Path) -> None:
-    if not source.is_file():
-        raise FileNotFoundError(f"Missing Krovotok source asset: {source}")
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(source, destination)
+def geometry_sha256(model: dict) -> str:
+    rows = []
+    for element in model.get("elements", []):
+        rows.append({
+            key: element.get(key)
+            for key in ("from", "to", "origin", "rotation", "inflate")
+        })
+    payload = json.dumps(rows, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
 
 
-def normalize_item_model_uv(model_path: Path) -> None:
-    """Convert Blockbench pixel UVs (0..64) to Minecraft model UV units (0..16)."""
+def read_master() -> dict:
     try:
-        model = json.loads(model_path.read_text(encoding="utf-8"))
+        if SOURCE_BBMODEL.is_file():
+            payload = SOURCE_BBMODEL.read_text(encoding="utf-8")
+        else:
+            parts = sorted(SOURCE_BBMODEL_PARTS.glob("part*.txt"))
+            if not parts:
+                raise FileNotFoundError(f"Missing Krovotok BBModel and shards: {SOURCE_BBMODEL_PARTS}")
+            payload = "".join(part.read_text(encoding="utf-8") for part in parts)
+        model = json.loads(payload)
     except (OSError, json.JSONDecodeError) as error:
-        raise ValueError(f"Invalid Krovotok item model {model_path}: {error}") from error
+        raise ValueError(f"Invalid reconstructed Krovotok master BBModel: {error}") from error
+    if len(model.get("elements", [])) != 170:
+        raise ValueError("Krovotok master must contain exactly 170 elements")
+    actual_hash = geometry_sha256(model)
+    if actual_hash != EXPECTED_GEOMETRY_SHA256:
+        raise ValueError(f"Krovotok geometry changed: expected {EXPECTED_GEOMETRY_SHA256}, got {actual_hash}")
+    return model
 
-    uv_values: list[float] = []
+
+def embedded_png(model: dict, name: str) -> bytes:
+    for texture in model.get("textures", []):
+        if texture.get("name") != name:
+            continue
+        source = texture.get("source", "")
+        prefix = "data:image/png;base64,"
+        if not source.startswith(prefix):
+            raise ValueError(f"Texture {name} is not an embedded PNG")
+        return base64.b64decode(source[len(prefix):], validate=True)
+    raise FileNotFoundError(f"Missing embedded texture {name} in reconstructed master BBModel")
+
+
+def game_model(model: dict) -> dict:
+    result = {
+        "credit": "Worldsmith — Krovotok / approved Colossus geometry",
+        "ambientocclusion": model.get("ambientocclusion", False),
+        "gui_light": model.get("gui_light", "front"),
+        "textures": {
+            "0": "worldsmith:item/krovotok_stage_0",
+            "particle": "worldsmith:item/krovotok_stage_0",
+        },
+        "display": model.get("display", {}),
+        "elements": [],
+    }
     for element in model.get("elements", []):
-        for face in element.get("faces", {}).values():
-            uv = face.get("uv")
+        converted = {
+            "from": element["from"],
+            "to": element["to"],
+            "faces": {},
+        }
+        if element.get("rotation"):
+            converted["rotation"] = element["rotation"]
+        for side, source_face in element.get("faces", {}).items():
+            face = {"texture": "#0"}
+            uv = source_face.get("uv")
             if isinstance(uv, list) and len(uv) == 4:
-                uv_values.extend(value for value in uv if isinstance(value, (int, float)))
-
-    if not uv_values:
-        raise ValueError(f"Krovotok base model has no face UV coordinates: {model_path}")
-
-    max_uv = max(uv_values)
-    if max_uv <= 16:
-        return
-
-    scale = 16.0 / 64.0
-    for element in model.get("elements", []):
-        for face in element.get("faces", {}).values():
-            uv = face.get("uv")
-            if isinstance(uv, list) and len(uv) == 4:
-                face["uv"] = [round(float(value) * scale, 6) for value in uv]
-
-    model["texture_size"] = [64, 64]
-    model_path.write_text(
-        json.dumps(model, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
+                face["uv"] = [round(float(value) / 16.0, 6) for value in uv]
+            for key in ("rotation", "cullface", "tintindex"):
+                if key in source_face:
+                    face[key] = source_face[key]
+            converted["faces"][side] = face
+        result["elements"].append(converted)
+    return result
 
 
 def verify_committed_particle_jsons() -> None:
-    missing = [name for name in PARTICLE_NAMES if not (MAIN_PARTICLES / f"{name}.json").is_file()]
-    if missing:
-        raise FileNotFoundError(
-            "Missing committed Krovotok particle JSON files: " + ", ".join(missing)
-        )
-
     for name, expected_textures in PARTICLE_TEXTURES.items():
         particle_path = MAIN_PARTICLES / f"{name}.json"
-        try:
-            particle_data = json.loads(particle_path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as error:
-            raise ValueError(f"Invalid Krovotok particle JSON {particle_path}: {error}") from error
-
-        actual_textures = particle_data.get("textures")
-        if actual_textures != expected_textures:
-            raise ValueError(
-                f"{particle_path}: texture list does not match generated frames; "
-                f"expected {expected_textures}, got {actual_textures}"
-            )
+        if not particle_path.is_file():
+            raise FileNotFoundError(f"Missing committed particle JSON: {particle_path}")
+        data = json.loads(particle_path.read_text(encoding="utf-8"))
+        if data.get("textures") != expected_textures:
+            raise ValueError(f"{particle_path}: particle frames do not match expected list")
 
 
-def clean_generated_targets(worldsmith_output: Path) -> None:
-    targets = [
-        worldsmith_output / "models" / "item" / "krovotok_base.json",
-        worldsmith_output / "textures" / "item" / "krovotok.png",
-        worldsmith_output / "textures" / "item" / "krovotok.png.mcmeta",
-        worldsmith_output / "textures" / "item" / "krovotok_static.png",
-        worldsmith_output / "krovotok_generated_assets.json",
-    ]
-    targets.extend(
-        worldsmith_output / "textures" / "item" / f"krovotok_charge_{charge}.png"
-        for charge in range(6)
-    )
-    targets.extend(
-        worldsmith_output / "particles" / f"{name}.json"
-        for name in PARTICLE_NAMES
-    )
-
-    for target in targets:
-        if target.is_file() or target.is_symlink():
-            target.unlink()
-
-    particle_directory = worldsmith_output / "textures" / "particle" / "krovotok"
-    if particle_directory.exists():
-        shutil.rmtree(particle_directory)
+def remove_target(path: Path) -> None:
+    if path.is_file() or path.is_symlink():
+        path.unlink()
+    elif path.is_dir():
+        shutil.rmtree(path)
 
 
 def materialize(output_root: Path) -> dict[str, str]:
@@ -130,106 +137,76 @@ def materialize(output_root: Path) -> dict[str, str]:
         check=True,
     )
     verify_committed_particle_jsons()
+    master = read_master()
 
-    worldsmith_output = output_root / "assets" / "worldsmith"
-    clean_generated_targets(worldsmith_output)
-
-    mappings: list[tuple[Path, Path]] = [
-        (
-            SOURCE_ASSETS / "models" / "item" / "krovotok.json",
-            worldsmith_output / "models" / "item" / "krovotok_base.json",
-        ),
-        (
-            SOURCE_ASSETS / "textures" / "item" / "krovotok.png",
-            worldsmith_output / "textures" / "item" / "krovotok.png",
-        ),
-        (
-            SOURCE_ASSETS / "textures" / "item" / "krovotok.png.mcmeta",
-            worldsmith_output / "textures" / "item" / "krovotok.png.mcmeta",
-        ),
-        (
-            SOURCE_ASSETS / "textures" / "item" / "krovotok_static.png",
-            worldsmith_output / "textures" / "item" / "krovotok_static.png",
-        ),
+    worldsmith = output_root / "assets" / "worldsmith"
+    generated_targets = [
+        worldsmith / "models" / "item" / "krovotok_base.json",
+        worldsmith / "krovotok_generated_assets.json",
+        worldsmith / "textures" / "particle" / "krovotok",
     ]
-
-    for charge in range(6):
-        name = f"krovotok_charge_{charge}.png"
-        mappings.append(
-            (
-                SOURCE_ASSETS / "textures" / "item" / name,
-                worldsmith_output / "textures" / "item" / name,
-            )
-        )
-
-    particle_texture_source = SOURCE_ASSETS / "textures" / "particle" / "krovotok"
-    for source in sorted(particle_texture_source.glob("*.png")):
-        mappings.append(
-            (
-                source,
-                worldsmith_output / "textures" / "particle" / "krovotok" / source.name,
-            )
-        )
-
-    actual_particle_pngs = sum(
-        1
-        for source, _ in mappings
-        if source.suffix == ".png" and "particle" in source.parts and "krovotok" in source.parts
-    )
-    if actual_particle_pngs != 30:
-        raise RuntimeError(
-            f"Expected 30 Krovotok particle PNG files, found {actual_particle_pngs}"
-        )
+    generated_targets.extend(worldsmith / "textures" / "item" / f"krovotok_stage_{stage}.png" for stage in range(6))
+    generated_targets.extend(worldsmith / "textures" / "item" / f"krovotok_glow_{stage}.png" for stage in range(6))
+    generated_targets.extend(worldsmith / "textures" / "item" / f"krovotok_charge_{stage}.png" for stage in range(6))
+    generated_targets.extend([
+        worldsmith / "textures" / "item" / "krovotok.png",
+        worldsmith / "textures" / "item" / "krovotok.png.mcmeta",
+        worldsmith / "textures" / "item" / "krovotok_static.png",
+    ])
+    for target in generated_targets:
+        remove_target(target)
 
     manifest: dict[str, str] = {}
-    for source, destination in mappings:
-        copy_file(source, destination)
-        if destination.name == "krovotok_base.json":
-            normalize_item_model_uv(destination)
-        relative = destination.relative_to(output_root).as_posix()
-        manifest[relative] = sha256(destination)
+    base_model_path = worldsmith / "models" / "item" / "krovotok_base.json"
+    base_model_path.parent.mkdir(parents=True, exist_ok=True)
+    base_model_path.write_text(json.dumps(game_model(master), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    manifest[base_model_path.relative_to(output_root).as_posix()] = sha256(base_model_path)
 
-    manifest_path = worldsmith_output / "krovotok_generated_assets.json"
+    item_texture_dir = worldsmith / "textures" / "item"
+    item_texture_dir.mkdir(parents=True, exist_ok=True)
+    for stage in range(6):
+        for kind in ("stage", "glow"):
+            name = f"krovotok_{kind}_{stage}.png"
+            destination = item_texture_dir / name
+            destination.write_bytes(embedded_png(master, name))
+            manifest[destination.relative_to(output_root).as_posix()] = sha256(destination)
+
+    particle_source = SOURCE_ASSETS / "textures" / "particle" / "krovotok"
+    particle_destination = worldsmith / "textures" / "particle" / "krovotok"
+    particle_destination.mkdir(parents=True, exist_ok=True)
+    particle_frames = sorted(particle_source.glob("*.png"))
+    if len(particle_frames) != 30:
+        raise RuntimeError(f"Expected 30 Krovotok particle PNG files, found {len(particle_frames)}")
+    for source in particle_frames:
+        destination = particle_destination / source.name
+        shutil.copy2(source, destination)
+        manifest[destination.relative_to(output_root).as_posix()] = sha256(destination)
+
+    manifest_path = worldsmith / "krovotok_generated_assets.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    manifest_path.write_text(
-        json.dumps(
-            {
-                "generated": True,
-                "source_archive_sha256": "3f31f68727da3a6e9d40b0e25e7cc26c6868c7317ca7fbdb516b7ea1e22bf902",
-                "committed_particle_jsons": [f"assets/worldsmith/particles/{name}.json" for name in PARTICLE_NAMES],
-                "particle_textures": PARTICLE_TEXTURES,
-                "files": manifest,
-            },
-            ensure_ascii=False,
-            indent=2,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
-
+    manifest_path.write_text(json.dumps({
+        "generated": True,
+        "source_bbmodel": "codex_tasks/krovotok/source/krovotok_stages_master.parts/",
+        "geometry_sha256": EXPECTED_GEOMETRY_SHA256,
+        "element_count": 170,
+        "stage_count": 6,
+        "emissive_masks": 6,
+        "particle_frames": 30,
+        "files": manifest,
+    }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    manifest[manifest_path.relative_to(output_root).as_posix()] = sha256(manifest_path)
     return manifest
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description=(
-            "Repair and decode the text-only Krovotok archive, validate committed particle JSON references, "
-            "then materialize missing binary game assets under src/generated/resources."
-        )
-    )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=DEFAULT_OUTPUT,
-        help=f"Generated resource root (default: {DEFAULT_OUTPUT})",
-    )
+    parser = argparse.ArgumentParser(description="Materialize Krovotok stages and emissive masks from a text BBModel.")
+    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args()
-
-    output = args.output.resolve()
-    manifest = materialize(output)
-    print(f"Krovotok generated resources: {output}")
+    manifest = materialize(args.output.resolve())
+    print(f"Krovotok generated resources: {args.output.resolve()}")
     print(f"Materialized files: {len(manifest)}")
-    print("Particle JSON texture lists match all generated frames; no duplicate resources were generated.")
+    print("Geometry: 170 elements, unchanged")
+    print("Stages: 0..5 with separate full-bright crimson vein masks")
     return 0
 
 
