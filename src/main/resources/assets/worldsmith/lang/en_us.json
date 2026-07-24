@@ -5,7 +5,7 @@
   "tooltip.worldsmith.predel.description": "Temporarily phases selected blocks out of the material world.",
   "tooltip.worldsmith.predel.key": "[R] Use ability",
   "tooltip.worldsmith.predel.cooldown": "Cooldown: 12 sec.",
-  "key.worldsmith.predel_ability": "Use Predel ability",
+  "key.worldsmith.predel_ability": "Use active sword ability",
   "key.categories.worldsmith": "Worldsmith",
   "item.worldsmith.koloss": "Koloss",
   "item.worldsmith.ship": "Spike",
@@ -21,5 +21,12 @@
   "tooltip.worldsmith.krovotok.ability": "Passive ability: Crimson Rhythm",
   "tooltip.worldsmith.krovotok.charge": "Charge: %s/%s",
   "tooltip.worldsmith.krovotok.description": "Hits build rhythm; after 5 charges, the next hit deals bonus damage, heals the wielder, and resets the combo.",
-  "item.worldsmith.prah": "Ashes"
+  "item.worldsmith.prah": "Ashes",
+  "entity.worldsmith.prah_echo": "Ashen Trail",
+  "tooltip.worldsmith.prah.ability": "Active ability: Their Ashen Trail",
+  "tooltip.worldsmith.prah.description": "Creates an ash echo that repeats the last 5 seconds of movement and attacks. It triggers pressure plates and distracts enemies.",
+  "tooltip.worldsmith.prah.key": "[R] Summon the ash echo",
+  "tooltip.worldsmith.prah.cooldown": "Cooldown: 20 sec.",
+  "message.worldsmith.prah.activated": "Their Ashen Trail awakens",
+  "message.worldsmith.prah.not_enough_history": "There is nothing for the ash to repeat yet"
 }
