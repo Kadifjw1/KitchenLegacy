@@ -155,14 +155,19 @@ tasks.named('processResources', ProcessResources).configure {
         expand replaceProperties + [project: project]
     }
 
-    // Blockbench exports these texture references without the item/ folder.
-    // Normalize them for built JARs and for IDE launches handled by copyIdeResources.
+    // Blockbench exported the custom cube models with parent item/handheld.
+    // item/handheld ultimately points at the item/generated marker, so Minecraft discards
+    // the custom elements and tries to create a flat item from layer0. These files use #0,
+    // therefore the generated result has no quads and appears completely invisible.
+    // Remove that parent while preserving the embedded display transforms and cube geometry.
     filesMatching([
             'assets/worldsmith/models/item/prah.json',
             'assets/worldsmith/models/item/krovotok_charge_*.json'
     ]) {
         filter { String line ->
             line
+                    .replace('\t"parent": "item/handheld",', '')
+                    .replace('  "parent": "item/handheld",', '')
                     .replace('"0": "worldsmith:tex_prah"', '"0": "worldsmith:item/tex_prah"')
                     .replaceAll(/"0": "worldsmith:krovotok_charge_([0-5])"/, '"0": "worldsmith:item/krovotok_charge_$1"')
         }
