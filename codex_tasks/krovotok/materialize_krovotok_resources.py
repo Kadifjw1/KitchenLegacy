@@ -40,6 +40,41 @@ def copy_file(source: Path, destination: Path) -> None:
     shutil.copy2(source, destination)
 
 
+def normalize_item_model_uv(model_path: Path) -> None:
+    """Convert Blockbench pixel UVs (0..64) to Minecraft model UV units (0..16)."""
+    try:
+        model = json.loads(model_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError(f"Invalid Krovotok item model {model_path}: {error}") from error
+
+    uv_values: list[float] = []
+    for element in model.get("elements", []):
+        for face in element.get("faces", {}).values():
+            uv = face.get("uv")
+            if isinstance(uv, list) and len(uv) == 4:
+                uv_values.extend(value for value in uv if isinstance(value, (int, float)))
+
+    if not uv_values:
+        raise ValueError(f"Krovotok base model has no face UV coordinates: {model_path}")
+
+    max_uv = max(uv_values)
+    if max_uv <= 16:
+        return
+
+    scale = 16.0 / 64.0
+    for element in model.get("elements", []):
+        for face in element.get("faces", {}).values():
+            uv = face.get("uv")
+            if isinstance(uv, list) and len(uv) == 4:
+                face["uv"] = [round(float(value) * scale, 6) for value in uv]
+
+    model["texture_size"] = [64, 64]
+    model_path.write_text(
+        json.dumps(model, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
 def verify_committed_particle_jsons() -> None:
     missing = [name for name in PARTICLE_NAMES if not (MAIN_PARTICLES / f"{name}.json").is_file()]
     if missing:
@@ -74,7 +109,6 @@ def clean_generated_targets(worldsmith_output: Path) -> None:
         worldsmith_output / "textures" / "item" / f"krovotok_charge_{charge}.png"
         for charge in range(6)
     )
-    # Remove stale generated copies from the previous placeholder pipeline.
     targets.extend(
         worldsmith_output / "particles" / f"{name}.json"
         for name in PARTICLE_NAMES
@@ -150,6 +184,8 @@ def materialize(output_root: Path) -> dict[str, str]:
     manifest: dict[str, str] = {}
     for source, destination in mappings:
         copy_file(source, destination)
+        if destination.name == "krovotok_base.json":
+            normalize_item_model_uv(destination)
         relative = destination.relative_to(output_root).as_posix()
         manifest[relative] = sha256(destination)
 
