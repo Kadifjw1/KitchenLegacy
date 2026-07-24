@@ -20,5 +20,6 @@
   "item.worldsmith.krovotok": "Кровоток",
   "tooltip.worldsmith.krovotok.ability": "Пассивная способность: Багровый ритм",
   "tooltip.worldsmith.krovotok.charge": "Заряд: %s/%s",
-  "tooltip.worldsmith.krovotok.description": "Удары накапливают ритм; после 5 зарядов следующий удар наносит бонусный урон, лечит владельца и сбрасывает серию."
+  "tooltip.worldsmith.krovotok.description": "Удары накапливают ритм; после 5 зарядов следующий удар наносит бонусный урон, лечит владельца и сбрасывает серию.",
+  "item.worldsmith.prah": "Прах"
 }
