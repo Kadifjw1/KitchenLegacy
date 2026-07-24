@@ -50,6 +50,7 @@ jobs:
           base='src/generated/resources/assets/worldsmith'
           test -f "$base/models/item/krovotok_base.json"
           test -f "$base/krovotok_generated_assets.json"
+          test -f build/generated/krovotok/krovotok_stages_master.bbmodel
           test "$(find "$base/textures/particle/krovotok" -name '*.png' | wc -l)" -eq 30
           test "$(find src/main/resources/assets/worldsmith/particles -name 'krovotok_*.json' | wc -l)" -eq 5
           for stage in 0 1 2 3 4 5; do
@@ -61,8 +62,7 @@ jobs:
           python3 - <<'PY'
           import json
           from pathlib import Path
-          parts = sorted(Path('codex_tasks/krovotok/source/krovotok_stages_master.parts').glob('part*.txt'))
-          master = json.loads(''.join(path.read_text() for path in parts))
+          master = json.loads(Path('build/generated/krovotok/krovotok_stages_master.bbmodel').read_text())
           manifest = json.loads(Path('src/generated/resources/assets/worldsmith/krovotok_generated_assets.json').read_text())
           assert len(master['elements']) == 170
           assert len(master['textures']) == 12
