@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
-      - fix/krovotok-complete-integration
+      - feature/krovotok-emissive-stages
     paths:
       - 'codex_tasks/krovotok/**'
+      - 'src/main/resources/assets/worldsmith/models/item/krovotok*.json'
+      - 'src/main/java/ru/theframetrip/worldsmith/client/render/KrovotokItemRenderer.java'
       - '.github/workflows/krovotok-assets-check.yml'
       - '.gitignore'
   pull_request:
@@ -14,6 +16,8 @@ on:
       - main
     paths:
       - 'codex_tasks/krovotok/**'
+      - 'src/main/resources/assets/worldsmith/models/item/krovotok*.json'
+      - 'src/main/java/ru/theframetrip/worldsmith/client/render/KrovotokItemRenderer.java'
       - '.github/workflows/krovotok-assets-check.yml'
       - '.gitignore'
   workflow_dispatch:
@@ -33,35 +37,37 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Verify Krovotok archive
-        shell: bash
-        run: |
-          set +e
-          python3 codex_tasks/krovotok/verify_asset_archive.py 2>&1 | tee krovotok-asset-diagnostic.txt
-          status=${PIPESTATUS[0]}
-          echo "exit_status=$status" >> krovotok-asset-diagnostic.txt
-          exit "$status"
+      - name: Verify historical particle archive
+        run: python3 codex_tasks/krovotok/verify_asset_archive.py
 
-      - name: Materialize missing binary assets
+      - name: Materialize emissive stages
         run: python3 codex_tasks/krovotok/materialize_krovotok_resources.py
 
       - name: Validate complete resource set
         shell: bash
         run: |
-          test -f src/generated/resources/assets/worldsmith/models/item/krovotok_base.json
-          test -f src/generated/resources/assets/worldsmith/textures/item/krovotok.png
-          test -f src/generated/resources/assets/worldsmith/textures/item/krovotok.png.mcmeta
-          test -f src/generated/resources/assets/worldsmith/krovotok_generated_assets.json
-          test "$(find src/generated/resources/assets/worldsmith/textures/particle/krovotok -name '*.png' | wc -l)" -eq 30
+          set -euo pipefail
+          base='src/generated/resources/assets/worldsmith'
+          test -f "$base/models/item/krovotok_base.json"
+          test -f "$base/krovotok_generated_assets.json"
+          test "$(find "$base/textures/particle/krovotok" -name '*.png' | wc -l)" -eq 30
           test "$(find src/main/resources/assets/worldsmith/particles -name 'krovotok_*.json' | wc -l)" -eq 5
-          test ! -d src/generated/resources/assets/worldsmith/particles || test -z "$(find src/generated/resources/assets/worldsmith/particles -name 'krovotok_*.json' -print -quit)"
-          rm -f krovotok-asset-diagnostic.txt
+          for stage in 0 1 2 3 4 5; do
+            test -f "$base/textures/item/krovotok_stage_${stage}.png"
+            test -f "$base/textures/item/krovotok_glow_${stage}.png"
+            test -f "src/main/resources/assets/worldsmith/models/item/krovotok_charge_${stage}.json"
+            test -f "src/main/resources/assets/worldsmith/models/item/krovotok_glow_${stage}.json"
+          done
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          parts = sorted(Path('codex_tasks/krovotok/source/krovotok_stages_master.parts').glob('part*.txt'))
+          master = json.loads(''.join(path.read_text() for path in parts))
+          manifest = json.loads(Path('src/generated/resources/assets/worldsmith/krovotok_generated_assets.json').read_text())
+          assert len(master['elements']) == 170
+          assert len(master['textures']) == 12
+          assert manifest['element_count'] == 170
+          assert manifest['stage_count'] == 6
+          assert manifest['emissive_masks'] == 6
+          PY
           test -z "$(git status --short --untracked-files=all)"
-
-      - name: Upload failure diagnostic
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: krovotok-asset-diagnostic
-          path: krovotok-asset-diagnostic.txt
-          if-no-files-found: warn
