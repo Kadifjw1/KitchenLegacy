@@ -46,10 +46,6 @@ import java.util.UUID;
 
 /**
  * Server-side implementation of the active ability «След их праха».
- *
- * <p>The manager keeps the last five seconds of the wielder's movement and
- * replays them with an ash echo. The echo can trigger pressure plates,
- * attracts hostile mobs and repeats recorded sword swings.</p>
  */
 @Mod.EventBusSubscriber(modid = WorldsmithMod.MOD_ID)
 public final class PrahAbilityManager {
@@ -97,8 +93,8 @@ public final class PrahAbilityManager {
         List<PrahEchoFrame> playbackFrames = new ArrayList<>(history.frames);
         PrahEchoFrame first = playbackFrames.get(0);
         ServerLevel level = player.serverLevel();
-
         ArmorStand echo = createEchoStand(player, level, first);
+
         KNOWN_ECHO_ENTITIES.add(echo.getUUID());
         if (!level.addFreshEntity(echo)) {
             KNOWN_ECHO_ENTITIES.remove(echo.getUUID());
@@ -125,7 +121,8 @@ public final class PrahAbilityManager {
         stand.setGlowingTag(true);
         stand.setShowArms(true);
         stand.setNoBasePlate(true);
-        stand.setSmall(false);
+        // Armor stands are full-sized by default. ArmorStand#setSmall is private in 1.20.1 mappings,
+        // so no explicit call is needed here.
         stand.setCustomName(Component.translatable("entity.worldsmith.prah_echo"));
         stand.setCustomNameVisible(false);
         stand.getPersistentData().putBoolean(ECHO_ENTITY_TAG, true);
@@ -191,15 +188,12 @@ public final class PrahAbilityManager {
 
         Iterator<Map.Entry<UUID, EchoPlayback>> iterator = ACTIVE_ECHOES.entrySet().iterator();
         while (iterator.hasNext()) {
-            Map.Entry<UUID, EchoPlayback> entry = iterator.next();
-            EchoPlayback playback = entry.getValue();
-
+            EchoPlayback playback = iterator.next().getValue();
             if (playback.echo.isRemoved() || playback.frameIndex >= playback.frames.size()) {
                 crumble(playback);
                 iterator.remove();
                 continue;
             }
-
             tickPlayback(playback);
         }
     }
@@ -284,14 +278,14 @@ public final class PrahAbilityManager {
             return;
         }
 
-        boolean hurt = target.hurt(level.damageSources().playerAttack(owner), ECHO_HIT_DAMAGE);
-        if (!hurt) {
+        if (!target.hurt(level.damageSources().playerAttack(owner), ECHO_HIT_DAMAGE)) {
             return;
         }
 
         applyAshMark(level, target);
         level.sendParticles(ParticleTypes.ASH, target.getX(), target.getY() + target.getBbHeight() * 0.55D, target.getZ(),
-                14, target.getBbWidth() * 0.45D, target.getBbHeight() * 0.45D, target.getBbWidth() * 0.45D, 0.025D);
+                14, target.getBbWidth() * 0.45D, target.getBbHeight() * 0.45D,
+                target.getBbWidth() * 0.45D, 0.025D);
     }
 
     private static void applyAshMark(ServerLevel level, LivingEntity target) {
@@ -314,9 +308,11 @@ public final class PrahAbilityManager {
         target.addEffect(new MobEffectInstance(MobEffects.WITHER, 40, 0));
         target.hurt(level.damageSources().magic(), ASH_BURST_DAMAGE);
         level.sendParticles(ParticleTypes.ASH, target.getX(), target.getY() + target.getBbHeight() * 0.5D, target.getZ(),
-                42, target.getBbWidth() * 0.7D, target.getBbHeight() * 0.65D, target.getBbWidth() * 0.7D, 0.055D);
+                42, target.getBbWidth() * 0.7D, target.getBbHeight() * 0.65D,
+                target.getBbWidth() * 0.7D, 0.055D);
         level.sendParticles(ParticleTypes.LARGE_SMOKE, target.getX(), target.getY() + target.getBbHeight() * 0.45D, target.getZ(),
-                12, target.getBbWidth() * 0.45D, target.getBbHeight() * 0.45D, target.getBbWidth() * 0.45D, 0.02D);
+                12, target.getBbWidth() * 0.45D, target.getBbHeight() * 0.45D,
+                target.getBbWidth() * 0.45D, 0.02D);
     }
 
     private static void distractHostiles(ServerLevel level, ArmorStand echo) {
