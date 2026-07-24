@@ -19,8 +19,17 @@ import ru.theframetrip.worldsmith.item.KrovotokItem;
  * 1. the normal charge-stage model using world lighting;
  * 2. an alpha-only emissive model at full brightness.
  *
- * The second pass makes the crimson channel and its branching veins remain
- * visible at light level zero without changing the approved 170-element geometry.
+ * <p>The approved item-display transform is stored on the root
+ * {@code worldsmith:item/krovotok} model. Minecraft applies that transform
+ * before invoking this custom renderer. The stage models are therefore
+ * rendered with {@link ItemDisplayContext#NONE} so the transform is not
+ * applied a second time.</p>
+ *
+ * <p>Vanilla ItemRenderer also translates the pose by {@code -0.5} before
+ * entering a custom renderer. Calling ItemRenderer again for the stage model
+ * would otherwise apply that centering translation twice. The matching
+ * {@code +0.5} correction below removes the outer centering before the nested
+ * render call, leaving exactly one normal model-centering translation.</p>
  */
 public final class KrovotokItemRenderer extends BlockEntityWithoutLevelRenderer {
     private static final ModelResourceLocation[] BASE_MODELS = createModels("krovotok_charge_");
@@ -65,16 +74,24 @@ public final class KrovotokItemRenderer extends BlockEntityWithoutLevelRenderer 
         Minecraft minecraft = Minecraft.getInstance();
         ItemRenderer itemRenderer = minecraft.getItemRenderer();
         int charge = clampCharge(KrovotokItem.getCharge(stack));
-        boolean leftHand = displayContext == ItemDisplayContext.FIRST_PERSON_LEFT_HAND
-                || displayContext == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
 
         BakedModel base = itemRenderer.getItemModelShaper()
                 .getModelManager()
                 .getModel(BASE_MODELS[charge]);
+        BakedModel glow = itemRenderer.getItemModelShaper()
+                .getModelManager()
+                .getModel(GLOW_MODELS[charge]);
+
+        poseStack.pushPose();
+        // Undo the centering translation already applied before BEWLR entry.
+        // The nested ItemRenderer call below will apply the single required
+        // -0.5 model-centering translation itself.
+        poseStack.translate(0.5D, 0.5D, 0.5D);
+
         itemRenderer.render(
                 stack,
-                displayContext,
-                leftHand,
+                ItemDisplayContext.NONE,
+                false,
                 poseStack,
                 bufferSource,
                 packedLight,
@@ -82,18 +99,17 @@ public final class KrovotokItemRenderer extends BlockEntityWithoutLevelRenderer 
                 base
         );
 
-        BakedModel glow = itemRenderer.getItemModelShaper()
-                .getModelManager()
-                .getModel(GLOW_MODELS[charge]);
         itemRenderer.render(
                 stack,
-                displayContext,
-                leftHand,
+                ItemDisplayContext.NONE,
+                false,
                 poseStack,
                 bufferSource,
                 LightTexture.FULL_BRIGHT,
                 packedOverlay,
                 glow
         );
+
+        poseStack.popPose();
     }
 }
