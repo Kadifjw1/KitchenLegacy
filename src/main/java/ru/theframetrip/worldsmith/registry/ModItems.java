@@ -28,6 +28,7 @@ public class ModItems {
             () -> new PredelItem(Tiers.IRON, 8, -2.8F, new Item.Properties()));
     public static final RegistryObject<Item> KROVOTOK = ITEMS.register("krovotok",
             () -> new KrovotokItem(Tiers.IRON, 7, -2.6F, new Item.Properties()));
+    public static final RegistryObject<Item> PRAH = registerSword("prah", 7, -2.7F);
 
     private static RegistryObject<Item> registerSword(String name, int attackDamageModifier, float attackSpeedModifier) {
         return ITEMS.register(name, () -> new WorldsmithSwordItem(Tiers.IRON, attackDamageModifier, attackSpeedModifier, new Item.Properties()));
