@@ -44,6 +44,9 @@ jobs:
       - name: Materialize Krovotok stages and particles
         run: python3 codex_tasks/krovotok/materialize_krovotok_resources.py
 
+      - name: Apply approved Koloss item transforms
+        run: python3 codex_tasks/krovotok/apply_krovotok_display_transform.py
+
       - name: Build with Gradle
         run: ./gradlew clean build
 
@@ -76,6 +79,21 @@ jobs:
 
           particle_frame_count="$(jar tf "$jar_file" | grep -Ec '^assets/worldsmith/textures/particle/krovotok/.*\.png$')"
           test "$particle_frame_count" -eq 30
+
+          python3 - "$jar_file" <<'PY'
+          import json
+          import sys
+          import zipfile
+
+          with zipfile.ZipFile(sys.argv[1]) as archive:
+              model = json.loads(archive.read('assets/worldsmith/models/item/krovotok_base.json'))
+          assert model['worldsmith_position_profile'] == 'koloss_approved_display_v1'
+          assert min(element['from'][1] for element in model['elements']) == -7.5
+          assert max(element['to'][1] for element in model['elements']) == 31.5
+          assert model['display']['thirdperson_righthand']['rotation'] == [14, -88, 21]
+          assert model['display']['thirdperson_righthand']['scale'] == [0.65, 0.65, 0.65]
+          assert model['display']['firstperson_righthand']['scale'] == [0.65, 0.65, 0.65]
+          PY
 
       - name: Upload mod jar
         uses: actions/upload-artifact@v4
