@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from collections import Counter
 import json
 import struct
 from pathlib import Path
@@ -49,6 +50,51 @@ def face_uv_values(model: dict) -> list[float]:
     return values
 
 
+def element_signature(element: dict) -> tuple:
+    return (
+        element.get("name"),
+        tuple(element.get("from", [])),
+        tuple(element.get("to", [])),
+        json.dumps(element.get("rotation"), sort_keys=True, separators=(",", ":")),
+    )
+
+
+def geometry_diagnostic(models: list[dict]) -> str:
+    reference = models[0].get("elements", [])
+    reference_names = Counter(element.get("name") for element in reference)
+    reference_signatures = Counter(element_signature(element) for element in reference)
+    lines: list[str] = []
+
+    for charge, model in enumerate(models):
+        elements = model.get("elements", [])
+        names = Counter(element.get("name") for element in elements)
+        signatures = Counter(element_signature(element) for element in elements)
+
+        extra_names = list((names - reference_names).elements())
+        missing_names = list((reference_names - names).elements())
+        duplicate_names = sorted(name for name, count in names.items() if name and count > 1)
+        extra_signatures = list((signatures - reference_signatures).elements())
+        missing_signatures = list((reference_signatures - signatures).elements())
+
+        lines.append(f"stage {charge}: elements={len(elements)}")
+        if extra_names:
+            lines.append(f"  extra names vs stage 0: {extra_names}")
+        if missing_names:
+            lines.append(f"  missing names vs stage 0: {missing_names}")
+        if duplicate_names:
+            lines.append(f"  duplicate names: {duplicate_names}")
+        if extra_signatures:
+            lines.append("  extra geometry signatures:")
+            for signature in extra_signatures[:10]:
+                lines.append(f"    {signature}")
+        if missing_signatures:
+            lines.append("  missing geometry signatures:")
+            for signature in missing_signatures[:10]:
+                lines.append(f"    {signature}")
+
+    return "\n".join(lines)
+
+
 def main() -> int:
     root_path = MODELS / "krovotok.json"
     root_model = read_json(root_path)
@@ -68,23 +114,36 @@ def main() -> int:
         missing = sorted(expected_override_models - actual_override_models)
         raise SystemExit(f"Missing Krovotok charge overrides: {missing}")
 
+    models: list[dict] = []
+    for charge in range(6):
+        model_path = MODELS / f"krovotok_charge_{charge}.json"
+        if not model_path.is_file():
+            raise SystemExit(f"Missing Krovotok model: {model_path}")
+        models.append(read_json(model_path))
+
+    invalid_counts = [
+        (charge, len(model.get("elements", [])))
+        for charge, model in enumerate(models)
+        if not isinstance(model.get("elements"), list) or len(model.get("elements", [])) != 170
+    ]
+    if invalid_counts:
+        details = geometry_diagnostic(models)
+        raise SystemExit(
+            "Krovotok stage element-count mismatch: "
+            + ", ".join(f"stage {charge}={count}" for charge, count in invalid_counts)
+            + "\n"
+            + details
+        )
+
     reference_display: dict | None = None
     texture_references: list[str] = []
 
-    for charge in range(6):
+    for charge, model in enumerate(models):
         model_path = MODELS / f"krovotok_charge_{charge}.json"
         texture_path = TEXTURES / f"krovotok_charge_{charge}.png"
 
-        if not model_path.is_file():
-            raise SystemExit(f"Missing Krovotok model: {model_path}")
         if not texture_path.is_file():
             raise SystemExit(f"Missing Krovotok texture: {texture_path}")
-
-        model = read_json(model_path)
-        elements = model.get("elements")
-        if not isinstance(elements, list) or len(elements) != 170:
-            count = len(elements) if isinstance(elements, list) else None
-            raise SystemExit(f"{model_path}: expected 170 elements, got {count}")
 
         if model.get("texture_size") != [64, 64]:
             raise SystemExit(f"{model_path}: expected texture_size [64, 64]")
