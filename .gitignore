@@ -8,13 +8,16 @@ run/
 /codex_tasks/krovotok/Krovotok_complete_v2_with_particles.zip
 /codex_tasks/krovotok/Krovotok_complete_v2_with_particles.zip.b64
 /codex_tasks/krovotok/assets/Krovotok_complete_v2_with_particles.zip.b64
+/codex_tasks/krovotok/source/krovotok_stages_master.bbmodel
 
-# Krovotok resources materialized from text-only archive shards
+# Krovotok resources materialized from text-only archive shards / BBModel
 /src/generated/resources/assets/worldsmith/models/item/krovotok_base.json
 /src/generated/resources/assets/worldsmith/textures/item/krovotok.png
 /src/generated/resources/assets/worldsmith/textures/item/krovotok.png.mcmeta
 /src/generated/resources/assets/worldsmith/textures/item/krovotok_static.png
 /src/generated/resources/assets/worldsmith/textures/item/krovotok_charge_*.png
+/src/generated/resources/assets/worldsmith/textures/item/krovotok_stage_*.png
+/src/generated/resources/assets/worldsmith/textures/item/krovotok_glow_*.png
 /src/generated/resources/assets/worldsmith/particles/krovotok_*.json
 /src/generated/resources/assets/worldsmith/textures/particle/krovotok/
 /src/generated/resources/assets/worldsmith/krovotok_generated_assets.json
