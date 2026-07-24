@@ -2,23 +2,18 @@ package ru.theframetrip.worldsmith.ability.prah;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Rotations;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -93,7 +88,7 @@ public final class PrahAbilityManager {
         List<PrahEchoFrame> playbackFrames = new ArrayList<>(history.frames);
         PrahEchoFrame first = playbackFrames.get(0);
         ServerLevel level = player.serverLevel();
-        ArmorStand echo = createEchoStand(player, level, first);
+        ArmorStand echo = createEchoStand(level, first);
 
         KNOWN_ECHO_ENTITIES.add(echo.getUUID());
         if (!level.addFreshEntity(echo)) {
@@ -104,43 +99,33 @@ public final class PrahAbilityManager {
         ACTIVE_ECHOES.put(player.getUUID(), new EchoPlayback(player.getUUID(), echo, playbackFrames));
         player.getCooldowns().addCooldown(ModItems.PRAH.get(), COOLDOWN_TICKS);
 
-        level.sendParticles(ParticleTypes.ASH, player.getX(), player.getY() + 0.9D, player.getZ(),
-                28, 0.45D, 0.85D, 0.45D, 0.025D);
-        level.sendParticles(ParticleTypes.SMOKE, first.x(), first.y() + 0.9D, first.z(),
-                12, 0.3D, 0.7D, 0.3D, 0.015D);
+        level.sendParticles(
+                ParticleTypes.ASH,
+                player.getX(),
+                player.getY() + 0.9D,
+                player.getZ(),
+                24,
+                0.38D,
+                0.72D,
+                0.38D,
+                0.02D
+        );
         player.displayClientMessage(Component.translatable("message.worldsmith.prah.activated"), true);
         return true;
     }
 
-    private static ArmorStand createEchoStand(ServerPlayer owner, ServerLevel level, PrahEchoFrame first) {
+    private static ArmorStand createEchoStand(ServerLevel level, PrahEchoFrame first) {
         ArmorStand stand = new ArmorStand(level, first.x(), first.y(), first.z());
         stand.setNoGravity(true);
         stand.setSilent(true);
         stand.setInvulnerable(true);
         stand.setInvisible(true);
-        stand.setGlowingTag(true);
-        stand.setShowArms(true);
+        stand.setGlowingTag(false);
+        stand.setShowArms(false);
         stand.setNoBasePlate(true);
-        // Armor stands are full-sized by default. ArmorStand#setSmall is private in 1.20.1 mappings,
-        // so no explicit call is needed here.
         stand.setCustomName(Component.translatable("entity.worldsmith.prah_echo"));
         stand.setCustomNameVisible(false);
         stand.getPersistentData().putBoolean(ECHO_ENTITY_TAG, true);
-
-        stand.setItemSlot(EquipmentSlot.MAINHAND, owner.getMainHandItem().copy());
-        stand.setItemSlot(EquipmentSlot.OFFHAND, owner.getOffhandItem().copy());
-        stand.setItemSlot(EquipmentSlot.CHEST, owner.getItemBySlot(EquipmentSlot.CHEST).copy());
-        stand.setItemSlot(EquipmentSlot.LEGS, owner.getItemBySlot(EquipmentSlot.LEGS).copy());
-        stand.setItemSlot(EquipmentSlot.FEET, owner.getItemBySlot(EquipmentSlot.FEET).copy());
-
-        ItemStack head = owner.getItemBySlot(EquipmentSlot.HEAD).copy();
-        if (head.isEmpty()) {
-            head = new ItemStack(Items.PLAYER_HEAD);
-            CompoundTag profileTag = new CompoundTag();
-            NbtUtils.writeGameProfile(profileTag, owner.getGameProfile());
-            head.getOrCreateTag().put("SkullOwner", profileTag);
-        }
-        stand.setItemSlot(EquipmentSlot.HEAD, head);
         return stand;
     }
 
@@ -189,11 +174,26 @@ public final class PrahAbilityManager {
         Iterator<Map.Entry<UUID, EchoPlayback>> iterator = ACTIVE_ECHOES.entrySet().iterator();
         while (iterator.hasNext()) {
             EchoPlayback playback = iterator.next().getValue();
-            if (playback.echo.isRemoved() || playback.frameIndex >= playback.frames.size()) {
-                crumble(playback);
+
+            if (playback.echo.isRemoved()) {
+                KNOWN_ECHO_ENTITIES.remove(playback.echo.getUUID());
                 iterator.remove();
                 continue;
             }
+
+            if (playback.crumbling) {
+                if (tickCrumble(playback)) {
+                    iterator.remove();
+                }
+                continue;
+            }
+
+            if (playback.frameIndex >= playback.frames.size()) {
+                playback.crumbling = true;
+                playback.crumbleTicks = 0;
+                continue;
+            }
+
             tickPlayback(playback);
         }
     }
@@ -205,16 +205,16 @@ public final class PrahAbilityManager {
         }
 
         PrahEchoFrame frame = playback.frames.get(playback.frameIndex);
-        double loweredY = frame.y() - (frame.crouching() ? 0.22D : 0.0D);
+        PrahEchoFrame previousFrame = playback.frameIndex > 0
+                ? playback.frames.get(playback.frameIndex - 1)
+                : null;
 
-        echo.setPos(frame.x(), loweredY, frame.z());
+        echo.setPos(frame.x(), frame.y(), frame.z());
         echo.setYRot(frame.yRot());
         echo.setXRot(frame.xRot());
         echo.yRotO = frame.yRot();
         echo.xRotO = frame.xRot();
         echo.setDeltaMovement(Vec3.ZERO);
-        echo.setHeadPose(new Rotations(frame.xRot(), 0.0F, 0.0F));
-        echo.setBodyPose(new Rotations(frame.crouching() ? 12.0F : 0.0F, 0.0F, 0.0F));
 
         if (frame.swinging() && !playback.previousSwinging) {
             playback.swingTicks = 8;
@@ -222,33 +222,49 @@ public final class PrahAbilityManager {
         }
         playback.previousSwinging = frame.swinging();
 
-        updateArmPose(playback);
         triggerBlockInteractions(level, echo);
 
         if (playback.frameIndex % 10 == 0) {
             distractHostiles(level, echo);
         }
 
-        level.sendParticles(ParticleTypes.ASH, echo.getX(), echo.getY() + 0.9D, echo.getZ(),
-                4, 0.24D, 0.75D, 0.24D, 0.008D);
-        if (playback.frameIndex % 4 == 0) {
-            level.sendParticles(ParticleTypes.SMOKE, echo.getX(), echo.getY() + 0.75D, echo.getZ(),
-                    1, 0.12D, 0.35D, 0.12D, 0.005D);
+        if (playback.frameIndex % 2 == 0) {
+            PrahEchoParticleRenderer.render(
+                    level,
+                    echo,
+                    frame,
+                    previousFrame,
+                    playback.swingTicks
+            );
         }
 
+        if (playback.swingTicks > 0) {
+            playback.swingTicks--;
+        }
         playback.frameIndex++;
     }
 
-    private static void updateArmPose(EchoPlayback playback) {
-        if (playback.swingTicks <= 0) {
-            playback.echo.setRightArmPose(new Rotations(-10.0F, 0.0F, 0.0F));
-            return;
+    private static boolean tickCrumble(EchoPlayback playback) {
+        ArmorStand echo = playback.echo;
+        if (!(echo.level() instanceof ServerLevel level)) {
+            discardEcho(playback, false);
+            return true;
         }
 
-        float progress = 1.0F - playback.swingTicks / 8.0F;
-        float angle = -10.0F - (float) Math.sin(progress * Math.PI) * 115.0F;
-        playback.echo.setRightArmPose(new Rotations(angle, 0.0F, 0.0F));
-        playback.swingTicks--;
+        PrahEchoFrame lastFrame = playback.frames.get(playback.frames.size() - 1);
+        boolean finished = PrahEchoParticleRenderer.renderCrumble(
+                level,
+                echo,
+                lastFrame,
+                playback.crumbleTicks
+        );
+        playback.crumbleTicks++;
+
+        if (finished) {
+            discardEcho(playback, false);
+            return true;
+        }
+        return false;
     }
 
     private static void replayAttack(EchoPlayback playback, ServerLevel level, PrahEchoFrame frame) {
@@ -283,9 +299,17 @@ public final class PrahAbilityManager {
         }
 
         applyAshMark(level, target);
-        level.sendParticles(ParticleTypes.ASH, target.getX(), target.getY() + target.getBbHeight() * 0.55D, target.getZ(),
-                14, target.getBbWidth() * 0.45D, target.getBbHeight() * 0.45D,
-                target.getBbWidth() * 0.45D, 0.025D);
+        level.sendParticles(
+                ParticleTypes.ASH,
+                target.getX(),
+                target.getY() + target.getBbHeight() * 0.55D,
+                target.getZ(),
+                14,
+                target.getBbWidth() * 0.45D,
+                target.getBbHeight() * 0.45D,
+                target.getBbWidth() * 0.45D,
+                0.025D
+        );
     }
 
     private static void applyAshMark(ServerLevel level, LivingEntity target) {
@@ -307,17 +331,36 @@ public final class PrahAbilityManager {
         data.remove(ASH_MARK_UNTIL_TAG);
         target.addEffect(new MobEffectInstance(MobEffects.WITHER, 40, 0));
         target.hurt(level.damageSources().magic(), ASH_BURST_DAMAGE);
-        level.sendParticles(ParticleTypes.ASH, target.getX(), target.getY() + target.getBbHeight() * 0.5D, target.getZ(),
-                42, target.getBbWidth() * 0.7D, target.getBbHeight() * 0.65D,
-                target.getBbWidth() * 0.7D, 0.055D);
-        level.sendParticles(ParticleTypes.LARGE_SMOKE, target.getX(), target.getY() + target.getBbHeight() * 0.45D, target.getZ(),
-                12, target.getBbWidth() * 0.45D, target.getBbHeight() * 0.45D,
-                target.getBbWidth() * 0.45D, 0.02D);
+        level.sendParticles(
+                ParticleTypes.ASH,
+                target.getX(),
+                target.getY() + target.getBbHeight() * 0.5D,
+                target.getZ(),
+                42,
+                target.getBbWidth() * 0.7D,
+                target.getBbHeight() * 0.65D,
+                target.getBbWidth() * 0.7D,
+                0.055D
+        );
+        level.sendParticles(
+                ParticleTypes.LARGE_SMOKE,
+                target.getX(),
+                target.getY() + target.getBbHeight() * 0.45D,
+                target.getZ(),
+                12,
+                target.getBbWidth() * 0.45D,
+                target.getBbHeight() * 0.45D,
+                target.getBbWidth() * 0.45D,
+                0.02D
+        );
     }
 
     private static void distractHostiles(ServerLevel level, ArmorStand echo) {
-        for (Mob mob : level.getEntitiesOfClass(Mob.class, echo.getBoundingBox().inflate(DISTRACTION_RADIUS),
-                candidate -> candidate.isAlive() && candidate instanceof Enemy)) {
+        for (Mob mob : level.getEntitiesOfClass(
+                Mob.class,
+                echo.getBoundingBox().inflate(DISTRACTION_RADIUS),
+                candidate -> candidate.isAlive() && candidate instanceof Enemy
+        )) {
             mob.setTarget(echo);
         }
     }
@@ -333,28 +376,21 @@ public final class PrahAbilityManager {
         }
     }
 
-    private static void crumble(EchoPlayback playback) {
+    private static void discardEcho(EchoPlayback playback, boolean playParticles) {
         ArmorStand echo = playback.echo;
-        if (echo.level() instanceof ServerLevel level && !echo.isRemoved()) {
-            level.sendParticles(ParticleTypes.ASH, echo.getX(), echo.getY() + 0.9D, echo.getZ(),
-                    55, 0.5D, 0.9D, 0.5D, 0.06D);
-            level.sendParticles(ParticleTypes.LARGE_SMOKE, echo.getX(), echo.getY() + 0.75D, echo.getZ(),
-                    16, 0.35D, 0.7D, 0.35D, 0.025D);
-            echo.discard();
+        if (echo.level() instanceof ServerLevel level && !echo.isRemoved() && playParticles) {
+            PrahEchoParticleRenderer.spawnImmediateDissolve(level, echo);
         }
         KNOWN_ECHO_ENTITIES.remove(echo.getUUID());
+        if (!echo.isRemoved()) {
+            echo.discard();
+        }
     }
 
     private static void removeEcho(UUID ownerId, boolean playParticles) {
         EchoPlayback existing = ACTIVE_ECHOES.remove(ownerId);
-        if (existing == null) {
-            return;
-        }
-        if (playParticles) {
-            crumble(existing);
-        } else {
-            KNOWN_ECHO_ENTITIES.remove(existing.echo.getUUID());
-            existing.echo.discard();
+        if (existing != null) {
+            discardEcho(existing, playParticles);
         }
     }
 
@@ -379,7 +415,7 @@ public final class PrahAbilityManager {
     @SubscribeEvent
     public static void serverStopped(ServerStoppedEvent event) {
         for (EchoPlayback playback : ACTIVE_ECHOES.values()) {
-            playback.echo.discard();
+            discardEcho(playback, false);
         }
         HISTORIES.clear();
         ACTIVE_ECHOES.clear();
@@ -417,6 +453,8 @@ public final class PrahAbilityManager {
         private int frameIndex;
         private boolean previousSwinging;
         private int swingTicks;
+        private boolean crumbling;
+        private int crumbleTicks;
 
         private EchoPlayback(UUID ownerId, ArmorStand echo, List<PrahEchoFrame> frames) {
             this.ownerId = ownerId;
