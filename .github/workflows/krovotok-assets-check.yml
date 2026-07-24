@@ -46,6 +46,9 @@ jobs:
       - name: Apply approved Koloss item transforms
         run: python3 codex_tasks/krovotok/apply_krovotok_display_transform.py
 
+      - name: Verify approved Krovotok model lock
+        run: python3 codex_tasks/krovotok/verify_krovotok_model_lock.py
+
       - name: Validate complete resource set
         shell: bash
         run: |
