@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - master
+      - feature/krovotok-emissive-stages
   pull_request:
     branches:
       - main
@@ -40,7 +41,7 @@ jobs:
       - name: Verify Krovotok source archive
         run: python3 codex_tasks/krovotok/verify_asset_archive.py
 
-      - name: Materialize Krovotok resources
+      - name: Materialize Krovotok stages and particles
         run: python3 codex_tasks/krovotok/materialize_krovotok_resources.py
 
       - name: Build with Gradle
@@ -54,12 +55,14 @@ jobs:
           test -n "$jar_file"
 
           jar tf "$jar_file" | grep -Fx 'assets/worldsmith/models/item/krovotok_base.json'
-          jar tf "$jar_file" | grep -Fx 'assets/worldsmith/textures/item/krovotok.png'
-          jar tf "$jar_file" | grep -Fx 'assets/worldsmith/textures/item/krovotok.png.mcmeta'
+          jar tf "$jar_file" | grep -Fx 'ru/theframetrip/worldsmith/client/render/KrovotokItemRenderer.class'
           jar tf "$jar_file" | grep -Fx 'ru/theframetrip/worldsmith/client/particle/KrovotokParticle.class'
 
-          for charge in 0 1 2 3 4 5; do
-            jar tf "$jar_file" | grep -Fx "assets/worldsmith/textures/item/krovotok_charge_${charge}.png"
+          for stage in 0 1 2 3 4 5; do
+            jar tf "$jar_file" | grep -Fx "assets/worldsmith/textures/item/krovotok_stage_${stage}.png"
+            jar tf "$jar_file" | grep -Fx "assets/worldsmith/textures/item/krovotok_glow_${stage}.png"
+            jar tf "$jar_file" | grep -Fx "assets/worldsmith/models/item/krovotok_charge_${stage}.json"
+            jar tf "$jar_file" | grep -Fx "assets/worldsmith/models/item/krovotok_glow_${stage}.json"
           done
 
           for particle in \
