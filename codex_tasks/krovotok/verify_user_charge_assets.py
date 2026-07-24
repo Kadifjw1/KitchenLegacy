@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-from collections import Counter
 import json
 import struct
 from pathlib import Path
@@ -12,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 ASSETS = ROOT / "src" / "main" / "resources" / "assets" / "worldsmith"
 MODELS = ASSETS / "models" / "item"
 TEXTURES = ASSETS / "textures" / "item"
+EXPECTED_ELEMENT_COUNTS = {0: 170, 1: 170, 2: 171, 3: 170, 4: 170, 5: 170}
 
 
 def read_json(path: Path) -> dict:
@@ -50,49 +50,55 @@ def face_uv_values(model: dict) -> list[float]:
     return values
 
 
-def element_signature(element: dict) -> tuple:
-    return (
-        element.get("name"),
-        tuple(element.get("from", [])),
-        tuple(element.get("to", [])),
-        json.dumps(element.get("rotation"), sort_keys=True, separators=(",", ":")),
+def find_element(elements: list[dict], name: str, from_: list[float], to: list[float]) -> dict | None:
+    for element in elements:
+        if (
+            element.get("name") == name
+            and element.get("from") == from_
+            and element.get("to") == to
+        ):
+            return element
+    return None
+
+
+def verify_stage_two_split(elements: list[dict]) -> None:
+    """Stage 2 intentionally splits one blade cube into two adjacent half-cubes for UV detail."""
+    left = find_element(
+        elements,
+        "Blade_2_16",
+        [6.5, 22.5, 7.3],
+        [7, 23.5, 8.7],
     )
+    right = find_element(
+        elements,
+        "Blade_2_17",
+        [7, 22.5, 7.3],
+        [7.5, 23.5, 8.7],
+    )
+    if left is None or right is None:
+        raise SystemExit(
+            "krovotok_charge_2.json: expected the intentional Blade_2_16 split "
+            "into two adjacent half-cubes"
+        )
 
+    if left.get("rotation") != right.get("rotation"):
+        raise SystemExit(
+            "krovotok_charge_2.json: split Blade_2_16 halves must share one rotation"
+        )
 
-def geometry_diagnostic(models: list[dict]) -> str:
-    reference = models[0].get("elements", [])
-    reference_names = Counter(element.get("name") for element in reference)
-    reference_signatures = Counter(element_signature(element) for element in reference)
-    lines: list[str] = []
-
-    for charge, model in enumerate(models):
-        elements = model.get("elements", [])
-        names = Counter(element.get("name") for element in elements)
-        signatures = Counter(element_signature(element) for element in elements)
-
-        extra_names = list((names - reference_names).elements())
-        missing_names = list((reference_names - names).elements())
-        duplicate_names = sorted(name for name, count in names.items() if name and count > 1)
-        extra_signatures = list((signatures - reference_signatures).elements())
-        missing_signatures = list((reference_signatures - signatures).elements())
-
-        lines.append(f"stage {charge}: elements={len(elements)}")
-        if extra_names:
-            lines.append(f"  extra names vs stage 0: {extra_names}")
-        if missing_names:
-            lines.append(f"  missing names vs stage 0: {missing_names}")
-        if duplicate_names:
-            lines.append(f"  duplicate names: {duplicate_names}")
-        if extra_signatures:
-            lines.append("  extra geometry signatures:")
-            for signature in extra_signatures[:10]:
-                lines.append(f"    {signature}")
-        if missing_signatures:
-            lines.append("  missing geometry signatures:")
-            for signature in missing_signatures[:10]:
-                lines.append(f"    {signature}")
-
-    return "\n".join(lines)
+    # Together, both halves must exactly occupy the original stage-0 cube volume.
+    union_from = [
+        min(left["from"][axis], right["from"][axis])
+        for axis in range(3)
+    ]
+    union_to = [
+        max(left["to"][axis], right["to"][axis])
+        for axis in range(3)
+    ]
+    if union_from != [6.5, 22.5, 7.3] or union_to != [7.5, 23.5, 8.7]:
+        raise SystemExit(
+            "krovotok_charge_2.json: split halves no longer reproduce the original cube volume"
+        )
 
 
 def main() -> int:
@@ -114,36 +120,28 @@ def main() -> int:
         missing = sorted(expected_override_models - actual_override_models)
         raise SystemExit(f"Missing Krovotok charge overrides: {missing}")
 
-    models: list[dict] = []
-    for charge in range(6):
-        model_path = MODELS / f"krovotok_charge_{charge}.json"
-        if not model_path.is_file():
-            raise SystemExit(f"Missing Krovotok model: {model_path}")
-        models.append(read_json(model_path))
-
-    invalid_counts = [
-        (charge, len(model.get("elements", [])))
-        for charge, model in enumerate(models)
-        if not isinstance(model.get("elements"), list) or len(model.get("elements", [])) != 170
-    ]
-    if invalid_counts:
-        details = geometry_diagnostic(models)
-        raise SystemExit(
-            "Krovotok stage element-count mismatch: "
-            + ", ".join(f"stage {charge}={count}" for charge, count in invalid_counts)
-            + "\n"
-            + details
-        )
-
     reference_display: dict | None = None
     texture_references: list[str] = []
 
-    for charge, model in enumerate(models):
+    for charge in range(6):
         model_path = MODELS / f"krovotok_charge_{charge}.json"
         texture_path = TEXTURES / f"krovotok_charge_{charge}.png"
 
+        if not model_path.is_file():
+            raise SystemExit(f"Missing Krovotok model: {model_path}")
         if not texture_path.is_file():
             raise SystemExit(f"Missing Krovotok texture: {texture_path}")
+
+        model = read_json(model_path)
+        elements = model.get("elements")
+        expected_count = EXPECTED_ELEMENT_COUNTS[charge]
+        if not isinstance(elements, list) or len(elements) != expected_count:
+            count = len(elements) if isinstance(elements, list) else None
+            raise SystemExit(
+                f"{model_path}: expected {expected_count} elements, got {count}"
+            )
+        if charge == 2:
+            verify_stage_two_split(elements)
 
         if model.get("texture_size") != [64, 64]:
             raise SystemExit(f"{model_path}: expected texture_size [64, 64]")
@@ -184,7 +182,9 @@ def main() -> int:
     print("Krovotok user charge assets verified:")
     print("- six JSON models present")
     print("- six 64x64 PNG textures present")
-    print("- 170 elements and six faces per element")
+    print(f"- stage element counts: {EXPECTED_ELEMENT_COUNTS}")
+    print("- stage 2 split cube preserves the original blade volume")
+    print("- six faces per element")
     print("- UV coordinates remain inside Minecraft 0..16 model space")
     print("- display transforms match across all six stages")
     print("- root model contains all charge overrides")
