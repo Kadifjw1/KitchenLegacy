@@ -1,6 +1,9 @@
 name: Client model smoke
 
 on:
+  push:
+    branches:
+      - diagnose/invisible-sword-runtime
   pull_request:
     branches:
       - main
