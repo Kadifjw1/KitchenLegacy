@@ -29,7 +29,7 @@ minecraft {
     // Additional setup is needed to use their mappings: https://parchmentmc.org/docs/getting-started
     //
     // Use non-default mappings at your own risk. They may not always work.
-    // Simply re-run your setup task after changing your mappings to update your workspace.
+    // Simply re-run your setup task after changing your workspace.
     mappings channel: mapping_channel, version: mapping_version
 
     // When true, this property will have all Eclipse/IntelliJ IDEA run configurations run the "prepareX" task for the given run configuration before launching the game.
@@ -44,7 +44,7 @@ minecraft {
 
     // When true, this property will add the folder name of all declared run configurations to generated IDE run configurations.
     // The folder name can be set on a run configuration using the "folderName" property.
-    // By default, the folder name of a run configuration is the project name.
+    // By default, the folder name is the project name.
     // generateRunFolders = true
 
     // This property enables access transformers for use in development.
@@ -63,15 +63,10 @@ minecraft {
             workingDirectory project.file('run')
 
             // Recommended logging data for a userdev environment
-            // The markers can be changed at any time.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For dumping all registries.
-            property 'forge.logging.markers', 'REGISTRIES'
+            markers "SCAN", "REGISTRIES", "REGISTRYDUMP"
 
             // Recommended logging level for the console
-            // You can set various levels here.
-            property 'forge.logging.console.level', 'debug'
+            consoleLevel = org.slf4j.event.Level.DEBUG
 
             mods {
                 "${mod_id}" {
@@ -131,7 +126,7 @@ dependencies {
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}")
 
     // Example mod dependency using a mod jar from ./libs.
-    // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
+    // implementation fg.deobf("blank:coolmod-${mc_version}:${mod_version}")
 
     // For more info:
     // http://www.gradle.org/current/userguide/artifact_dependencies_tutorial.html
@@ -172,6 +167,35 @@ tasks.named('processResources', ProcessResources).configure {
                     .replaceAll(/"0": "worldsmith:krovotok_charge_([0-5])"/, '"0": "worldsmith:item/krovotok_charge_$1"')
         }
     }
+
+    // Prah is the finalized variant of the original Oskolok model. Apply the exact
+    // Oskolok item-display profile after resource filtering so every built JAR and IDE
+    // launch uses the approved hand, GUI, ground, frame, head and shelf transforms.
+    def prahDisplayProfileFile = layout.projectDirectory.file('codex_tasks/prah/oskolok_display_profile.json')
+    inputs.file(prahDisplayProfileFile)
+
+    doLast {
+        def prahModelFile = destinationDirectory
+                .file('assets/worldsmith/models/item/prah.json')
+                .get()
+                .asFile
+        if (!prahModelFile.isFile()) {
+            throw new GradleException("Processed Prah model not found: ${prahModelFile}")
+        }
+
+        def parser = new groovy.json.JsonSlurper()
+        def model = parser.parse(prahModelFile)
+        def displayProfile = parser.parse(prahDisplayProfileFile.asFile)
+
+        model.remove('parent')
+        model.textures['0'] = 'worldsmith:item/tex_prah'
+        model.display = displayProfile
+
+        def rendered = groovy.json.JsonOutput.prettyPrint(
+                groovy.json.JsonOutput.toJson(model)
+        ) + System.lineSeparator()
+        prahModelFile.setText(rendered, 'UTF-8')
+    }
 }
 
 // Example for how to get properties into the manifest for reading at runtime.
@@ -181,7 +205,7 @@ tasks.named('jar', Jar).configure {
                 'Specification-Title'     : mod_id,
                 'Specification-Vendor'    : mod_authors,
                 'Specification-Version'   : '1',
-                'Implementation-Title'    : project.name,
+                'Implementation-Title'     : project.name,
                 'Implementation-Version'  : project.jar.archiveVersion,
                 'Implementation-Vendor'   : mod_authors,
                 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
@@ -192,7 +216,7 @@ tasks.named('jar', Jar).configure {
     finalizedBy 'reobfJar'
 }
 
-// However if you are in a multi-project build, you can delay reobfuscation until publishing.
+// However, if you are in a multi-project build, you may want to disable this and instead use the reobf task on a specific jar task.
 // tasks.named('publish').configure {
 //     dependsOn 'reobfJar'
 // }
