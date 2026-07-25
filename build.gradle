@@ -172,6 +172,35 @@ tasks.named('processResources', ProcessResources).configure {
                     .replaceAll(/"0": "worldsmith:krovotok_charge_([0-5])"/, '"0": "worldsmith:item/krovotok_charge_$1"')
         }
     }
+
+    // Prah is the finalized variant of the original Oskolok model. Apply the exact
+    // Oskolok item-display profile after resource filtering so every built JAR and IDE
+    // launch uses the same hand, GUI, ground, frame, head and shelf transforms.
+    def prahDisplayProfileFile = layout.projectDirectory.file('codex_tasks/prah/oskolok_display_profile.json')
+    inputs.file(prahDisplayProfileFile)
+
+    doLast {
+        def prahModelFile = new File(
+                destinationDir,
+                'assets/worldsmith/models/item/prah.json'
+        )
+        if (!prahModelFile.isFile()) {
+            throw new GradleException("Processed Prah model not found: ${prahModelFile}")
+        }
+
+        def parser = new groovy.json.JsonSlurper()
+        def model = parser.parse(prahModelFile)
+        def displayProfile = parser.parse(prahDisplayProfileFile.asFile)
+
+        model.remove('parent')
+        model.textures['0'] = 'worldsmith:item/tex_prah'
+        model.display = displayProfile
+
+        def rendered = groovy.json.JsonOutput.prettyPrint(
+                groovy.json.JsonOutput.toJson(model)
+        ) + System.lineSeparator()
+        prahModelFile.setText(rendered, 'UTF-8')
+    }
 }
 
 // Example for how to get properties into the manifest for reading at runtime.

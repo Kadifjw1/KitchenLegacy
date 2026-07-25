@@ -104,7 +104,15 @@ jobs:
 
           jar_path = pathlib.Path(sys.argv[1])
           source_root = pathlib.Path('src/main/resources/assets/worldsmith')
+          prah_profile_path = pathlib.Path('codex_tasks/prah/oskolok_display_profile.json')
           expected_counts = {0: 170, 1: 170, 2: 171, 3: 170, 4: 170, 5: 170}
+
+          source_prah = json.loads(
+              (source_root / 'models' / 'item' / 'prah.json').read_text(encoding='utf-8')
+          )
+          expected_prah_display = json.loads(
+              prah_profile_path.read_text(encoding='utf-8')
+          )
 
           with zipfile.ZipFile(jar_path) as archive:
               manifest = json.loads(
@@ -118,7 +126,11 @@ jobs:
               )
               assert prah.get('parent') != 'item/handheld'
               assert len(prah['elements']) == 194
+              assert prah['texture_size'] == [64, 64]
               assert prah['textures']['0'] == 'worldsmith:item/tex_prah'
+              assert prah['display'] == expected_prah_display
+              assert prah['elements'] == source_prah['elements']
+              assert prah.get('groups') == source_prah.get('groups')
 
               for charge in range(6):
                   model_name = f'assets/worldsmith/models/item/krovotok_charge_{charge}.json'
