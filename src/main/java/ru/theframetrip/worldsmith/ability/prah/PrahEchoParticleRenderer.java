@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.phys.Vec3;
+import ru.theframetrip.worldsmith.registry.ModParticleTypes;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -79,7 +80,7 @@ public final class PrahEchoParticleRenderer {
 
         if (crumbleTick == CRUMBLE_DURATION_TICKS - 1) {
             level.sendParticles(
-                    ParticleTypes.ASH,
+                    ModParticleTypes.PRAH_ASH.get(),
                     echo.getX(),
                     echo.getY() + 0.08D,
                     echo.getZ(),
@@ -107,7 +108,7 @@ public final class PrahEchoParticleRenderer {
 
     public static void spawnImmediateDissolve(ServerLevel level, ArmorStand echo) {
         level.sendParticles(
-                ParticleTypes.ASH,
+                ModParticleTypes.PRAH_ASH.get(),
                 echo.getX(),
                 echo.getY() + 0.9D,
                 echo.getZ(),
@@ -323,7 +324,7 @@ public final class PrahEchoParticleRenderer {
     private static void spawnAsh(ServerLevel level, Vec3 point, double jitter) {
         RandomSource random = level.getRandom();
         level.sendParticles(
-                ParticleTypes.ASH,
+                ModParticleTypes.PRAH_ASH.get(),
                 point.x + randomBetween(random, -jitter, jitter),
                 point.y + randomBetween(random, -jitter, jitter),
                 point.z + randomBetween(random, -jitter, jitter),
