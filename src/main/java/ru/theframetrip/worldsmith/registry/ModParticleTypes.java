@@ -19,6 +19,8 @@ public class ModParticleTypes {
     public static final RegistryObject<SimpleParticleType> VOID_RIFT =
             PARTICLE_TYPES.register("void_rift", () -> new SimpleParticleType(false));
 
+    public static final RegistryObject<SimpleParticleType> PRAH_ASH =
+            PARTICLE_TYPES.register("prah_ash", () -> new SimpleParticleType(false));
 
     public static final RegistryObject<SimpleParticleType> KROVOTOK_BLOOD_MIST =
             PARTICLE_TYPES.register("krovotok_blood_mist", () -> new SimpleParticleType(false));
