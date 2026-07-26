@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import ru.theframetrip.worldsmith.WorldsmithMod;
 import ru.theframetrip.worldsmith.client.particle.KrovotokParticle;
+import ru.theframetrip.worldsmith.client.particle.NakalParticle;
 import ru.theframetrip.worldsmith.client.particle.PrahAshParticle;
 import ru.theframetrip.worldsmith.client.particle.VoidParticle;
 import ru.theframetrip.worldsmith.item.KrovotokItem;
@@ -24,6 +25,10 @@ public class ClientModEvents {
         event.registerSpriteSet(ModParticleTypes.VOID_RIFT.get(), VoidParticle.Provider::new);
 
         event.registerSpriteSet(ModParticleTypes.PRAH_ASH.get(), PrahAshParticle.Provider::new);
+
+        event.registerSpriteSet(ModParticleTypes.HEAT_FLAME.get(), NakalParticle.FlameProvider::new);
+        event.registerSpriteSet(ModParticleTypes.HEAT_EMBER.get(), NakalParticle.EmberProvider::new);
+        event.registerSpriteSet(ModParticleTypes.HEAT_SPARK.get(), NakalParticle.SparkProvider::new);
 
         event.registerSpriteSet(ModParticleTypes.KROVOTOK_BLOOD_MIST.get(), KrovotokParticle.MistProvider::new);
         event.registerSpriteSet(ModParticleTypes.KROVOTOK_BLOOD_SPARK.get(), KrovotokParticle.SparkProvider::new);

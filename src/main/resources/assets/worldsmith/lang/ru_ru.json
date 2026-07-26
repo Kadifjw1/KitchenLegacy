@@ -28,5 +28,9 @@
   "tooltip.worldsmith.prah.key": "[R] Призвать пепельный слепок",
   "tooltip.worldsmith.prah.cooldown": "Перезарядка: 20 сек.",
   "message.worldsmith.prah.activated": "След их праха пробудился",
-  "message.worldsmith.prah.not_enough_history": "Праху пока нечего повторить"
+  "message.worldsmith.prah.not_enough_history": "Праху пока нечего повторить",
+  "item.worldsmith.nakal": "Накал",
+  "tooltip.worldsmith.nakal.ability": "Пассивная способность: Перегрев",
+  "tooltip.worldsmith.nakal.description": "Удары накладывают перегрев и ослабляют броню цели. Пятый уровень вызывает тепловой разрыв.",
+  "tooltip.worldsmith.nakal.ignition": "Первый взмах зажигает меч. Смена предмета полностью гасит его."
 }
