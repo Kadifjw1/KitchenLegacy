@@ -1,12 +1,11 @@
 package ru.theframetrip.worldsmith.client.model;
 
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraftforge.client.model.BakedModelWrapper;
 import org.joml.Vector3f;
-
-import java.util.Map;
 
 /**
  * Applies the approved Blockbench display transforms to the actual Prah item.
@@ -77,7 +76,7 @@ public final class PrahItemDisplayModel extends BakedModelWrapper<BakedModel> {
             GUI,
             GROUND,
             FIXED,
-            Map.of()
+            ImmutableMap.of()
     );
 
     public PrahItemDisplayModel(BakedModel originalModel) {
