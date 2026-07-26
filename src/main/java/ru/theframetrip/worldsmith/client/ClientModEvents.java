@@ -1,13 +1,16 @@
 package ru.theframetrip.worldsmith.client;
 
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import ru.theframetrip.worldsmith.WorldsmithMod;
+import ru.theframetrip.worldsmith.client.model.PrahItemDisplayModel;
 import ru.theframetrip.worldsmith.client.particle.KrovotokParticle;
 import ru.theframetrip.worldsmith.client.particle.NakalParticle;
 import ru.theframetrip.worldsmith.client.particle.PrahAshParticle;
@@ -35,6 +38,19 @@ public class ClientModEvents {
         event.registerSpriteSet(ModParticleTypes.KROVOTOK_BLOOD_PULSE.get(), KrovotokParticle.PulseProvider::new);
         event.registerSpriteSet(ModParticleTypes.KROVOTOK_BLOOD_BURST.get(), KrovotokParticle.BurstProvider::new);
         event.registerSpriteSet(ModParticleTypes.KROVOTOK_LIFE_DRAIN.get(), KrovotokParticle.LifeDrainProvider::new);
+    }
+
+    @SubscribeEvent
+    public static void modifyBakedModels(ModelEvent.ModifyBakingResult event) {
+        ModelResourceLocation prahModel = new ModelResourceLocation(
+                WorldsmithMod.MOD_ID,
+                "prah",
+                "inventory"
+        );
+        event.getModels().computeIfPresent(
+                prahModel,
+                (location, model) -> new PrahItemDisplayModel(model)
+        );
     }
 
     @SubscribeEvent
