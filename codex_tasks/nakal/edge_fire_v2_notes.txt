@@ -1,0 +1,1 @@
+Continuous cutout flame planes overlap along both outer blade edges. The tip has a separate animated cap. World-space hand flames remain disabled.
