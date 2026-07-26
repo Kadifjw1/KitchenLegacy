@@ -14,15 +14,15 @@ import java.util.List;
 /**
  * Builds the visible Prah echo entirely from ash particles.
  *
- * <p>The ArmorStand used by the ability remains an invisible technical entity;
- * no equipment or entity outline is rendered. All visible body parts and the
- * sword are reconstructed from deterministic particle points.</p>
+ * <p>The ArmorStand used by the ability remains an invisible technical entity.
+ * Body proportions are based on the Minecraft player silhouette, while the
+ * sword particle cloud is generated from the exact uploaded item model.</p>
  */
 public final class PrahEchoParticleRenderer {
     public static final int CRUMBLE_DURATION_TICKS = 10;
 
     private static final int SWING_DURATION_TICKS = 8;
-    private static final double PARTICLE_JITTER = 0.016D;
+    private static final double PARTICLE_JITTER = 0.014D;
 
     private PrahEchoParticleRenderer() {
     }
@@ -34,7 +34,17 @@ public final class PrahEchoParticleRenderer {
             @Nullable PrahEchoFrame previousFrame,
             int swingTicks
     ) {
-        List<Vec3> points = buildWorldPoints(echo.position(), frame, swingTicks);
+        int swordPhase = Math.floorMod(echo.tickCount / 2, 3);
+        boolean fullSwordDensity = swingTicks > 0;
+
+        List<Vec3> points = buildWorldPoints(
+                echo.position(),
+                frame,
+                swingTicks,
+                swordPhase,
+                fullSwordDensity
+        );
+
         for (Vec3 point : points) {
             spawnAsh(level, point, PARTICLE_JITTER);
         }
@@ -42,7 +52,7 @@ public final class PrahEchoParticleRenderer {
         spawnMovementTrail(level, echo.position(), frame, previousFrame);
 
         if (swingTicks > 0) {
-            spawnSwingEmphasis(level, echo.position(), frame, swingTicks);
+            spawnSwordTipTrail(level, echo.position(), frame, swingTicks);
         }
     }
 
@@ -57,7 +67,14 @@ public final class PrahEchoParticleRenderer {
             PrahEchoFrame frame,
             int crumbleTick
     ) {
-        List<Vec3> points = buildWorldPoints(echo.position(), frame, 0);
+        List<Vec3> points = buildWorldPoints(
+                echo.position(),
+                frame,
+                0,
+                crumbleTick,
+                false
+        );
+
         double progress = Math.min(1.0D, (crumbleTick + 1.0D) / CRUMBLE_DURATION_TICKS);
         double topY = echo.getY() + 1.95D;
         double bottomY = echo.getY() - 0.02D;
@@ -70,12 +87,12 @@ public final class PrahEchoParticleRenderer {
         }
 
         RandomSource random = level.getRandom();
-        int scatterCount = crumbleTick < CRUMBLE_DURATION_TICKS - 1 ? 10 : 16;
-        for (int i = 0; i < scatterCount; i++) {
-            double x = echo.getX() + randomBetween(random, -0.36D, 0.36D);
-            double y = cutoffY + randomBetween(random, -0.10D, 0.10D);
-            double z = echo.getZ() + randomBetween(random, -0.26D, 0.26D);
-            spawnAsh(level, new Vec3(x, y, z), 0.038D);
+        int scatterCount = crumbleTick < CRUMBLE_DURATION_TICKS - 1 ? 12 : 20;
+        for (int index = 0; index < scatterCount; index++) {
+            double x = echo.getX() + randomBetween(random, -0.38D, 0.38D);
+            double y = cutoffY + randomBetween(random, -0.11D, 0.11D);
+            double z = echo.getZ() + randomBetween(random, -0.28D, 0.28D);
+            spawnAsh(level, new Vec3(x, y, z), 0.040D);
         }
 
         if (crumbleTick == CRUMBLE_DURATION_TICKS - 1) {
@@ -84,10 +101,10 @@ public final class PrahEchoParticleRenderer {
                     echo.getX(),
                     echo.getY() + 0.08D,
                     echo.getZ(),
-                    26,
-                    0.38D,
-                    0.10D,
-                    0.38D,
+                    32,
+                    0.40D,
+                    0.11D,
+                    0.40D,
                     0.02D
             );
             level.sendParticles(
@@ -112,10 +129,10 @@ public final class PrahEchoParticleRenderer {
                 echo.getX(),
                 echo.getY() + 0.9D,
                 echo.getZ(),
-                56,
-                0.44D,
-                0.86D,
-                0.44D,
+                64,
+                0.46D,
+                0.90D,
+                0.46D,
                 0.035D
         );
         level.sendParticles(
@@ -131,23 +148,29 @@ public final class PrahEchoParticleRenderer {
         );
     }
 
-    private static List<Vec3> buildWorldPoints(Vec3 base, PrahEchoFrame frame, int swingTicks) {
-        List<Vec3> localPoints = new ArrayList<>(96);
+    private static List<Vec3> buildWorldPoints(
+            Vec3 base,
+            PrahEchoFrame frame,
+            int swingTicks,
+            int swordPhase,
+            boolean fullSwordDensity
+    ) {
+        List<Vec3> localPoints = new ArrayList<>(180);
 
         double crouch = frame.crouching() ? 1.0D : 0.0D;
         double airborne = frame.onGround() ? 0.0D : 1.0D;
         double sprint = frame.sprinting() ? 1.0D : 0.0D;
         double torsoForward = 0.10D * crouch + 0.05D * sprint;
 
-        Vec3 pelvis = new Vec3(0.0D, 0.84D - 0.12D * crouch, 0.03D * crouch);
-        Vec3 chest = new Vec3(0.0D, 1.23D - 0.17D * crouch, torsoForward);
-        Vec3 neck = new Vec3(0.0D, 1.49D - 0.20D * crouch, torsoForward + 0.02D);
+        Vec3 pelvis = new Vec3(0.0D, 0.82D - 0.12D * crouch, 0.03D * crouch);
+        Vec3 chest = new Vec3(0.0D, 1.20D - 0.17D * crouch, torsoForward);
+        Vec3 neck = new Vec3(0.0D, 1.48D - 0.20D * crouch, torsoForward + 0.02D);
 
-        Vec3 leftShoulder = new Vec3(-0.28D, 1.40D - 0.18D * crouch, torsoForward);
-        Vec3 rightShoulder = new Vec3(0.28D, 1.40D - 0.18D * crouch, torsoForward);
+        Vec3 leftShoulder = new Vec3(-0.29D, 1.39D - 0.18D * crouch, torsoForward);
+        Vec3 rightShoulder = new Vec3(0.29D, 1.39D - 0.18D * crouch, torsoForward);
 
-        Vec3 leftElbow = new Vec3(-0.39D, 1.13D - 0.16D * crouch, torsoForward - 0.02D);
-        Vec3 leftHand = new Vec3(-0.31D, 0.88D - 0.14D * crouch, torsoForward - 0.04D);
+        Vec3 leftElbow = new Vec3(-0.40D, 1.12D - 0.16D * crouch, torsoForward - 0.02D);
+        Vec3 leftHand = new Vec3(-0.33D, 0.86D - 0.14D * crouch, torsoForward - 0.04D);
 
         double swingProgress = swingTicks > 0
                 ? 1.0D - swingTicks / (double) SWING_DURATION_TICKS
@@ -155,82 +178,72 @@ public final class PrahEchoParticleRenderer {
         double swingArc = swingTicks > 0 ? Math.sin(swingProgress * Math.PI) : 0.0D;
 
         Vec3 rightHand = new Vec3(
-                0.32D - 0.22D * swingArc,
-                0.90D - 0.14D * crouch + 0.28D * swingArc,
+                0.33D - 0.22D * swingArc,
+                0.87D - 0.14D * crouch + 0.28D * swingArc,
                 torsoForward - 0.06D + 0.52D * swingArc
         );
         Vec3 rightElbow = rightShoulder.lerp(rightHand, 0.52D)
                 .add(0.08D * (1.0D - swingArc), -0.02D, -0.02D);
 
-        Vec3 leftHip = new Vec3(-0.14D, 0.80D - 0.12D * crouch, 0.02D * crouch);
-        Vec3 rightHip = new Vec3(0.14D, 0.80D - 0.12D * crouch, 0.02D * crouch);
+        Vec3 leftHip = new Vec3(-0.14D, 0.79D - 0.12D * crouch, 0.02D * crouch);
+        Vec3 rightHip = new Vec3(0.14D, 0.79D - 0.12D * crouch, 0.02D * crouch);
 
         Vec3 leftKnee = new Vec3(
                 -0.15D,
-                0.43D - 0.08D * crouch + 0.08D * airborne,
+                0.42D - 0.08D * crouch + 0.08D * airborne,
                 0.05D + 0.12D * crouch + 0.08D * airborne
         );
         Vec3 rightKnee = new Vec3(
                 0.15D,
-                0.43D - 0.08D * crouch + 0.08D * airborne,
+                0.42D - 0.08D * crouch + 0.08D * airborne,
                 0.05D + 0.12D * crouch + 0.08D * airborne
         );
         Vec3 leftFoot = new Vec3(
                 -0.15D,
-                0.06D + 0.16D * airborne,
+                0.05D + 0.16D * airborne,
                 0.09D + 0.10D * crouch + 0.10D * airborne
         );
         Vec3 rightFoot = new Vec3(
                 0.15D,
-                0.06D + 0.16D * airborne,
+                0.05D + 0.16D * airborne,
                 0.09D + 0.10D * crouch + 0.10D * airborne
         );
 
-        addLine(localPoints, pelvis, neck, 6);
-        addLine(localPoints, leftShoulder, rightShoulder, 5);
-        addLine(localPoints, chest.add(-0.18D, 0.06D, 0.01D), chest.add(0.18D, 0.06D, 0.01D), 4);
-        addLine(localPoints, chest.add(-0.13D, -0.18D, 0.0D), chest.add(0.13D, -0.18D, 0.0D), 4);
-        addLine(localPoints, leftShoulder, pelvis.add(-0.08D, 0.0D, 0.01D), 4);
-        addLine(localPoints, rightShoulder, pelvis.add(0.08D, 0.0D, 0.01D), 4);
+        addLine(localPoints, pelvis, neck, 7);
+        addLine(localPoints, leftShoulder, rightShoulder, 6);
+        addLine(localPoints, chest.add(-0.20D, 0.08D, 0.0D), chest.add(0.20D, 0.08D, 0.0D), 5);
+        addLine(localPoints, chest.add(-0.17D, -0.08D, 0.0D), chest.add(0.17D, -0.08D, 0.0D), 5);
+        addLine(localPoints, chest.add(-0.14D, -0.20D, 0.0D), chest.add(0.14D, -0.20D, 0.0D), 4);
+        addLine(localPoints, leftShoulder, pelvis.add(-0.09D, 0.0D, 0.01D), 5);
+        addLine(localPoints, rightShoulder, pelvis.add(0.09D, 0.0D, 0.01D), 5);
         localPoints.add(chest);
-        localPoints.add(chest.add(0.0D, -0.12D, 0.01D));
+        localPoints.add(chest.add(0.0D, -0.11D, 0.01D));
         localPoints.add(pelvis);
 
-        addLine(localPoints, leftShoulder, leftElbow, 4);
-        addLine(localPoints, leftElbow, leftHand, 4);
-        addLine(localPoints, rightShoulder, rightElbow, 4);
-        addLine(localPoints, rightElbow, rightHand, 4);
+        addLine(localPoints, leftShoulder, leftElbow, 5);
+        addLine(localPoints, leftElbow, leftHand, 5);
+        addLine(localPoints, rightShoulder, rightElbow, 5);
+        addLine(localPoints, rightElbow, rightHand, 5);
 
-        addLine(localPoints, leftHip, leftKnee, 4);
-        addLine(localPoints, leftKnee, leftFoot, 4);
-        addLine(localPoints, rightHip, rightKnee, 4);
-        addLine(localPoints, rightKnee, rightFoot, 4);
+        addLine(localPoints, leftHip, leftKnee, 5);
+        addLine(localPoints, leftKnee, leftFoot, 5);
+        addLine(localPoints, rightHip, rightKnee, 5);
+        addLine(localPoints, rightKnee, rightFoot, 5);
 
         addHeadSilhouette(localPoints, new Vec3(
                 0.0D,
-                1.70D - 0.20D * crouch,
+                1.69D - 0.20D * crouch,
                 torsoForward + 0.03D + pitchOffset(frame.xRot())
         ));
 
-        Vec3 restSwordDirection = new Vec3(0.06D, -0.78D, -0.52D).normalize();
-        Vec3 strikeSwordDirection = new Vec3(-0.18D, 0.05D, 0.98D).normalize();
-        Vec3 swordDirection = restSwordDirection.lerp(strikeSwordDirection, swingArc).normalize();
-
-        Vec3 handleEnd = rightHand.subtract(swordDirection.scale(0.20D));
-        Vec3 guardCenter = rightHand.add(swordDirection.scale(0.08D));
-        Vec3 bladeStart = rightHand.add(swordDirection.scale(0.13D));
-        Vec3 bladeEnd = rightHand.add(swordDirection.scale(1.08D));
-
-        addLine(localPoints, handleEnd, rightHand, 3);
-        addLine(
+        Vec3 swordDirection = calculateSwordDirection(swingArc);
+        PrahSwordParticleShape.addPoints(
                 localPoints,
-                guardCenter.add(-0.18D, 0.0D, 0.0D),
-                guardCenter.add(0.18D, 0.0D, 0.0D),
-                5
+                rightHand,
+                swordDirection,
+                swordPhase,
+                fullSwordDensity
         );
-        addLine(localPoints, bladeStart, bladeEnd, 8);
-        localPoints.add(bladeEnd.add(0.0D, 0.03D, 0.0D));
-        localPoints.add(bladeEnd.add(0.015D, -0.02D, 0.0D));
 
         Basis basis = Basis.from(base, frame.yRot());
         List<Vec3> worldPoints = new ArrayList<>(localPoints.size());
@@ -238,6 +251,12 @@ public final class PrahEchoParticleRenderer {
             worldPoints.add(basis.toWorld(local));
         }
         return worldPoints;
+    }
+
+    private static Vec3 calculateSwordDirection(double swingArc) {
+        Vec3 restDirection = new Vec3(0.06D, -0.78D, -0.52D).normalize();
+        Vec3 strikeDirection = new Vec3(-0.18D, 0.05D, 0.98D).normalize();
+        return restDirection.lerp(strikeDirection, swingArc).normalize();
     }
 
     private static void addHeadSilhouette(List<Vec3> points, Vec3 center) {
@@ -274,6 +293,8 @@ public final class PrahEchoParticleRenderer {
         }
 
         points.add(center);
+        points.add(center.add(0.0D, 0.10D, 0.0D));
+        points.add(center.add(0.0D, -0.10D, 0.0D));
         points.add(center.add(0.0D, 0.0D, halfZ * 0.55D));
         points.add(center.add(0.0D, 0.0D, -halfZ * 0.55D));
         points.add(center.add(-halfX * 0.45D, 0.0D, 0.0D));
@@ -285,8 +306,9 @@ public final class PrahEchoParticleRenderer {
             points.add(start);
             return;
         }
-        for (int i = 0; i < pointCount; i++) {
-            points.add(start.lerp(end, i / (double) (pointCount - 1)));
+
+        for (int index = 0; index < pointCount; index++) {
+            points.add(start.lerp(end, index / (double) (pointCount - 1)));
         }
     }
 
@@ -310,16 +332,16 @@ public final class PrahEchoParticleRenderer {
         }
 
         Vec3 behind = movement.normalize().scale(-1.0D);
-        double[] heights = {0.12D, 0.38D, 0.88D, 1.18D, 1.42D};
-        for (int i = 0; i < heights.length; i++) {
+        double[] heights = {0.10D, 0.30D, 0.56D, 0.86D, 1.14D, 1.40D};
+        for (int index = 0; index < heights.length; index++) {
             Vec3 trailPoint = currentBase
-                    .add(0.0D, heights[i], 0.0D)
-                    .add(behind.scale(0.14D + i * 0.07D));
+                    .add(0.0D, heights[index], 0.0D)
+                    .add(behind.scale(0.14D + index * 0.065D));
             spawnAsh(level, trailPoint, 0.035D);
         }
     }
 
-    private static void spawnSwingEmphasis(
+    private static void spawnSwordTipTrail(
             ServerLevel level,
             Vec3 base,
             PrahEchoFrame frame,
@@ -327,23 +349,27 @@ public final class PrahEchoParticleRenderer {
     ) {
         double progress = 1.0D - swingTicks / (double) SWING_DURATION_TICKS;
         double arc = Math.sin(progress * Math.PI);
-        Basis basis = Basis.from(base, frame.yRot());
+        double crouch = frame.crouching() ? 1.0D : 0.0D;
+        double sprint = frame.sprinting() ? 1.0D : 0.0D;
+        double torsoForward = 0.10D * crouch + 0.05D * sprint;
 
         Vec3 hand = new Vec3(
-                0.32D - 0.22D * arc,
-                0.90D - (frame.crouching() ? 0.14D : 0.0D) + 0.28D * arc,
-                (frame.crouching() ? 0.10D : 0.0D)
-                        + (frame.sprinting() ? 0.05D : 0.0D)
-                        - 0.06D
-                        + 0.52D * arc
+                0.33D - 0.22D * arc,
+                0.87D - 0.14D * crouch + 0.28D * arc,
+                torsoForward - 0.06D + 0.52D * arc
         );
-        Vec3 restDirection = new Vec3(0.06D, -0.78D, -0.52D).normalize();
-        Vec3 strikeDirection = new Vec3(-0.18D, 0.05D, 0.98D).normalize();
-        Vec3 direction = restDirection.lerp(strikeDirection, arc).normalize();
+        Vec3 direction = calculateSwordDirection(arc);
+        Vec3 localTip = PrahSwordParticleShape.tipPoint(hand, direction);
+        Basis basis = Basis.from(base, frame.yRot());
 
-        for (double distance : new double[]{0.18D, 0.35D, 0.56D, 0.78D, 1.0D}) {
-            Vec3 localPoint = hand.add(direction.scale(distance)).add(0.025D, 0.0D, 0.0D);
-            spawnAsh(level, basis.toWorld(localPoint), 0.028D);
+        for (int index = 0; index < 7; index++) {
+            double offset = index * 0.035D;
+            Vec3 localTrailPoint = localTip.subtract(direction.scale(offset));
+            spawnAsh(
+                    level,
+                    basis.toWorld(localTrailPoint),
+                    0.030D
+            );
         }
     }
 
