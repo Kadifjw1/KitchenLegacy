@@ -28,5 +28,9 @@
   "tooltip.worldsmith.prah.key": "[R] Summon the ash echo",
   "tooltip.worldsmith.prah.cooldown": "Cooldown: 20 sec.",
   "message.worldsmith.prah.activated": "Their Ashen Trail awakens",
-  "message.worldsmith.prah.not_enough_history": "There is nothing for the ash to repeat yet"
+  "message.worldsmith.prah.not_enough_history": "There is nothing for the ash to repeat yet",
+  "item.worldsmith.nakal": "Nakal",
+  "tooltip.worldsmith.nakal.ability": "Passive ability: Overheat",
+  "tooltip.worldsmith.nakal.description": "Hits apply overheat and weaken the target's armor. The fifth stack triggers a thermal rupture.",
+  "tooltip.worldsmith.nakal.ignition": "The first swing ignites the sword. Switching items extinguishes it completely."
 }

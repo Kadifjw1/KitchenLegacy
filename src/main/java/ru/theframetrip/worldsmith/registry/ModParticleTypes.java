@@ -22,6 +22,13 @@ public class ModParticleTypes {
     public static final RegistryObject<SimpleParticleType> PRAH_ASH =
             PARTICLE_TYPES.register("prah_ash", () -> new SimpleParticleType(false));
 
+    public static final RegistryObject<SimpleParticleType> HEAT_FLAME =
+            PARTICLE_TYPES.register("heat_flame", () -> new SimpleParticleType(false));
+    public static final RegistryObject<SimpleParticleType> HEAT_EMBER =
+            PARTICLE_TYPES.register("heat_ember", () -> new SimpleParticleType(false));
+    public static final RegistryObject<SimpleParticleType> HEAT_SPARK =
+            PARTICLE_TYPES.register("heat_spark", () -> new SimpleParticleType(false));
+
     public static final RegistryObject<SimpleParticleType> KROVOTOK_BLOOD_MIST =
             PARTICLE_TYPES.register("krovotok_blood_mist", () -> new SimpleParticleType(false));
     public static final RegistryObject<SimpleParticleType> KROVOTOK_BLOOD_SPARK =
