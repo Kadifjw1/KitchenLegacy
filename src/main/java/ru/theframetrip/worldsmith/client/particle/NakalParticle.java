@@ -36,40 +36,39 @@ public final class NakalParticle extends TextureSheetParticle {
         this.style = style;
         this.hasPhysics = false;
 
-        // Keep the PNG palette intact. The old warm tint washed the sprites into
-        // oversized peach rectangles when several particles overlapped.
+        // Approved PNGs already contain the final palette. Never tint them.
         this.rCol = 1.0F;
         this.gCol = 1.0F;
         this.bCol = 1.0F;
 
         switch (style) {
             case FLAME -> {
-                this.lifetime = 5 + level.random.nextInt(4);
+                this.lifetime = 7 + level.random.nextInt(4);
                 this.friction = 0.91F;
-                this.gravity = -0.015F;
-                this.quadSize = 0.035F + level.random.nextFloat() * 0.020F;
-                this.alpha = 0.88F;
-                this.xd *= 0.25D;
-                this.yd = 0.006D + level.random.nextDouble() * 0.012D;
-                this.zd *= 0.25D;
+                this.gravity = -0.014F;
+                this.quadSize = 0.045F + level.random.nextFloat() * 0.022F;
+                this.alpha = 0.96F;
+                this.xd *= 0.22D;
+                this.yd = 0.008D + level.random.nextDouble() * 0.015D;
+                this.zd *= 0.22D;
                 this.setSpriteFromAge(sprites);
             }
             case EMBER -> {
-                this.lifetime = 10 + level.random.nextInt(7);
+                this.lifetime = 12 + level.random.nextInt(8);
                 this.friction = 0.95F;
-                this.gravity = -0.008F;
-                this.quadSize = 0.018F + level.random.nextFloat() * 0.010F;
-                this.alpha = 0.92F;
-                this.xd *= 0.45D;
-                this.yd = 0.005D + level.random.nextDouble() * 0.014D;
-                this.zd *= 0.45D;
+                this.gravity = -0.009F;
+                this.quadSize = 0.024F + level.random.nextFloat() * 0.012F;
+                this.alpha = 0.96F;
+                this.xd *= 0.42D;
+                this.yd = 0.006D + level.random.nextDouble() * 0.016D;
+                this.zd *= 0.42D;
                 this.pickSprite(sprites);
             }
             case SPARK -> {
                 this.lifetime = 4 + level.random.nextInt(4);
-                this.friction = 0.84F;
-                this.gravity = 0.10F;
-                this.quadSize = 0.014F + level.random.nextFloat() * 0.009F;
+                this.friction = 0.83F;
+                this.gravity = 0.11F;
+                this.quadSize = 0.020F + level.random.nextFloat() * 0.010F;
                 this.alpha = 1.0F;
                 this.pickSprite(sprites);
             }
@@ -88,17 +87,17 @@ public final class NakalParticle extends TextureSheetParticle {
 
         if (this.style == Style.FLAME) {
             this.setSpriteFromAge(this.sprites);
-            this.xd += (this.random.nextDouble() - 0.5D) * 0.0012D;
-            this.zd += (this.random.nextDouble() - 0.5D) * 0.0012D;
+            this.xd += (this.random.nextDouble() - 0.5D) * 0.0010D;
+            this.zd += (this.random.nextDouble() - 0.5D) * 0.0010D;
         }
 
         float progress = Math.min(1.0F, (float) this.age / (float) this.lifetime);
         this.alpha = this.initialAlpha * Mth.clamp(1.0F - progress, 0.0F, 1.0F);
 
         switch (this.style) {
-            case FLAME -> this.quadSize = this.initialQuadSize * (1.0F - progress * 0.28F);
-            case EMBER -> this.quadSize = this.initialQuadSize * (1.0F - progress * 0.35F);
-            case SPARK -> this.quadSize = this.initialQuadSize * (1.0F - progress * 0.65F);
+            case FLAME -> this.quadSize = this.initialQuadSize * (1.0F - progress * 0.24F);
+            case EMBER -> this.quadSize = this.initialQuadSize * (1.0F - progress * 0.32F);
+            case SPARK -> this.quadSize = this.initialQuadSize * (1.0F - progress * 0.68F);
         }
     }
 
