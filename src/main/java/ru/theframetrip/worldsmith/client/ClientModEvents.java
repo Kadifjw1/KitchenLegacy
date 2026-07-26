@@ -13,6 +13,7 @@ import ru.theframetrip.worldsmith.client.particle.NakalParticle;
 import ru.theframetrip.worldsmith.client.particle.PrahAshParticle;
 import ru.theframetrip.worldsmith.client.particle.VoidParticle;
 import ru.theframetrip.worldsmith.item.KrovotokItem;
+import ru.theframetrip.worldsmith.item.NakalItem;
 import ru.theframetrip.worldsmith.registry.ModItems;
 import ru.theframetrip.worldsmith.registry.ModParticleTypes;
 
@@ -39,8 +40,18 @@ public class ClientModEvents {
 
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> ItemProperties.register(ModItems.KROVOTOK.get(),
-                new ResourceLocation(WorldsmithMod.MOD_ID, "krovotok_charge"),
-                (stack, level, entity, seed) -> KrovotokItem.getCharge(stack) / (float) KrovotokItem.MAX_CHARGE));
+        event.enqueueWork(() -> {
+            ItemProperties.register(
+                    ModItems.KROVOTOK.get(),
+                    new ResourceLocation(WorldsmithMod.MOD_ID, "krovotok_charge"),
+                    (stack, level, entity, seed) -> KrovotokItem.getCharge(stack) / (float) KrovotokItem.MAX_CHARGE
+            );
+
+            ItemProperties.register(
+                    ModItems.NAKAL.get(),
+                    new ResourceLocation(WorldsmithMod.MOD_ID, "nakal_ignited"),
+                    (stack, level, entity, seed) -> NakalItem.isIgnited(stack) ? 1.0F : 0.0F
+            );
+        });
     }
 }

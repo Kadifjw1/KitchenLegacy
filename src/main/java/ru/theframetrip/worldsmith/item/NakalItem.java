@@ -48,14 +48,19 @@ public class NakalItem extends SwordItem {
 
     @Override
     public boolean onEntitySwing(ItemStack stack, LivingEntity entity) {
-        if (entity instanceof Player player && entity.level() instanceof ServerLevel serverLevel) {
+        if (entity instanceof Player player) {
             boolean firstIgnition = !isIgnited(stack);
+
+            // Update both logical sides. The client-side value switches the item-model
+            // predicate immediately, while the server remains authoritative.
             setIgnited(stack, true);
 
-            if (firstIgnition) {
-                NakalParticleSpawner.spawnIgnitionBurst(serverLevel, player);
-            } else {
-                NakalParticleSpawner.spawnSwingBurst(serverLevel, player);
+            if (entity.level() instanceof ServerLevel serverLevel) {
+                if (firstIgnition) {
+                    NakalParticleSpawner.spawnIgnitionBurst(serverLevel, player);
+                } else {
+                    NakalParticleSpawner.spawnSwingBurst(serverLevel, player);
+                }
             }
         }
 
@@ -80,19 +85,18 @@ public class NakalItem extends SwordItem {
             return;
         }
 
-        if (!selected) {
-            if (isIgnited(stack)) {
-                setIgnited(stack, false);
-                if (level instanceof ServerLevel serverLevel) {
-                    NakalOverheatHandler.clearOwner(serverLevel, player.getUUID());
-                }
+        if (!selected && isIgnited(stack)) {
+            setIgnited(stack, false);
+
+            if (level instanceof ServerLevel serverLevel) {
+                NakalOverheatHandler.clearOwner(serverLevel, player.getUUID());
             }
-            return;
         }
 
-        if (isIgnited(stack) && level instanceof ServerLevel serverLevel && player.tickCount % 2 == 0) {
-            NakalParticleSpawner.spawnBurningBlade(serverLevel, player);
-        }
+        // The continuous flame is now an animated model overlay attached directly to
+        // the blade. World particles are intentionally not spawned every tick: they
+        // cannot follow the first-person item transform and previously appeared near
+        // the opposite hand.
     }
 
     @Override
