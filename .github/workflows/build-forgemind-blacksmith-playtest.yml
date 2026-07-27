@@ -1,0 +1,39 @@
+name: Build ForgeMind Blacksmith Playtest
+
+on:
+  pull_request:
+    paths:
+      - "playtest/npc_blacksmith_overlay.zip"
+      - ".github/workflows/build-forgemind-blacksmith-playtest.yml"
+      - "BLACKSMITH_PLAYTEST.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-playtest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Worldsmith
+        uses: actions/checkout@v4
+
+      - name: Install generated blacksmith sources
+        run: |
+          unzip -o playtest/npc_blacksmith_overlay.zip -d .
+          test -f src/main/java/ru/theframetrip/worldsmith/forgemind/npc_blacksmith/runtime/menu/client/BlacksmithScreen.java
+          test -f src/main/resources/data/worldsmith/blacksmith_recipes/iron_sword.json
+
+      - name: Build playtest mod
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build --stacktrace --console=plain
+
+      - name: Upload ready JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: worldsmith-forgemind-blacksmith-playtest
+          path: |
+            build/libs/*.jar
+            BLACKSMITH_PLAYTEST.md
+          if-no-files-found: error
