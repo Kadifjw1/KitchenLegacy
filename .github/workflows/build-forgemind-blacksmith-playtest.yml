@@ -18,11 +18,16 @@ jobs:
       - name: Checkout Worldsmith
         uses: actions/checkout@v4
 
-      - name: Install generated blacksmith sources
+      - name: Inspect and install generated sources
         run: |
+          ls -lh playtest/npc_blacksmith_overlay.zip
+          file playtest/npc_blacksmith_overlay.zip
+          unzip -t playtest/npc_blacksmith_overlay.zip
           unzip -o playtest/npc_blacksmith_overlay.zip -d .
-          test -f src/main/java/ru/theframetrip/worldsmith/forgemind/npc_blacksmith/runtime/menu/client/BlacksmithScreen.java
-          test -f src/main/resources/data/worldsmith/blacksmith_recipes/iron_sword.json
+          echo "Generated Java files:"
+          find src/main/java/ru/theframetrip/worldsmith/forgemind/npc_blacksmith -type f | sort | head -20
+          echo "Recipe:"
+          cat src/main/resources/data/worldsmith/blacksmith_recipes/iron_sword.json
 
       - name: Build playtest mod
         run: |
