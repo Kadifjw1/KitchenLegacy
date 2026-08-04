@@ -12,22 +12,19 @@
     "references": [
       "Farmer's Delight: compact asymmetrical silhouettes, colored outlines and restrained highlights",
       "Croptopia: immediate crop identity and readable forms at 16x16",
-      "Pam's HarvestCraft 2: cucumber and lettuce should have clearly different silhouettes",
+      "Pam's HarvestCraft 2: berries and fruits need clearly different silhouettes",
       "Worldsmith: original assets only; do not copy third-party pixel layouts or palettes"
     ]
   },
   "items": [
-    {
-      "id": "tomato",
-      "kind": "tomato"
-    },
-    {
-      "id": "lettuce",
-      "kind": "lettuce"
-    },
-    {
-      "id": "cucumber",
-      "kind": "cucumber"
-    }
+    {"id": "tomato", "kind": "tomato"},
+    {"id": "lettuce", "kind": "lettuce"},
+    {"id": "cucumber", "kind": "cucumber"},
+    {"id": "strawberry", "kind": "strawberry"},
+    {"id": "blueberry", "kind": "blueberry"},
+    {"id": "raspberry", "kind": "raspberry"},
+    {"id": "pear", "kind": "pear"},
+    {"id": "peach", "kind": "peach"},
+    {"id": "orange", "kind": "orange"}
   ]
 }
