@@ -1,0 +1,93 @@
+name: Build Savva Custom Shop
+
+on:
+  pull_request:
+    paths:
+      - "codex_tasks/savva_custom_shop/**"
+      - "src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/**"
+      - "src/main/resources/data/worldsmith/forgemind/savva_custom_shop.json"
+      - "SAVVA_CUSTOM_SHOP_AGENT_BUILD.md"
+      - ".github/workflows/build-savva-custom-shop.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  replay-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Worldsmith
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Replay sealed ForgeMind output
+        run: python codex_tasks/savva_custom_shop/capture_agent_output.py
+
+      - name: Verify reproduced files
+        run: |
+          set -euo pipefail
+          root="agent-workspace/OUTPUT/SAVVA_CUSTOM_SHOP/overlay"
+          diff -u src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopCatalog.java "$root/src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopCatalog.java"
+          diff -u src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopRegistry.java "$root/src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopRegistry.java"
+          diff -u src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaCustomShopFeature.java "$root/src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaCustomShopFeature.java"
+          diff -u src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopMenu.java "$root/src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopMenu.java"
+          diff -u src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopScreen.java "$root/src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopScreen.java"
+          diff -u src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopClientEvents.java "$root/src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopClientEvents.java"
+          diff -u src/main/resources/data/worldsmith/forgemind/savva_custom_shop.json "$root/src/main/resources/data/worldsmith/forgemind/savva_custom_shop.json"
+          diff -u SAVVA_CUSTOM_SHOP_AGENT_BUILD.md "$root/SAVVA_CUSTOM_SHOP_AGENT_BUILD.md"
+
+      - name: Build Worldsmith Forge mod
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build --no-daemon --stacktrace --console=plain
+
+      - name: Verify custom shop inside JAR
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          jars = sorted(Path("build/libs").glob("worldsmith-*.jar"))
+          if not jars:
+              raise SystemExit("Worldsmith JAR was not produced")
+          jar = jars[-1]
+          package = "ru/theframetrip/worldsmith/forgemind/savva/shop/"
+          required = {
+              package + "SavvaShopCatalog.class",
+              package + "SavvaShopRegistry.class",
+              package + "SavvaCustomShopFeature.class",
+              package + "SavvaShopMenu.class",
+              package + "SavvaShopScreen.class",
+              package + "SavvaShopClientEvents.class",
+              "data/worldsmith/forgemind/savva_custom_shop.json",
+          }
+          with ZipFile(jar) as archive:
+              names = set(archive.namelist())
+              missing = sorted(required - names)
+              if missing:
+                  raise SystemExit(f"Savva custom shop files missing from JAR: {missing}")
+          print(f"Verified {jar}: Savva custom shop is packaged")
+          PY
+
+      - name: Upload custom shop playtest build
+        uses: actions/upload-artifact@v4
+        with:
+          name: worldsmith-savva-custom-shop-playtest
+          path: |
+            build/libs/*.jar
+            SAVVA_CUSTOM_SHOP_AGENT_BUILD.md
+            agent-workspace/OUTPUT/SAVVA_CUSTOM_SHOP/run.json
+            agent-workspace/OUTPUT/SAVVA_CUSTOM_SHOP/feature-manifest.json
+          if-no-files-found: error
