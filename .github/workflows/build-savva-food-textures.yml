@@ -1,0 +1,87 @@
+name: Build Savva Food Textures
+
+on:
+  pull_request:
+    paths:
+      - "codex_tasks/savva_food_textures/**"
+      - "src/main/resources/assets/worldsmith/textures/item/tomato.png"
+      - "src/main/resources/assets/worldsmith/textures/item/lettuce.png"
+      - "src/main/resources/assets/worldsmith/textures/item/cucumber.png"
+      - "FORGEMIND_FOOD_TEXTURE_BUILD.md"
+      - ".github/workflows/build-savva-food-textures.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Worldsmith
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install texture verifier dependency
+        run: pip install "Pillow>=10.3,<13"
+
+      - name: Verify imported ForgeMind output
+        run: python codex_tasks/savva_food_textures/verify_agent_output.py
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Build Worldsmith Forge mod
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build --no-daemon --stacktrace --console=plain
+
+      - name: Verify textures inside JAR
+        run: |
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          expected = {
+              "assets/worldsmith/textures/item/tomato.png": "daea304d6d68a929205db878cce0875a75bd8617cef7507d1c26dd82b840503f",
+              "assets/worldsmith/textures/item/lettuce.png": "fddd671da5f7a4eae645197415ef8621f8ba7e49af2a5bc9cb2655b14b9e0c81",
+              "assets/worldsmith/textures/item/cucumber.png": "cbec4f1190c5a2e61512cadf32597141feb1092f70a0a8bf1d892d44da2c7376",
+          }
+          jars = sorted(Path("build/libs").glob("worldsmith-*.jar"))
+          if not jars:
+              raise SystemExit("Worldsmith JAR was not produced")
+          jar = jars[-1]
+          with ZipFile(jar) as archive:
+              for name, expected_sha in expected.items():
+                  try:
+                      payload = archive.read(name)
+                  except KeyError as exc:
+                      raise SystemExit(f"Missing agent texture in JAR: {name}") from exc
+                  actual = hashlib.sha256(payload).hexdigest()
+                  if actual != expected_sha:
+                      raise SystemExit(
+                          f"JAR texture hash mismatch for {name}: {actual}"
+                      )
+          print(f"Verified {jar}: all ForgeMind food textures are packaged")
+          PY
+
+      - name: Upload playable texture build
+        uses: actions/upload-artifact@v4
+        with:
+          name: worldsmith-forgemind-food-textures-playtest
+          path: |
+            build/libs/*.jar
+            FORGEMIND_FOOD_TEXTURE_BUILD.md
+            codex_tasks/savva_food_textures/forgemind-task.json
+            codex_tasks/savva_food_textures/texture-report.json
+            codex_tasks/savva_food_textures/agent-run.json
+          if-no-files-found: error
