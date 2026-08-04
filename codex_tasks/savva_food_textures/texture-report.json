@@ -1,0 +1,43 @@
+{
+  "feature": "minecraft_food_item_texture_pack_v1",
+  "references": [
+    "Farmer's Delight: compact asymmetrical silhouettes, colored outlines and restrained highlights",
+    "Croptopia: immediate crop identity and readable forms at 16x16",
+    "Pam's HarvestCraft 2: cucumber and lettuce should have clearly different silhouettes",
+    "Worldsmith: original assets only; do not copy third-party pixel layouts or palettes"
+  ],
+  "schema_version": 1,
+  "style_profile": "vanilla_plus_food_mod",
+  "textures": [
+    {
+      "bbox": [2, 1, 14, 14],
+      "id": "tomato",
+      "kind": "tomato",
+      "opaque_pixels": 104,
+      "palette_colors": 9,
+      "pixel_sha256": "931bfabbb27e7643ff4b3b8db68efd642d4849af45306e01bb8ab498ce5bd1ea",
+      "semi_transparent_pixels": 0,
+      "size": [16, 16]
+    },
+    {
+      "bbox": [1, 2, 14, 15],
+      "id": "lettuce",
+      "kind": "lettuce",
+      "opaque_pixels": 133,
+      "palette_colors": 6,
+      "pixel_sha256": "3a264f7bb8ad9498706687691b9d7c5e4672691da7b5376ea09095655ef441c2",
+      "semi_transparent_pixels": 0,
+      "size": [16, 16]
+    },
+    {
+      "bbox": [2, 1, 14, 14],
+      "id": "cucumber",
+      "kind": "cucumber",
+      "opaque_pixels": 90,
+      "palette_colors": 6,
+      "pixel_sha256": "335152268f17ec0ccbd1ee37bf501157f4706baab59fbea7ceaf1bffd0638dd2",
+      "semi_transparent_pixels": 0,
+      "size": [16, 16]
+    }
+  ]
+}
