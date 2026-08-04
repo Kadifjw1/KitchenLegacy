@@ -1,5 +1,6 @@
 {
   "itemGroup.worldsmith": "Worldsmith",
+  "itemGroup.worldsmith.savva": "Worldsmith: Лавка Саввы",
   "item.worldsmith.predel": "Предел",
   "tooltip.worldsmith.predel.ability": "Активная способность: Разлом",
   "tooltip.worldsmith.predel.description": "Временно выводит выбранные блоки из материального мира.",
@@ -32,5 +33,10 @@
   "item.worldsmith.nakal": "Накал",
   "tooltip.worldsmith.nakal.ability": "Пассивная способность: Перегрев",
   "tooltip.worldsmith.nakal.description": "Удары накладывают перегрев и ослабляют броню цели. Пятый уровень вызывает тепловой разрыв.",
-  "tooltip.worldsmith.nakal.ignition": "Первый взмах зажигает меч. Смена предмета полностью гасит его."
+  "tooltip.worldsmith.nakal.ignition": "Первый взмах зажигает меч. Смена предмета полностью гасит его.",
+  "item.worldsmith.savva_coin": "Монета Саввы",
+  "item.worldsmith.tomato": "Помидор",
+  "item.worldsmith.lettuce": "Салат",
+  "item.worldsmith.cucumber": "Огурец",
+  "item.worldsmith.savva_spawner": "Призыв Саввы"
 }
