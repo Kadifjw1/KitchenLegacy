@@ -5,48 +5,54 @@ import json
 import shutil
 from pathlib import Path
 
-PROVENANCE = "worldsmith-forgemind@58bede091eb7811d8fc80aa57d48addb11e022c6"
-EXPECTED_TASK_SHA256 = "3c02c2db8d6418b2e1bfbc1da76675961a161b595fa537933ef60c04fa24b106"
+PROVENANCE = "worldsmith-forgemind@task-extension:savva-economy-pack-v1"
+EXPECTED_TASK_SHA256 = "d50a5d3bc657681547f570cfdf053c0ed4de71c344cfc585bd75e57d4cb268be"
 TASK_PATH = Path("codex_tasks/savva_custom_shop/forgemind-task.json")
 OUTPUT = Path("agent-workspace/OUTPUT/SAVVA_CUSTOM_SHOP")
 SEALED_FILES = {
     Path("src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopCatalog.java"): (
         "overlay/src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopCatalog.java",
-        "df7b4a8229d58ab08478d49c262013cf471eb38d39e2fda5bf8064a87dc835c9",
+        "c6fbe1a2b33e947ee404e22b64098f9bea2e7659",
     ),
     Path("src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopRegistry.java"): (
         "overlay/src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopRegistry.java",
-        "8503f2dba10d36e4a51e23b75ab8fd219cbe60d70cced0e4feb2b31b0db3cd6b",
+        "6aaa5f03adb391990336b3dafb965e641ae603a3",
     ),
     Path("src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaCustomShopFeature.java"): (
         "overlay/src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaCustomShopFeature.java",
-        "59ef8d0cc1a7fb1d41e4afa273a8d44dfb19ed2be1614a3f3012ebcf50ce86c2",
+        "23dcac931314df2272c25229d2b3c4f984651461",
     ),
     Path("src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopMenu.java"): (
         "overlay/src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopMenu.java",
-        "3e7785087d9f1e97f98e7313892dd0933d394897f7f3f62a2dcc9f1e0db592fe",
+        "a9793218564b88d535e429cbfa8b88c6f4fbaa51",
     ),
     Path("src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopScreen.java"): (
         "overlay/src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopScreen.java",
-        "29d06e16329b9e07ff4b85e06295e83f57538de0fd5f4e4d8cfb4b003132b346",
+        "3d9b2dd63c8080ead268312cc98cdf825e960990",
     ),
     Path("src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopClientEvents.java"): (
         "overlay/src/main/java/ru/theframetrip/worldsmith/forgemind/savva/shop/SavvaShopClientEvents.java",
-        "bbd58c127f9116c2fdf94b41cffe025e5477597793b2b1e2dabe5e23d5f04427",
+        "67a92c2175c0166a397959660025b1c40b9f4220",
     ),
     Path("src/main/resources/data/worldsmith/forgemind/savva_custom_shop.json"): (
         "overlay/src/main/resources/data/worldsmith/forgemind/savva_custom_shop.json",
-        "ce64d4eeaf9c155eb8e9d5ccfbb53b7e7ddee8d3d3729ed33465d4b6cd48fbac",
+        "6d9e09a83d3ee2ec53d5f5d78eb5976e5b7a9c94",
     ),
     Path("SAVVA_CUSTOM_SHOP_AGENT_BUILD.md"): (
         "overlay/SAVVA_CUSTOM_SHOP_AGENT_BUILD.md",
-        "6db336cee0d621638c6577983948491514913efb2c77daceaae35f4bd517a18f",
+        "5eefea00aced818dd6ecb05d0fd98b95f78fe749",
     ),
 }
 
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def git_blob_sha1(path: Path) -> str:
+    payload = path.read_bytes()
+    header = f"blob {len(payload)}\0".encode("ascii")
+    return hashlib.sha1(header + payload).hexdigest()
 
 
 def canonical_task_sha256(path: Path) -> str:
@@ -77,15 +83,16 @@ def main() -> None:
         raise SystemExit(f"Agent output already exists: {OUTPUT}")
 
     records = []
-    for source, (relative, expected_sha) in SEALED_FILES.items():
+    for source, (relative, expected_blob_sha) in SEALED_FILES.items():
         if source.is_symlink() or not source.is_file():
             raise SystemExit(f"Agent output source is unsafe: {source}")
-        actual_sha = sha256(source)
-        if actual_sha != expected_sha:
+        actual_blob_sha = git_blob_sha1(source)
+        if actual_blob_sha != expected_blob_sha:
             raise SystemExit(
                 f"Sealed ForgeMind output mismatch for {source}: "
-                f"expected {expected_sha}, got {actual_sha}"
+                f"expected git blob {expected_blob_sha}, got {actual_blob_sha}"
             )
+        actual_sha = sha256(source)
         destination = OUTPUT / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, destination)
@@ -95,6 +102,7 @@ def main() -> None:
                 "path": relative,
                 "size_bytes": destination.stat().st_size,
                 "sha256": actual_sha,
+                "git_blob_sha1": actual_blob_sha,
             }
         )
 
@@ -105,7 +113,7 @@ def main() -> None:
         "entry_class": "ru.theframetrip.worldsmith.forgemind.savva.shop.SavvaCustomShopFeature",
         "screen_class": "ru.theframetrip.worldsmith.forgemind.savva.shop.SavvaShopScreen",
         "menu_class": "ru.theframetrip.worldsmith.forgemind.savva.shop.SavvaShopMenu",
-        "offer_count": 19,
+        "offer_count": 25,
         "files": [record["path"] for record in records],
         "file_records": records,
         "security": {
