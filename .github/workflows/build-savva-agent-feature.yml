@@ -1,0 +1,86 @@
+name: Build Savva Agent Feature
+
+on:
+  pull_request:
+    paths:
+      - "codex_tasks/savva/**"
+      - "src/main/java/ru/theframetrip/worldsmith/forgemind/savva/**"
+      - "src/main/resources/data/worldsmith/forgemind/savva_produce_vendor.json"
+      - "SAVVA_AGENT_BUILD.md"
+      - ".github/workflows/build-savva-agent-feature.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Worldsmith
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Replay sealed ForgeMind Savva output
+        run: python codex_tasks/savva/replay_sealed_output.py
+
+      - name: Verify reproduced files
+        run: |
+          diff -u \
+            src/main/java/ru/theframetrip/worldsmith/forgemind/savva/SavvaProduceVendorFeature.java \
+            agent-workspace/OUTPUT/SAVVA_PRODUCE_VENDOR/overlay/src/main/java/ru/theframetrip/worldsmith/forgemind/savva/SavvaProduceVendorFeature.java
+          diff -u \
+            src/main/resources/data/worldsmith/forgemind/savva_produce_vendor.json \
+            agent-workspace/OUTPUT/SAVVA_PRODUCE_VENDOR/overlay/src/main/resources/data/worldsmith/forgemind/savva_produce_vendor.json
+          diff -u \
+            SAVVA_AGENT_BUILD.md \
+            agent-workspace/OUTPUT/SAVVA_PRODUCE_VENDOR/overlay/SAVVA_AGENT_BUILD.md
+
+      - name: Build Worldsmith Forge mod
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build --no-daemon --stacktrace --console=plain
+
+      - name: Verify Savva is packaged in JAR
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          jars = sorted(Path("build/libs").glob("worldsmith-*.jar"))
+          if not jars:
+              raise SystemExit("Worldsmith JAR was not produced")
+          jar = jars[-1]
+          required = {
+              "ru/theframetrip/worldsmith/forgemind/savva/SavvaProduceVendorFeature.class",
+              "data/worldsmith/forgemind/savva_produce_vendor.json",
+          }
+          with ZipFile(jar) as archive:
+              names = set(archive.namelist())
+              missing = sorted(required - names)
+              if missing:
+                  raise SystemExit(f"Savva files missing from JAR: {missing}")
+          print(f"Verified {jar}: Savva class and profile are packaged")
+          PY
+
+      - name: Upload playable Savva build
+        uses: actions/upload-artifact@v4
+        with:
+          name: worldsmith-savva-agent-playtest
+          path: |
+            build/libs/*.jar
+            SAVVA_AGENT_BUILD.md
+            agent-workspace/OUTPUT/SAVVA_PRODUCE_VENDOR/run.json
+            agent-workspace/OUTPUT/SAVVA_PRODUCE_VENDOR/feature-manifest.json
+          if-no-files-found: error
