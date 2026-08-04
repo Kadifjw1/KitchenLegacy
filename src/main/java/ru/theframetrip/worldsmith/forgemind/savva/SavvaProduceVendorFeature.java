@@ -82,16 +82,7 @@ public final class SavvaProduceVendorFeature {
         }
 
         ensureProfile(villager, player.serverLevel());
-        villager.setTradingPlayer(player);
-        var containerId = player.openMenu(villager);
-        containerId.ifPresent(id -> player.sendMerchantOffers(
-                id,
-                villager.getOffers(),
-                villager.getVillagerData().getLevel(),
-                villager.getVillagerXp(),
-                true,
-                false
-        ));
+        villager.interact(player, InteractionHand.MAIN_HAND);
     }
 
     private static int spawnSavva(CommandSourceStack source) {
