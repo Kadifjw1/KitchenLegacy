@@ -1,0 +1,97 @@
+name: Build Savva Economy Pack
+
+on:
+  pull_request:
+    paths:
+      - "codex_tasks/savva_economy/**"
+      - "src/main/java/ru/theframetrip/worldsmith/registry/ModItems.java"
+      - "src/main/java/ru/theframetrip/worldsmith/registry/ModCreativeModeTabs.java"
+      - "src/main/java/ru/theframetrip/worldsmith/item/SavvaSpawnerItem.java"
+      - "src/main/java/ru/theframetrip/worldsmith/forgemind/savva/**"
+      - "src/main/resources/assets/worldsmith/models/item/savva_coin.json"
+      - "src/main/resources/assets/worldsmith/models/item/tomato.json"
+      - "src/main/resources/assets/worldsmith/models/item/lettuce.json"
+      - "src/main/resources/assets/worldsmith/models/item/cucumber.json"
+      - "src/main/resources/assets/worldsmith/models/item/savva_spawner.json"
+      - "src/main/resources/assets/worldsmith/textures/item/savva_coin.png"
+      - "src/main/resources/assets/worldsmith/textures/item/tomato.png"
+      - "src/main/resources/assets/worldsmith/textures/item/lettuce.png"
+      - "src/main/resources/assets/worldsmith/textures/item/cucumber.png"
+      - "src/main/resources/assets/worldsmith/textures/item/savva_spawner.png"
+      - "src/main/resources/assets/worldsmith/lang/*.json"
+      - "src/main/resources/data/worldsmith/forgemind/savva_*.json"
+      - "SAVVA_*_BUILD.md"
+      - ".github/workflows/build-savva-economy-pack.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Worldsmith
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify agent economy contract
+        run: python codex_tasks/savva_economy/verify_economy_pack.py
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Build Worldsmith Forge mod
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build --no-daemon --stacktrace --console=plain
+
+      - name: Verify economy pack inside JAR
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          jars = sorted(Path("build/libs").glob("worldsmith-*.jar"))
+          if not jars:
+              raise SystemExit("Worldsmith JAR was not produced")
+          jar = jars[-1]
+          required = {
+              "ru/theframetrip/worldsmith/item/SavvaSpawnerItem.class",
+              "ru/theframetrip/worldsmith/registry/ModItems.class",
+              "ru/theframetrip/worldsmith/registry/ModCreativeModeTabs.class",
+              "assets/worldsmith/models/item/savva_coin.json",
+              "assets/worldsmith/models/item/tomato.json",
+              "assets/worldsmith/models/item/lettuce.json",
+              "assets/worldsmith/models/item/cucumber.json",
+              "assets/worldsmith/models/item/savva_spawner.json",
+              "assets/worldsmith/textures/item/savva_coin.png",
+              "assets/worldsmith/textures/item/tomato.png",
+              "assets/worldsmith/textures/item/lettuce.png",
+              "assets/worldsmith/textures/item/cucumber.png",
+              "assets/worldsmith/textures/item/savva_spawner.png",
+              "data/worldsmith/forgemind/savva_produce_vendor.json",
+              "data/worldsmith/forgemind/savva_custom_shop.json",
+          }
+          with ZipFile(jar) as archive:
+              names = set(archive.namelist())
+              missing = sorted(required - names)
+              if missing:
+                  raise SystemExit(f"Savva economy files missing from JAR: {missing}")
+          print(f"Verified {jar}: Savva economy pack is packaged")
+          PY
+
+      - name: Upload playable economy build
+        uses: actions/upload-artifact@v4
+        with:
+          name: worldsmith-savva-economy-playtest
+          path: build/libs/*.jar
+          if-no-files-found: error

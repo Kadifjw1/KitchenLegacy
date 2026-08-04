@@ -14,22 +14,20 @@ Generated feature: `savva_produce_vendor_v1`
 /worldsmith savva spawn
 ```
 
-The command requires permission level 2. Savva is a persistent farmer villager with
-role `savva_produce_vendor`. Interact with the main hand between ticks
-`1000` and `12000` to open the server-authoritative
-vanilla merchant screen.
+Савву также можно создать предметом `worldsmith:savva_spawner` из отдельной творческой вкладки «Worldsmith: Лавка Саввы».
 
-Currency lookup order:
+Савва — постоянный фермер-житель с ролью `savva_produce_vendor`. Лавка работает между тиками `1000` и `12000`.
 
-1. `dragonlegacy:legacy_coin`
-2. `minecraft:emerald`
-3. `minecraft:emerald`
+Основная валюта: `worldsmith:savva_coin`. Изумруд остаётся только аварийным fallback, если реестр предметов повреждён.
 
-Offers are stored on the villager and reset once per Minecraft day. Vanilla merchant
-transactions provide server-side inventory checks, stock limits and atomic item exchange.
+Профиль содержит 25 предложений. В торговлю добавлены собственные предметы Worldsmith:
+
+- `worldsmith:tomato`;
+- `worldsmith:lettuce`;
+- `worldsmith:cucumber`.
+
+Предложения хранятся на жителе и восстанавливаются раз в игровой день. Все сделки выполняются сервером с проверкой инвентаря, цены, остатка и свободного места.
 
 ## Honest boundary
 
-This vertical slice proves autonomous feature generation and a buildable gameplay loop.
-It intentionally uses the vanilla villager renderer. The approved custom Savva appearance
-requires a later custom entity/renderer task after a valid 64×64 skin or GeckoLib model exists.
+В этой версии Савва использует ванильную модель фермера. Отдельный внешний вид NPC потребует валидного скина 64×64 или GeckoLib-модели.

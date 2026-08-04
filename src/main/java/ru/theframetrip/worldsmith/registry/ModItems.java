@@ -1,5 +1,6 @@
 package ru.theframetrip.worldsmith.registry;
 
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tiers;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -10,6 +11,7 @@ import ru.theframetrip.worldsmith.WorldsmithMod;
 import ru.theframetrip.worldsmith.item.KrovotokItem;
 import ru.theframetrip.worldsmith.item.NakalItem;
 import ru.theframetrip.worldsmith.item.PredelItem;
+import ru.theframetrip.worldsmith.item.SavvaSpawnerItem;
 import ru.theframetrip.worldsmith.item.WorldsmithSwordItem;
 
 public class ModItems {
@@ -32,6 +34,23 @@ public class ModItems {
     public static final RegistryObject<Item> PRAH = registerSword("prah", 7, -2.7F);
     public static final RegistryObject<Item> NAKAL = ITEMS.register("nakal",
             () -> new NakalItem(Tiers.IRON, 7, -2.7F, new Item.Properties().fireResistant()));
+
+    public static final RegistryObject<Item> SAVVA_COIN = ITEMS.register("savva_coin",
+            () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> TOMATO = ITEMS.register("tomato",
+            () -> new Item(new Item.Properties().food(
+                    new FoodProperties.Builder().nutrition(3).saturationMod(0.3F).build()
+            )));
+    public static final RegistryObject<Item> LETTUCE = ITEMS.register("lettuce",
+            () -> new Item(new Item.Properties().food(
+                    new FoodProperties.Builder().nutrition(1).saturationMod(0.2F).build()
+            )));
+    public static final RegistryObject<Item> CUCUMBER = ITEMS.register("cucumber",
+            () -> new Item(new Item.Properties().food(
+                    new FoodProperties.Builder().nutrition(2).saturationMod(0.25F).build()
+            )));
+    public static final RegistryObject<Item> SAVVA_SPAWNER = ITEMS.register("savva_spawner",
+            () -> new SavvaSpawnerItem(new Item.Properties().stacksTo(16)));
 
     private static RegistryObject<Item> registerSword(String name, int attackDamageModifier, float attackSpeedModifier) {
         return ITEMS.register(name, () -> new WorldsmithSwordItem(Tiers.IRON, attackDamageModifier, attackSpeedModifier, new Item.Properties()));

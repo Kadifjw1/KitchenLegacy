@@ -5,8 +5,8 @@ import json
 import shutil
 from pathlib import Path
 
-PROVENANCE = "worldsmith-forgemind@e19fa8be9883a7f36a8edc992e13d701b36f3758"
-EXPECTED_TASK_SHA256 = "775b0ce0d6e91d83f898424422927f60bc2fc4c0a8997564e0361d88e13c53b2"
+PROVENANCE = "worldsmith-forgemind@task-extension:savva-economy-pack-v1"
+EXPECTED_TASK_SHA256 = "b763966cc7a7f643ca33f17e5c4144b9d2e0f2aadefa5e9d0d31a8798c2e375e"
 TASK_PATH = Path("codex_tasks/savva/forgemind-task.json")
 OUTPUT = Path("agent-workspace/OUTPUT/SAVVA_PRODUCE_VENDOR")
 SEALED_FILES = {
@@ -16,7 +16,7 @@ SEALED_FILES = {
     ): (
         "overlay/src/main/java/ru/theframetrip/worldsmith/forgemind/"
         "savva/SavvaProduceVendorFeature.java",
-        "6443e6f4c2ce454b8128d661a8c630abb108aa53296d3cc053b4b878f8a09f27",
+        "50e70d772be8e68248276fb604834211bfcf36ca",
     ),
     Path(
         "src/main/resources/data/worldsmith/forgemind/"
@@ -24,17 +24,23 @@ SEALED_FILES = {
     ): (
         "overlay/src/main/resources/data/worldsmith/forgemind/"
         "savva_produce_vendor.json",
-        "aa329eac70b390ae781b1eb60edf2975af1770d322effc9f81fb55f49e904262",
+        "53c7a148df2a1a98d95acb5789d5c5f46741f7ee",
     ),
     Path("SAVVA_AGENT_BUILD.md"): (
         "overlay/SAVVA_AGENT_BUILD.md",
-        "a0d30e34f2fff855d02e6be4c843a340ddc60c966fb469e45cb8e1a7ab80e171",
+        "e3ba608abd781cfcc587647c19a56e0133b6f9ac",
     ),
 }
 
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def git_blob_sha1(path: Path) -> str:
+    payload = path.read_bytes()
+    header = f"blob {len(payload)}\0".encode("ascii")
+    return hashlib.sha1(header + payload).hexdigest()
 
 
 def canonical_task_sha256(path: Path) -> str:
@@ -65,15 +71,16 @@ def main() -> None:
         raise SystemExit(f"Agent output already exists: {OUTPUT}")
 
     records = []
-    for source, (relative, expected_sha) in SEALED_FILES.items():
+    for source, (relative, expected_blob_sha) in SEALED_FILES.items():
         if source.is_symlink() or not source.is_file():
             raise SystemExit(f"Agent output source is unsafe: {source}")
-        actual_sha = sha256(source)
-        if actual_sha != expected_sha:
+        actual_blob_sha = git_blob_sha1(source)
+        if actual_blob_sha != expected_blob_sha:
             raise SystemExit(
                 f"Sealed ForgeMind output mismatch for {source}: "
-                f"expected {expected_sha}, got {actual_sha}"
+                f"expected git blob {expected_blob_sha}, got {actual_blob_sha}"
             )
+        actual_sha = sha256(source)
         destination = OUTPUT / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, destination)
@@ -82,6 +89,7 @@ def main() -> None:
                 "path": relative,
                 "size_bytes": destination.stat().st_size,
                 "sha256": actual_sha,
+                "git_blob_sha1": actual_blob_sha,
             }
         )
 
@@ -93,7 +101,7 @@ def main() -> None:
             "ru.theframetrip.worldsmith.forgemind.savva."
             "SavvaProduceVendorFeature"
         ),
-        "offer_count": 19,
+        "offer_count": 25,
         "files": [record["path"] for record in records],
         "file_records": records,
         "apply": "Copy overlay contents into the Worldsmith repository root.",

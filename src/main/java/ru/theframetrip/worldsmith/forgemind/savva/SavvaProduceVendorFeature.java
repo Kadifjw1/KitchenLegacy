@@ -33,11 +33,11 @@ public final class SavvaProduceVendorFeature {
     private static final String ROLE_ID = "savva_produce_vendor";
     private static final String PROFILE_VERSION_TAG = "WorldsmithSavvaProfileVersion";
     private static final String LAST_RESTOCK_DAY_TAG = "WorldsmithSavvaLastRestockDay";
-    private static final int PROFILE_VERSION = 1;
+    private static final int PROFILE_VERSION = 2;
     private static final int OPEN_TIME = 1000;
     private static final int CLOSE_TIME = 12000;
     private static final String DISPLAY_NAME = "Савва Урожайник";
-    private static final String CURRENCY_ID = "dragonlegacy:legacy_coin";
+    private static final String CURRENCY_ID = "worldsmith:savva_coin";
     private static final String FALLBACK_CURRENCY_ID = "minecraft:emerald";
 
     private SavvaProduceVendorFeature() {
@@ -86,14 +86,20 @@ public final class SavvaProduceVendorFeature {
     }
 
     private static int spawnSavva(CommandSourceStack source) {
-        ServerLevel level = source.getLevel();
-        Villager villager = EntityType.VILLAGER.create(level);
-        if (villager == null) {
+        if (!spawnSavva(source.getLevel(), source.getPosition())) {
             source.sendFailure(Component.literal("Не удалось создать Савву."));
             return 0;
         }
+        source.sendSuccess(() -> Component.literal("Савва Урожайник создан."), true);
+        return 1;
+    }
 
-        Vec3 position = source.getPosition();
+    public static boolean spawnSavva(ServerLevel level, Vec3 position) {
+        Villager villager = EntityType.VILLAGER.create(level);
+        if (villager == null) {
+            return false;
+        }
+
         villager.moveTo(position.x, position.y, position.z, 0.0F, 0.0F);
         villager.setVillagerData(new VillagerData(
                 VillagerType.PLAINS,
@@ -107,9 +113,7 @@ public final class SavvaProduceVendorFeature {
         villager.getPersistentData().putString(ROLE_TAG, ROLE_ID);
         villager.getPersistentData().putInt(PROFILE_VERSION_TAG, 0);
         ensureProfile(villager, level);
-        level.addFreshEntity(villager);
-        source.sendSuccess(() -> Component.literal("Савва Урожайник создан."), true);
-        return 1;
+        return level.addFreshEntity(villager);
     }
 
     private static void ensureProfile(Villager villager, ServerLevel level) {
@@ -145,6 +149,9 @@ public final class SavvaProduceVendorFeature {
 
         MerchantOffers offers = villager.getOffers();
         offers.clear();
+        sellToPlayer(offers, currency, "worldsmith:tomato", 6, 3, 16);
+        sellToPlayer(offers, currency, "worldsmith:lettuce", 4, 2, 16);
+        sellToPlayer(offers, currency, "worldsmith:cucumber", 6, 3, 16);
         sellToPlayer(offers, currency, "minecraft:carrot", 8, 2, 16);
         sellToPlayer(offers, currency, "minecraft:potato", 8, 2, 16);
         sellToPlayer(offers, currency, "minecraft:beetroot", 8, 3, 14);
@@ -157,6 +164,9 @@ public final class SavvaProduceVendorFeature {
         sellToPlayer(offers, currency, "minecraft:pumpkin_seeds", 4, 2, 16);
         sellToPlayer(offers, currency, "minecraft:melon_seeds", 4, 2, 16);
         sellToPlayer(offers, currency, "minecraft:oak_sapling", 2, 3, 8);
+        buyFromPlayer(offers, currency, "worldsmith:tomato", 12, 3, 12);
+        buyFromPlayer(offers, currency, "worldsmith:lettuce", 10, 2, 12);
+        buyFromPlayer(offers, currency, "worldsmith:cucumber", 12, 3, 12);
         buyFromPlayer(offers, currency, "minecraft:carrot", 16, 2, 12);
         buyFromPlayer(offers, currency, "minecraft:potato", 16, 2, 12);
         buyFromPlayer(offers, currency, "minecraft:beetroot", 16, 3, 10);

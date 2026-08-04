@@ -1,5 +1,6 @@
 {
   "itemGroup.worldsmith": "Worldsmith",
+  "itemGroup.worldsmith.savva": "Worldsmith: Savva's Shop",
   "item.worldsmith.predel": "Predel",
   "tooltip.worldsmith.predel.ability": "Active ability: Rift",
   "tooltip.worldsmith.predel.description": "Temporarily phases selected blocks out of the material world.",
@@ -32,5 +33,10 @@
   "item.worldsmith.nakal": "Nakal",
   "tooltip.worldsmith.nakal.ability": "Passive ability: Overheat",
   "tooltip.worldsmith.nakal.description": "Hits apply overheat and weaken the target's armor. The fifth stack triggers a thermal rupture.",
-  "tooltip.worldsmith.nakal.ignition": "The first swing ignites the sword. Switching items extinguishes it completely."
+  "tooltip.worldsmith.nakal.ignition": "The first swing ignites the sword. Switching items extinguishes it completely.",
+  "item.worldsmith.savva_coin": "Savva Coin",
+  "item.worldsmith.tomato": "Tomato",
+  "item.worldsmith.lettuce": "Lettuce",
+  "item.worldsmith.cucumber": "Cucumber",
+  "item.worldsmith.savva_spawner": "Summon Savva"
 }
