@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 jobs:
-  capture-and-build:
+  replay-and-build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Worldsmith
@@ -32,7 +32,7 @@ jobs:
           java-version: "17"
           cache: gradle
 
-      - name: Capture ForgeMind output
+      - name: Replay sealed ForgeMind output
         run: python codex_tasks/savva_custom_shop/capture_agent_output.py
 
       - name: Verify reproduced files
