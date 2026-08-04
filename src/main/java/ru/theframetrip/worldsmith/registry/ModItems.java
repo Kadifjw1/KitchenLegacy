@@ -37,20 +37,23 @@ public class ModItems {
 
     public static final RegistryObject<Item> SAVVA_COIN = ITEMS.register("savva_coin",
             () -> new Item(new Item.Properties()));
-    public static final RegistryObject<Item> TOMATO = ITEMS.register("tomato",
-            () -> new Item(new Item.Properties().food(
-                    new FoodProperties.Builder().nutrition(3).saturationMod(0.3F).build()
-            )));
-    public static final RegistryObject<Item> LETTUCE = ITEMS.register("lettuce",
-            () -> new Item(new Item.Properties().food(
-                    new FoodProperties.Builder().nutrition(1).saturationMod(0.2F).build()
-            )));
-    public static final RegistryObject<Item> CUCUMBER = ITEMS.register("cucumber",
-            () -> new Item(new Item.Properties().food(
-                    new FoodProperties.Builder().nutrition(2).saturationMod(0.25F).build()
-            )));
+    public static final RegistryObject<Item> TOMATO = registerFood("tomato", 3, 0.3F);
+    public static final RegistryObject<Item> LETTUCE = registerFood("lettuce", 1, 0.2F);
+    public static final RegistryObject<Item> CUCUMBER = registerFood("cucumber", 2, 0.25F);
+    public static final RegistryObject<Item> STRAWBERRY = registerFood("strawberry", 2, 0.2F);
+    public static final RegistryObject<Item> BLUEBERRY = registerFood("blueberry", 2, 0.2F);
+    public static final RegistryObject<Item> RASPBERRY = registerFood("raspberry", 2, 0.2F);
+    public static final RegistryObject<Item> PEAR = registerFood("pear", 4, 0.35F);
+    public static final RegistryObject<Item> PEACH = registerFood("peach", 4, 0.35F);
+    public static final RegistryObject<Item> ORANGE = registerFood("orange", 4, 0.3F);
     public static final RegistryObject<Item> SAVVA_SPAWNER = ITEMS.register("savva_spawner",
             () -> new SavvaSpawnerItem(new Item.Properties().stacksTo(16)));
+
+    private static RegistryObject<Item> registerFood(String name, int nutrition, float saturation) {
+        return ITEMS.register(name, () -> new Item(new Item.Properties().food(
+                new FoodProperties.Builder().nutrition(nutrition).saturationMod(saturation).build()
+        )));
+    }
 
     private static RegistryObject<Item> registerSword(String name, int attackDamageModifier, float attackSpeedModifier) {
         return ITEMS.register(name, () -> new WorldsmithSwordItem(Tiers.IRON, attackDamageModifier, attackSpeedModifier, new Item.Properties()));
