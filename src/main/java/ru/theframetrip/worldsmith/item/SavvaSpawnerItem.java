@@ -6,7 +6,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import ru.theframetrip.worldsmith.forgemind.savva.SavvaProduceVendorFeature;
 
 public final class SavvaSpawnerItem extends Item {
@@ -15,7 +14,7 @@ public final class SavvaSpawnerItem extends Item {
     }
 
     @Override
-    public @NotNull InteractionResult useOn(UseOnContext context) {
+    public InteractionResult useOn(UseOnContext context) {
         if (context.getLevel().isClientSide()) {
             return InteractionResult.SUCCESS;
         }
