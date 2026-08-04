@@ -4,9 +4,8 @@ on:
   pull_request:
     paths:
       - "codex_tasks/savva_food_textures/**"
-      - "src/main/resources/assets/worldsmith/textures/item/tomato.png"
-      - "src/main/resources/assets/worldsmith/textures/item/lettuce.png"
-      - "src/main/resources/assets/worldsmith/textures/item/cucumber.png"
+      - "src/main/resources/assets/worldsmith/textures/item/**"
+      - "src/main/resources/assets/worldsmith/models/item/**"
       - "FORGEMIND_FOOD_TEXTURE_BUILD.md"
       - ".github/workflows/build-savva-food-textures.yml"
   workflow_dispatch:
@@ -52,32 +51,34 @@ jobs:
           from zipfile import ZipFile
 
           expected = {
-              "assets/worldsmith/textures/item/tomato.png": "daea304d6d68a929205db878cce0875a75bd8617cef7507d1c26dd82b840503f",
-              "assets/worldsmith/textures/item/lettuce.png": "fddd671da5f7a4eae645197415ef8621f8ba7e49af2a5bc9cb2655b14b9e0c81",
-              "assets/worldsmith/textures/item/cucumber.png": "cbec4f1190c5a2e61512cadf32597141feb1092f70a0a8bf1d892d44da2c7376",
+              "tomato": "daea304d6d68a929205db878cce0875a75bd8617cef7507d1c26dd82b840503f",
+              "lettuce": "fddd671da5f7a4eae645197415ef8621f8ba7e49af2a5bc9cb2655b14b9e0c81",
+              "cucumber": "cbec4f1190c5a2e61512cadf32597141feb1092f70a0a8bf1d892d44da2c7376",
+              "strawberry": "983db9036d7c57d4d055fd7af466f8255cc200fe2ee0df71d7bfc69984413f3c",
+              "blueberry": "ef15d898be6540f5e6e82e5a7e5a7a75eb26532b4dc19bf0ed3a84bf2e2f65a4",
+              "raspberry": "85c43bbeb03dfdda10ea329d018f0d62953f03ef8d2d5975c8bf15aa685d58bc",
+              "pear": "82b824af4b0582bbd2b7bdcbd0fa1713015cf416ef8a81ef72fc840568cb14a6",
+              "peach": "4c9f658d0af4f5a72f597f54f2869205fbc65bfb474fe8fa9f2f0e21f07762bd",
+              "orange": "0df30e240b15e77dd2100756d8ac0afb4b4c50c0f77d0ea9b7652b11e912acbe",
           }
           jars = sorted(Path("build/libs").glob("worldsmith-*.jar"))
           if not jars:
               raise SystemExit("Worldsmith JAR was not produced")
           jar = jars[-1]
           with ZipFile(jar) as archive:
-              for name, expected_sha in expected.items():
-                  try:
-                      payload = archive.read(name)
-                  except KeyError as exc:
-                      raise SystemExit(f"Missing agent texture in JAR: {name}") from exc
+              for item_id, expected_sha in expected.items():
+                  name = f"assets/worldsmith/textures/item/{item_id}.png"
+                  payload = archive.read(name)
                   actual = hashlib.sha256(payload).hexdigest()
                   if actual != expected_sha:
-                      raise SystemExit(
-                          f"JAR texture hash mismatch for {name}: {actual}"
-                      )
-          print(f"Verified {jar}: all ForgeMind food textures are packaged")
+                      raise SystemExit(f"JAR texture hash mismatch for {name}: {actual}")
+          print(f"Verified {jar}: all nine ForgeMind food textures are packaged")
           PY
 
       - name: Upload playable texture build
         uses: actions/upload-artifact@v4
         with:
-          name: worldsmith-forgemind-food-textures-playtest
+          name: worldsmith-forgemind-fruit-berry-playtest
           path: |
             build/libs/*.jar
             FORGEMIND_FOOD_TEXTURE_BUILD.md
