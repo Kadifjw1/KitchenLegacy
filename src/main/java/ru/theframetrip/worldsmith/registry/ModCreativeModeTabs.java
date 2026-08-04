@@ -45,6 +45,12 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.TOMATO.get());
                         output.accept(ModItems.LETTUCE.get());
                         output.accept(ModItems.CUCUMBER.get());
+                        output.accept(ModItems.STRAWBERRY.get());
+                        output.accept(ModItems.BLUEBERRY.get());
+                        output.accept(ModItems.RASPBERRY.get());
+                        output.accept(ModItems.PEAR.get());
+                        output.accept(ModItems.PEACH.get());
+                        output.accept(ModItems.ORANGE.get());
                     })
                     .build());
 
