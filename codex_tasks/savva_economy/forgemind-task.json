@@ -3,72 +3,37 @@
   "task_id": "SAVVA_ECONOMY_PACK",
   "task_type": "worldsmith_feature_build",
   "feature": "savva_economy_pack_v1",
-  "target": {
-    "mod_id": "worldsmith",
-    "minecraft": "1.20.1",
-    "loader": "forge"
-  },
-  "currency": {
-    "item_id": "worldsmith:savva_coin",
-    "stack_size": 64
-  },
+  "target": {"mod_id":"worldsmith","minecraft":"1.20.1","loader":"forge"},
+  "currency": {"item_id":"worldsmith:savva_coin","stack_size":64},
   "produce": [
-    {
-      "item_id": "worldsmith:tomato",
-      "nutrition": 3,
-      "saturation": 0.3
-    },
-    {
-      "item_id": "worldsmith:lettuce",
-      "nutrition": 1,
-      "saturation": 0.2
-    },
-    {
-      "item_id": "worldsmith:cucumber",
-      "nutrition": 2,
-      "saturation": 0.25
-    }
+    {"item_id":"worldsmith:tomato","nutrition":3,"saturation":0.3},
+    {"item_id":"worldsmith:lettuce","nutrition":1,"saturation":0.2},
+    {"item_id":"worldsmith:cucumber","nutrition":2,"saturation":0.25},
+    {"item_id":"worldsmith:strawberry","nutrition":2,"saturation":0.2},
+    {"item_id":"worldsmith:blueberry","nutrition":2,"saturation":0.2},
+    {"item_id":"worldsmith:raspberry","nutrition":2,"saturation":0.2},
+    {"item_id":"worldsmith:pear","nutrition":4,"saturation":0.35},
+    {"item_id":"worldsmith:peach","nutrition":4,"saturation":0.35},
+    {"item_id":"worldsmith:orange","nutrition":4,"saturation":0.3}
   ],
-  "spawner": {
-    "item_id": "worldsmith:savva_spawner",
-    "stack_size": 16,
-    "consume_outside_creative": true,
-    "spawn_role": "savva_produce_vendor"
-  },
+  "spawner": {"item_id":"worldsmith:savva_spawner","stack_size":16,"consume_outside_creative":true,"spawn_role":"savva_produce_vendor"},
   "creative_tab": {
-    "id": "worldsmith:savva",
-    "title_key": "itemGroup.worldsmith.savva",
-    "icon": "worldsmith:savva_coin",
-    "entries": [
-      "worldsmith:savva_spawner",
-      "worldsmith:savva_coin",
-      "worldsmith:tomato",
-      "worldsmith:lettuce",
-      "worldsmith:cucumber"
+    "id":"worldsmith:savva",
+    "title_key":"itemGroup.worldsmith.savva",
+    "icon":"worldsmith:savva_coin",
+    "entries":[
+      "worldsmith:savva_spawner","worldsmith:savva_coin","worldsmith:tomato","worldsmith:lettuce","worldsmith:cucumber",
+      "worldsmith:strawberry","worldsmith:blueberry","worldsmith:raspberry","worldsmith:pear","worldsmith:peach","worldsmith:orange"
     ]
   },
   "vendor_integration": {
-    "currency_id": "worldsmith:savva_coin",
-    "offer_count": 25,
-    "custom_sell_items": [
-      "worldsmith:tomato",
-      "worldsmith:lettuce",
-      "worldsmith:cucumber"
-    ],
-    "custom_buy_items": [
-      "worldsmith:tomato",
-      "worldsmith:lettuce",
-      "worldsmith:cucumber"
-    ]
+    "currency_id":"worldsmith:savva_coin",
+    "offer_count":37,
+    "custom_sell_items":["worldsmith:tomato","worldsmith:lettuce","worldsmith:cucumber","worldsmith:strawberry","worldsmith:blueberry","worldsmith:raspberry","worldsmith:pear","worldsmith:peach","worldsmith:orange"],
+    "custom_buy_items":["worldsmith:tomato","worldsmith:lettuce","worldsmith:cucumber","worldsmith:strawberry","worldsmith:blueberry","worldsmith:raspberry","worldsmith:pear","worldsmith:peach","worldsmith:orange"]
   },
   "assets": {
-    "texture_size": [16, 16],
-    "models": [
-      "savva_coin",
-      "tomato",
-      "lettuce",
-      "cucumber",
-      "savva_spawner"
-    ]
+    "texture_size":[16,16],
+    "models":["savva_coin","tomato","lettuce","cucumber","strawberry","blueberry","raspberry","pear","peach","orange","savva_spawner"]
   }
 }
