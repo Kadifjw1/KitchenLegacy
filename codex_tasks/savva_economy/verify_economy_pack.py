@@ -105,7 +105,15 @@ def main() -> None:
     ):
         require(items, marker, "item property")
 
-    require(tabs, 'CREATIVE_MODE_TABS.register("savva"', "Savva creative tab")
+    tab_marker = "public static final RegistryObject<CreativeModeTab> SAVVA_TAB"
+    tab_start = tabs.find(tab_marker)
+    if tab_start < 0:
+        raise VerificationError("Savva creative tab is missing")
+    display_start = tabs.find(".displayItems(", tab_start)
+    tab_end = tabs.find(".build());", display_start)
+    if display_start < 0 or tab_end < 0:
+        raise VerificationError("Savva creative tab displayItems block is malformed")
+    savva_display = tabs[display_start:tab_end]
     expected_order = [
         "ModItems.SAVVA_SPAWNER.get()",
         "ModItems.SAVVA_COIN.get()",
@@ -113,7 +121,7 @@ def main() -> None:
         "ModItems.LETTUCE.get()",
         "ModItems.CUCUMBER.get()",
     ]
-    positions = [tabs.find(marker) for marker in expected_order]
+    positions = [savva_display.find(marker) for marker in expected_order]
     if any(position < 0 for position in positions) or positions != sorted(positions):
         raise VerificationError("Savva creative tab entries are missing or out of order")
 
