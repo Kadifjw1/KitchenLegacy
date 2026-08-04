@@ -3,41 +3,20 @@
   "references": [
     "Farmer's Delight: compact asymmetrical silhouettes, colored outlines and restrained highlights",
     "Croptopia: immediate crop identity and readable forms at 16x16",
-    "Pam's HarvestCraft 2: cucumber and lettuce should have clearly different silhouettes",
+    "Pam's HarvestCraft 2: berries and fruits need clearly different silhouettes",
     "Worldsmith: original assets only; do not copy third-party pixel layouts or palettes"
   ],
   "schema_version": 1,
   "style_profile": "vanilla_plus_food_mod",
   "textures": [
-    {
-      "bbox": [2, 1, 14, 14],
-      "id": "tomato",
-      "kind": "tomato",
-      "opaque_pixels": 104,
-      "palette_colors": 9,
-      "pixel_sha256": "931bfabbb27e7643ff4b3b8db68efd642d4849af45306e01bb8ab498ce5bd1ea",
-      "semi_transparent_pixels": 0,
-      "size": [16, 16]
-    },
-    {
-      "bbox": [1, 2, 14, 15],
-      "id": "lettuce",
-      "kind": "lettuce",
-      "opaque_pixels": 133,
-      "palette_colors": 6,
-      "pixel_sha256": "3a264f7bb8ad9498706687691b9d7c5e4672691da7b5376ea09095655ef441c2",
-      "semi_transparent_pixels": 0,
-      "size": [16, 16]
-    },
-    {
-      "bbox": [2, 1, 14, 14],
-      "id": "cucumber",
-      "kind": "cucumber",
-      "opaque_pixels": 90,
-      "palette_colors": 6,
-      "pixel_sha256": "335152268f17ec0ccbd1ee37bf501157f4706baab59fbea7ceaf1bffd0638dd2",
-      "semi_transparent_pixels": 0,
-      "size": [16, 16]
-    }
+    {"bbox":[2,1,14,14],"id":"tomato","kind":"tomato","opaque_pixels":104,"palette_colors":9,"pixel_sha256":"931bfabbb27e7643ff4b3b8db68efd642d4849af45306e01bb8ab498ce5bd1ea","semi_transparent_pixels":0,"size":[16,16]},
+    {"bbox":[1,2,14,15],"id":"lettuce","kind":"lettuce","opaque_pixels":133,"palette_colors":6,"pixel_sha256":"3a264f7bb8ad9498706687691b9d7c5e4672691da7b5376ea09095655ef441c2","semi_transparent_pixels":0,"size":[16,16]},
+    {"bbox":[2,1,14,14],"id":"cucumber","kind":"cucumber","opaque_pixels":90,"palette_colors":6,"pixel_sha256":"335152268f17ec0ccbd1ee37bf501157f4706baab59fbea7ceaf1bffd0638dd2","semi_transparent_pixels":0,"size":[16,16]},
+    {"bbox":[2,1,13,14],"id":"strawberry","kind":"strawberry","opaque_pixels":90,"palette_colors":8,"pixel_sha256":"00421f13eed3468b94046d4a62e17518f83124fe366b20b2cfa244f3dd99bb25","semi_transparent_pixels":0,"size":[16,16]},
+    {"bbox":[2,2,11,12],"id":"blueberry","kind":"blueberry","opaque_pixels":69,"palette_colors":8,"pixel_sha256":"1768f403c97b649d34613f3997609495f69a674330cd6044323394757d3cfdee","semi_transparent_pixels":0,"size":[16,16]},
+    {"bbox":[1,1,12,13],"id":"raspberry","kind":"raspberry","opaque_pixels":89,"palette_colors":8,"pixel_sha256":"47ca5bb7afa911d6e26ea0118b3ed1cd62c61e9ba106236d480d1f6d4b23a376","semi_transparent_pixels":0,"size":[16,16]},
+    {"bbox":[2,1,12,14],"id":"pear","kind":"pear","opaque_pixels":86,"palette_colors":7,"pixel_sha256":"9733aa8275eef8ba394aadeb54c6d07829656d6d63f6c5abce80c7a761de84af","semi_transparent_pixels":0,"size":[16,16]},
+    {"bbox":[2,1,12,14],"id":"peach","kind":"peach","opaque_pixels":93,"palette_colors":8,"pixel_sha256":"74cef7b000f59e24b0d102caba3de1a64c55a587defdee157a78b280ecc67d6e","semi_transparent_pixels":0,"size":[16,16]},
+    {"bbox":[2,1,11,14],"id":"orange","kind":"orange","opaque_pixels":85,"palette_colors":8,"pixel_sha256":"097b012f90ae64e8287ef6cbd009ddfe32f076ee731033eefc4190b6a8287526","semi_transparent_pixels":0,"size":[16,16]}
   ]
 }
