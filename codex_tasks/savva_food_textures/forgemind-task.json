@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "task_id": "SAVVA_FOOD_TEXTURES",
+  "task_type": "worldsmith_feature_build",
+  "feature": "minecraft_food_item_texture_pack_v1",
+  "target": {
+    "mod_id": "worldsmith",
+    "texture_size": 16
+  },
+  "style": {
+    "profile": "vanilla_plus_food_mod",
+    "references": [
+      "Farmer's Delight: compact asymmetrical silhouettes, colored outlines and restrained highlights",
+      "Croptopia: immediate crop identity and readable forms at 16x16",
+      "Pam's HarvestCraft 2: cucumber and lettuce should have clearly different silhouettes",
+      "Worldsmith: original assets only; do not copy third-party pixel layouts or palettes"
+    ]
+  },
+  "items": [
+    {
+      "id": "tomato",
+      "kind": "tomato"
+    },
+    {
+      "id": "lettuce",
+      "kind": "lettuce"
+    },
+    {
+      "id": "cucumber",
+      "kind": "cucumber"
+    }
+  ]
+}
