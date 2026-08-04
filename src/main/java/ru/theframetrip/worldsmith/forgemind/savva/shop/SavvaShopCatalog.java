@@ -37,10 +37,13 @@ public final class SavvaShopCatalog {
     public static final int SCREEN_WIDTH = 340;
     public static final int SCREEN_HEIGHT = 220;
     public static final int VISIBLE_ROWS = 7;
-    public static final String CURRENCY_ID = "dragonlegacy:legacy_coin";
+    public static final String CURRENCY_ID = "worldsmith:savva_coin";
     public static final String FALLBACK_CURRENCY_ID = "minecraft:emerald";
 
     public static final List<Offer> OFFERS = List.of(
+            new Offer("sell_tomato", Direction.SELL_TO_PLAYER, new ResourceLocation("worldsmith:tomato"), 6, 3, 16),
+            new Offer("sell_lettuce", Direction.SELL_TO_PLAYER, new ResourceLocation("worldsmith:lettuce"), 4, 2, 16),
+            new Offer("sell_cucumber", Direction.SELL_TO_PLAYER, new ResourceLocation("worldsmith:cucumber"), 6, 3, 16),
             new Offer("sell_carrots", Direction.SELL_TO_PLAYER, new ResourceLocation("minecraft:carrot"), 8, 2, 16),
             new Offer("sell_potatoes", Direction.SELL_TO_PLAYER, new ResourceLocation("minecraft:potato"), 8, 2, 16),
             new Offer("sell_beetroot", Direction.SELL_TO_PLAYER, new ResourceLocation("minecraft:beetroot"), 8, 3, 14),
@@ -53,6 +56,9 @@ public final class SavvaShopCatalog {
             new Offer("sell_pumpkin_seeds", Direction.SELL_TO_PLAYER, new ResourceLocation("minecraft:pumpkin_seeds"), 4, 2, 16),
             new Offer("sell_melon_seeds", Direction.SELL_TO_PLAYER, new ResourceLocation("minecraft:melon_seeds"), 4, 2, 16),
             new Offer("sell_oak_sapling", Direction.SELL_TO_PLAYER, new ResourceLocation("minecraft:oak_sapling"), 2, 3, 8),
+            new Offer("buy_tomato", Direction.BUY_FROM_PLAYER, new ResourceLocation("worldsmith:tomato"), 12, 3, 12),
+            new Offer("buy_lettuce", Direction.BUY_FROM_PLAYER, new ResourceLocation("worldsmith:lettuce"), 10, 2, 12),
+            new Offer("buy_cucumber", Direction.BUY_FROM_PLAYER, new ResourceLocation("worldsmith:cucumber"), 12, 3, 12),
             new Offer("buy_carrots", Direction.BUY_FROM_PLAYER, new ResourceLocation("minecraft:carrot"), 16, 2, 12),
             new Offer("buy_potatoes", Direction.BUY_FROM_PLAYER, new ResourceLocation("minecraft:potato"), 16, 2, 12),
             new Offer("buy_beetroot", Direction.BUY_FROM_PLAYER, new ResourceLocation("minecraft:beetroot"), 16, 3, 10),
