@@ -35,6 +35,19 @@ public class ModCreativeModeTabs {
                     })
                     .build());
 
+    public static final RegistryObject<CreativeModeTab> SAVVA_TAB = CREATIVE_MODE_TABS.register("savva",
+            () -> CreativeModeTab.builder()
+                    .title(Component.translatable("itemGroup.worldsmith.savva"))
+                    .icon(() -> new ItemStack(ModItems.SAVVA_COIN.get()))
+                    .displayItems((parameters, output) -> {
+                        output.accept(ModItems.SAVVA_SPAWNER.get());
+                        output.accept(ModItems.SAVVA_COIN.get());
+                        output.accept(ModItems.TOMATO.get());
+                        output.accept(ModItems.LETTUCE.get());
+                        output.accept(ModItems.CUCUMBER.get());
+                    })
+                    .build());
+
     public static void register(IEventBus eventBus) {
         CREATIVE_MODE_TABS.register(eventBus);
     }
