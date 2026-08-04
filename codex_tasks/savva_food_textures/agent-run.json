@@ -3,17 +3,23 @@
   "task_id": "SAVVA_FOOD_TEXTURES",
   "feature": "minecraft_food_item_texture_pack_v1",
   "agent_repository": "Kadifjw1/worldsmith-forgemind",
-  "agent_version": "1.5.0",
-  "agent_head_sha": "144e6056e5ac459214ff61866fcec08d31717a7b",
-  "workflow_run_id": 30898446399,
-  "artifact_id": 8888027466,
+  "agent_version": "1.6.0",
+  "agent_head_sha": "a93cfee72425af8dfffdd7c83e82f5f27842d078",
+  "workflow_run_id": 30907916695,
+  "artifact_id": 8891807921,
   "artifact_name": "forgemind-savva-food-textures",
-  "artifact_digest": "sha256:e1594139f21f8cfb43c620f46c09ec5267f918bb61e70087966d2606238171e7",
+  "artifact_digest": "sha256:4bf6b662ff403c8ce3e4e6ad833813171bd5046d78506f6ebf6db2010463686f",
   "verdict": "passed",
   "source_unchanged": true,
   "generated_file_sha256": {
     "tomato.png": "daea304d6d68a929205db878cce0875a75bd8617cef7507d1c26dd82b840503f",
     "lettuce.png": "fddd671da5f7a4eae645197415ef8621f8ba7e49af2a5bc9cb2655b14b9e0c81",
-    "cucumber.png": "cbec4f1190c5a2e61512cadf32597141feb1092f70a0a8bf1d892d44da2c7376"
+    "cucumber.png": "cbec4f1190c5a2e61512cadf32597141feb1092f70a0a8bf1d892d44da2c7376",
+    "strawberry.png": "983db9036d7c57d4d055fd7af466f8255cc200fe2ee0df71d7bfc69984413f3c",
+    "blueberry.png": "ef15d898be6540f5e6e82e5a7e5a7a75eb26532b4dc19bf0ed3a84bf2e2f65a4",
+    "raspberry.png": "85c43bbeb03dfdda10ea329d018f0d62953f03ef8d2d5975c8bf15aa685d58bc",
+    "pear.png": "82b824af4b0582bbd2b7bdcbd0fa1713015cf416ef8a81ef72fc840568cb14a6",
+    "peach.png": "4c9f658d0af4f5a72f597f54f2869205fbc65bfb474fe8fa9f2f0e21f07762bd",
+    "orange.png": "0df30e240b15e77dd2100756d8ac0afb4b4c50c0f77d0ea9b7652b11e912acbe"
   }
 }

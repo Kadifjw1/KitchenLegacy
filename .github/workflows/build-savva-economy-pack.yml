@@ -8,16 +8,8 @@ on:
       - "src/main/java/ru/theframetrip/worldsmith/registry/ModCreativeModeTabs.java"
       - "src/main/java/ru/theframetrip/worldsmith/item/SavvaSpawnerItem.java"
       - "src/main/java/ru/theframetrip/worldsmith/forgemind/savva/**"
-      - "src/main/resources/assets/worldsmith/models/item/savva_coin.json"
-      - "src/main/resources/assets/worldsmith/models/item/tomato.json"
-      - "src/main/resources/assets/worldsmith/models/item/lettuce.json"
-      - "src/main/resources/assets/worldsmith/models/item/cucumber.json"
-      - "src/main/resources/assets/worldsmith/models/item/savva_spawner.json"
-      - "src/main/resources/assets/worldsmith/textures/item/savva_coin.png"
-      - "src/main/resources/assets/worldsmith/textures/item/tomato.png"
-      - "src/main/resources/assets/worldsmith/textures/item/lettuce.png"
-      - "src/main/resources/assets/worldsmith/textures/item/cucumber.png"
-      - "src/main/resources/assets/worldsmith/textures/item/savva_spawner.png"
+      - "src/main/resources/assets/worldsmith/models/item/**"
+      - "src/main/resources/assets/worldsmith/textures/item/**"
       - "src/main/resources/assets/worldsmith/lang/*.json"
       - "src/main/resources/data/worldsmith/forgemind/savva_*.json"
       - "SAVVA_*_BUILD.md"
@@ -60,6 +52,7 @@ jobs:
           from pathlib import Path
           from zipfile import ZipFile
 
+          foods = ["tomato", "lettuce", "cucumber", "strawberry", "blueberry", "raspberry", "pear", "peach", "orange"]
           jars = sorted(Path("build/libs").glob("worldsmith-*.jar"))
           if not jars:
               raise SystemExit("Worldsmith JAR was not produced")
@@ -69,29 +62,26 @@ jobs:
               "ru/theframetrip/worldsmith/registry/ModItems.class",
               "ru/theframetrip/worldsmith/registry/ModCreativeModeTabs.class",
               "assets/worldsmith/models/item/savva_coin.json",
-              "assets/worldsmith/models/item/tomato.json",
-              "assets/worldsmith/models/item/lettuce.json",
-              "assets/worldsmith/models/item/cucumber.json",
               "assets/worldsmith/models/item/savva_spawner.json",
               "assets/worldsmith/textures/item/savva_coin.png",
-              "assets/worldsmith/textures/item/tomato.png",
-              "assets/worldsmith/textures/item/lettuce.png",
-              "assets/worldsmith/textures/item/cucumber.png",
               "assets/worldsmith/textures/item/savva_spawner.png",
               "data/worldsmith/forgemind/savva_produce_vendor.json",
               "data/worldsmith/forgemind/savva_custom_shop.json",
           }
+          for item_id in foods:
+              required.add(f"assets/worldsmith/models/item/{item_id}.json")
+              required.add(f"assets/worldsmith/textures/item/{item_id}.png")
           with ZipFile(jar) as archive:
               names = set(archive.namelist())
               missing = sorted(required - names)
               if missing:
                   raise SystemExit(f"Savva economy files missing from JAR: {missing}")
-          print(f"Verified {jar}: Savva economy pack is packaged")
+          print(f"Verified {jar}: expanded Savva economy pack is packaged")
           PY
 
       - name: Upload playable economy build
         uses: actions/upload-artifact@v4
         with:
-          name: worldsmith-savva-economy-playtest
+          name: worldsmith-savva-fruit-berry-playtest
           path: build/libs/*.jar
           if-no-files-found: error

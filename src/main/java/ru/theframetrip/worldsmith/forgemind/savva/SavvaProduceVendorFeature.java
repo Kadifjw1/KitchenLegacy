@@ -33,7 +33,7 @@ public final class SavvaProduceVendorFeature {
     private static final String ROLE_ID = "savva_produce_vendor";
     private static final String PROFILE_VERSION_TAG = "WorldsmithSavvaProfileVersion";
     private static final String LAST_RESTOCK_DAY_TAG = "WorldsmithSavvaLastRestockDay";
-    private static final int PROFILE_VERSION = 2;
+    private static final int PROFILE_VERSION = 3;
     private static final int OPEN_TIME = 1000;
     private static final int CLOSE_TIME = 12000;
     private static final String DISPLAY_NAME = "Савва Урожайник";
@@ -152,6 +152,12 @@ public final class SavvaProduceVendorFeature {
         sellToPlayer(offers, currency, "worldsmith:tomato", 6, 3, 16);
         sellToPlayer(offers, currency, "worldsmith:lettuce", 4, 2, 16);
         sellToPlayer(offers, currency, "worldsmith:cucumber", 6, 3, 16);
+        sellToPlayer(offers, currency, "worldsmith:strawberry", 6, 3, 16);
+        sellToPlayer(offers, currency, "worldsmith:blueberry", 8, 3, 16);
+        sellToPlayer(offers, currency, "worldsmith:raspberry", 6, 3, 16);
+        sellToPlayer(offers, currency, "worldsmith:pear", 4, 4, 12);
+        sellToPlayer(offers, currency, "worldsmith:peach", 4, 4, 12);
+        sellToPlayer(offers, currency, "worldsmith:orange", 4, 4, 12);
         sellToPlayer(offers, currency, "minecraft:carrot", 8, 2, 16);
         sellToPlayer(offers, currency, "minecraft:potato", 8, 2, 16);
         sellToPlayer(offers, currency, "minecraft:beetroot", 8, 3, 14);
@@ -167,6 +173,12 @@ public final class SavvaProduceVendorFeature {
         buyFromPlayer(offers, currency, "worldsmith:tomato", 12, 3, 12);
         buyFromPlayer(offers, currency, "worldsmith:lettuce", 10, 2, 12);
         buyFromPlayer(offers, currency, "worldsmith:cucumber", 12, 3, 12);
+        buyFromPlayer(offers, currency, "worldsmith:strawberry", 12, 3, 12);
+        buyFromPlayer(offers, currency, "worldsmith:blueberry", 16, 3, 12);
+        buyFromPlayer(offers, currency, "worldsmith:raspberry", 12, 3, 12);
+        buyFromPlayer(offers, currency, "worldsmith:pear", 8, 4, 10);
+        buyFromPlayer(offers, currency, "worldsmith:peach", 8, 4, 10);
+        buyFromPlayer(offers, currency, "worldsmith:orange", 8, 4, 10);
         buyFromPlayer(offers, currency, "minecraft:carrot", 16, 2, 12);
         buyFromPlayer(offers, currency, "minecraft:potato", 16, 2, 12);
         buyFromPlayer(offers, currency, "minecraft:beetroot", 16, 3, 10);

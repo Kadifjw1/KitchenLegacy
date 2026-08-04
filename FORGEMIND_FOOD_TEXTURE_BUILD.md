@@ -1,19 +1,30 @@
-# ForgeMind — текстуры овощей Саввы
+# ForgeMind — овощи, ягоды и фрукты Саввы
 
 Feature: `minecraft_food_item_texture_pack_v1`
 
 Task: `SAVVA_FOOD_TEXTURES`
 
-## Что изменено
+ForgeMind 1.6.0 самостоятельно сгенерировал и проверил девять оригинальных item-текстур 16×16.
 
-ForgeMind 1.5.0 самостоятельно сгенерировал и проверил новые оригинальные item-текстуры 16×16:
+## Овощи
 
 - `worldsmith:tomato`;
 - `worldsmith:lettuce`;
 - `worldsmith:cucumber`.
 
-В репозиторий перенесены PNG непосредственно из каталога
-`OUTPUT/SAVVA_FOOD_TEXTURES/overlay`, созданного командой:
+## Ягоды
+
+- `worldsmith:strawberry`;
+- `worldsmith:blueberry`;
+- `worldsmith:raspberry`.
+
+## Фрукты
+
+- `worldsmith:pear`;
+- `worldsmith:peach`;
+- `worldsmith:orange`.
+
+PNG перенесены непосредственно из `OUTPUT/SAVVA_FOOD_TEXTURES/overlay`, созданного командой:
 
 ```bash
 forgemind-agent run SAVVA_FOOD_TEXTURES --local-root agent-workspace
@@ -21,22 +32,14 @@ forgemind-agent run SAVVA_FOOD_TEXTURES --local-root agent-workspace
 
 ## Визуальный профиль
 
-Использован профиль `vanilla_plus_food_mod`:
-
-- компактные и сразу читаемые силуэты;
-- цветной, а не чисто чёрный контур;
-- ограниченная палитра;
-- сдержанные блики;
-- различимая форма каждого овоща;
-- прозрачный фон и отсутствие полупрозрачных пикселей.
-
-Farmer's Delight, Croptopia и Pam's HarvestCraft 2 использовались только для анализа общих визуальных принципов. Пиксельные раскладки и палитры сторонних модов не копировались.
+Использован `vanilla_plus_food_mod`: компактный читаемый силуэт, цветной контур, ограниченная палитра, сдержанные блики, прозрачный фон и отсутствие полупрозрачных пикселей. Сторонние food-моды использовались только для анализа общих принципов; их пиксели и палитры не копировались.
 
 ## Агентский результат
 
-- workflow run: `30898446399`;
+- ForgeMind: `1.6.0`;
+- workflow run: `30907916695`;
 - artifact: `forgemind-savva-food-textures`;
-- artifact digest: `sha256:e1594139f21f8cfb43c620f46c09ec5267f918bb61e70087966d2606238171e7`;
+- artifact digest: `sha256:4bf6b662ff403c8ce3e4e6ad833813171bd5046d78506f6ebf6db2010463686f`;
 - verdict: `passed`;
 - source unchanged: `true`.
 
@@ -44,14 +47,12 @@ Farmer's Delight, Croptopia и Pam's HarvestCraft 2 использовались
 
 ```bash
 python codex_tasks/savva_food_textures/verify_agent_output.py
+python codex_tasks/savva_economy/verify_economy_pack.py
 ./gradlew clean build --no-daemon
 ```
 
-CI проверяет точные file SHA-256 и pixel SHA-256, размер 16×16, RGBA,
-отсутствие полупрозрачности, размер палитры, число непрозрачных пикселей и
-наличие неизменённых PNG внутри итогового JAR.
+CI проверяет file SHA-256 и pixel SHA-256 всех девяти PNG, размер 16×16, RGBA, прозрачность, палитру, метрики силуэта, модели предметов, локализацию, вкладку Саввы, 37 торговых предложений и наличие ресурсов внутри итогового JAR.
 
 ## Честная граница
 
-Эта версия улучшает только инвентарные иконки предметов. Растения в мире,
-семена, стадии роста и 3D-модели урожая остаются отдельным этапом.
+Сейчас это съедобные предметы и торговые товары. Семена, кусты, деревья и стадии выращивания остаются отдельным следующим этапом.
