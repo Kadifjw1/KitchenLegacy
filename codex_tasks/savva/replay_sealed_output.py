@@ -5,7 +5,7 @@ import json
 import shutil
 from pathlib import Path
 
-PROVENANCE = "worldsmith-forgemind@f1bddd328aa8edfadbae29ab2b7d93abaf126b25"
+PROVENANCE = "worldsmith-forgemind@e19fa8be9883a7f36a8edc992e13d701b36f3758"
 EXPECTED_TASK_SHA256 = "775b0ce0d6e91d83f898424422927f60bc2fc4c0a8997564e0361d88e13c53b2"
 TASK_PATH = Path("codex_tasks/savva/forgemind-task.json")
 OUTPUT = Path("agent-workspace/OUTPUT/SAVVA_PRODUCE_VENDOR")
@@ -16,7 +16,7 @@ SEALED_FILES = {
     ): (
         "overlay/src/main/java/ru/theframetrip/worldsmith/forgemind/"
         "savva/SavvaProduceVendorFeature.java",
-        "b8b17316374574ae77d2373aa9d03acad5a19f2e1185a12d321363137e5d6be8",
+        "6443e6f4c2ce454b8128d661a8c630abb108aa53296d3cc053b4b878f8a09f27",
     ),
     Path(
         "src/main/resources/data/worldsmith/forgemind/"
@@ -100,8 +100,8 @@ def main() -> None:
         "build": "./gradlew clean build --no-daemon",
         "forge_api": {
             "version": "1.20.1",
-            "menu_open": "ServerPlayer.openMenu(MenuProvider)",
-            "merchant_sync": "ServerPlayer.sendMerchantOffers(...)",
+            "menu_open": "Mob.interact(Player, InteractionHand)",
+            "merchant_sync": "vanilla Villager.mobInteract path",
         },
     }
     OUTPUT.mkdir(parents=True, exist_ok=True)
