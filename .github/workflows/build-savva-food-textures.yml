@@ -28,7 +28,7 @@ jobs:
       - name: Install texture verifier dependency
         run: pip install "Pillow>=10.3,<13"
 
-      - name: Verify imported ForgeMind output
+      - name: Verify learned ForgeMind output
         run: python codex_tasks/savva_food_textures/verify_agent_output.py
 
       - name: Set up Java 17
@@ -43,7 +43,7 @@ jobs:
           chmod +x gradlew
           ./gradlew clean build --no-daemon --stacktrace --console=plain
 
-      - name: Verify textures inside JAR
+      - name: Verify preference-trained textures inside JAR
         run: |
           python - <<'PY'
           import hashlib
@@ -53,13 +53,13 @@ jobs:
           expected = {
               "tomato": "daea304d6d68a929205db878cce0875a75bd8617cef7507d1c26dd82b840503f",
               "lettuce": "fddd671da5f7a4eae645197415ef8621f8ba7e49af2a5bc9cb2655b14b9e0c81",
-              "cucumber": "cbec4f1190c5a2e61512cadf32597141feb1092f70a0a8bf1d892d44da2c7376",
-              "strawberry": "983db9036d7c57d4d055fd7af466f8255cc200fe2ee0df71d7bfc69984413f3c",
-              "blueberry": "ef15d898be6540f5e6e82e5a7e5a7a75eb26532b4dc19bf0ed3a84bf2e2f65a4",
-              "raspberry": "85c43bbeb03dfdda10ea329d018f0d62953f03ef8d2d5975c8bf15aa685d58bc",
-              "pear": "82b824af4b0582bbd2b7bdcbd0fa1713015cf416ef8a81ef72fc840568cb14a6",
-              "peach": "4c9f658d0af4f5a72f597f54f2869205fbc65bfb474fe8fa9f2f0e21f07762bd",
-              "orange": "0df30e240b15e77dd2100756d8ac0afb4b4c50c0f77d0ea9b7652b11e912acbe",
+              "cucumber": "17cd26131d4e73fe1f7567a1c4cd862b1225be93d25c494d438ff7f97998f876",
+              "strawberry": "82b7280d5cc0bf4383c649c2efdbeba30564385807a4d7dc3f3c6f0ec9e8f516",
+              "blueberry": "88152298fefca89465a57e12c827d488b058c30b743255e98c1862a0e11718cb",
+              "raspberry": "d75fa008b694796e082fb9cba81d2d759b95919c73f16d6dc11a1003433bdad4",
+              "pear": "564cab97ce33256f852fa9dd9d723b9fa53de0d9dd2a2c724145a093e37ccfcb",
+              "peach": "7e79eba4f52627cdf4e7a37e8991dbf1fb7d598ac0d75fbdea6634ad4eaa9e01",
+              "orange": "22d47dd5fbbe35bb9b0049d43ded8c1486ad12655860d48c9a648e0cf87164ca",
           }
           jars = sorted(Path("build/libs").glob("worldsmith-*.jar"))
           if not jars:
@@ -72,17 +72,18 @@ jobs:
                   actual = hashlib.sha256(payload).hexdigest()
                   if actual != expected_sha:
                       raise SystemExit(f"JAR texture hash mismatch for {name}: {actual}")
-          print(f"Verified {jar}: all nine ForgeMind food textures are packaged")
+          print(f"Verified {jar}: learned ForgeMind food textures are packaged")
           PY
 
-      - name: Upload playable texture build
+      - name: Upload preference-trained playtest build
         uses: actions/upload-artifact@v4
         with:
-          name: worldsmith-forgemind-fruit-berry-playtest
+          name: worldsmith-forgemind-preference-trained-food-playtest
           path: |
             build/libs/*.jar
             FORGEMIND_FOOD_TEXTURE_BUILD.md
             codex_tasks/savva_food_textures/forgemind-task.json
             codex_tasks/savva_food_textures/texture-report.json
+            codex_tasks/savva_food_textures/preference-gate-report.json
             codex_tasks/savva_food_textures/agent-run.json
           if-no-files-found: error
