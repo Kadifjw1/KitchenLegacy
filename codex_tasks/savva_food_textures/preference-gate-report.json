@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "profile_id": "worldsmith_food_icon_preferences_v1",
+  "revision": 1,
+  "approved_anchor_ids": ["tomato", "lettuce"],
+  "learned_rules": [
+    "Treat tomato and lettuce as immutable positive visual anchors unless a later explicit review replaces them.",
+    "A food icon must be immediately recognizable at native 16x16 size, not only when enlarged.",
+    "Prefer a compact, coherent silhouette with natural asymmetry over generic circles, rods, or colored blobs.",
+    "Use characteristic anatomy of the specific food item so adjacent products remain distinguishable without labels.",
+    "Preserve convincing volume through a restrained highlight-to-shadow range instead of flat fills or plastic gloss.",
+    "Use a compact palette and colored outlines consistent with the approved anchors.",
+    "Previously rejected pixel layouts must never silently return as final output.",
+    "If the quality gate fails, mark the asset as needing refinement instead of publishing it as final."
+  ],
+  "results": [
+    {"id":"tomato","score":0.939499,"status":"passed","template_revision":1},
+    {"id":"lettuce","score":0.939499,"status":"passed","template_revision":1},
+    {"id":"cucumber","score":0.907346,"status":"passed","template_revision":2},
+    {"id":"strawberry","score":0.970845,"status":"passed","template_revision":2},
+    {"id":"blueberry","score":0.978146,"status":"passed","template_revision":2},
+    {"id":"raspberry","score":0.948821,"status":"passed","template_revision":2},
+    {"id":"pear","score":0.939591,"status":"passed","template_revision":2},
+    {"id":"peach","score":0.967279,"status":"passed","template_revision":2},
+    {"id":"orange","score":0.988574,"status":"passed","template_revision":2}
+  ]
+}
