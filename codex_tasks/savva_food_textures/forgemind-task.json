@@ -3,28 +3,27 @@
   "task_id": "SAVVA_FOOD_TEXTURES",
   "task_type": "worldsmith_feature_build",
   "feature": "minecraft_food_item_texture_pack_v1",
-  "target": {
-    "mod_id": "worldsmith",
-    "texture_size": 16
-  },
+  "target": {"mod_id": "worldsmith", "texture_size": 16},
   "style": {
     "profile": "vanilla_plus_food_mod",
+    "preference_profile": "worldsmith_food_icon_preferences_v1",
+    "feedback_revision": 1,
     "references": [
-      "Farmer's Delight: compact asymmetrical silhouettes, colored outlines and restrained highlights",
-      "Croptopia: immediate crop identity and readable forms at 16x16",
-      "Pam's HarvestCraft 2: berries and fruits need clearly different silhouettes",
-      "Worldsmith: original assets only; do not copy third-party pixel layouts or palettes"
+      "Worldsmith approved anchors: tomato and lettuce define the current target quality",
+      "Food icons must remain immediately readable at native 16x16 size",
+      "Use specific food anatomy, compact colored outlines and convincing non-plastic volume",
+      "Never silently restore a pixel layout that was explicitly rejected by human review"
     ]
   },
   "items": [
-    {"id": "tomato", "kind": "tomato"},
-    {"id": "lettuce", "kind": "lettuce"},
-    {"id": "cucumber", "kind": "cucumber"},
-    {"id": "strawberry", "kind": "strawberry"},
-    {"id": "blueberry", "kind": "blueberry"},
-    {"id": "raspberry", "kind": "raspberry"},
-    {"id": "pear", "kind": "pear"},
-    {"id": "peach", "kind": "peach"},
-    {"id": "orange", "kind": "orange"}
+    {"id":"tomato","kind":"tomato"},
+    {"id":"lettuce","kind":"lettuce"},
+    {"id":"cucumber","kind":"cucumber"},
+    {"id":"strawberry","kind":"strawberry"},
+    {"id":"blueberry","kind":"blueberry"},
+    {"id":"raspberry","kind":"raspberry"},
+    {"id":"pear","kind":"pear"},
+    {"id":"peach","kind":"peach"},
+    {"id":"orange","kind":"orange"}
   ]
 }
