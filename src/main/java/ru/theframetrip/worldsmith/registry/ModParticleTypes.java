@@ -40,6 +40,9 @@ public class ModParticleTypes {
     public static final RegistryObject<SimpleParticleType> KROVOTOK_LIFE_DRAIN =
             PARTICLE_TYPES.register("krovotok_life_drain", () -> new SimpleParticleType(false));
 
+    // FORGEMIND-EXTENSION:worldsmith.particles:BEGIN
+    // FORGEMIND-EXTENSION:worldsmith.particles:END
+
     public static void register(IEventBus eventBus) {
         PARTICLE_TYPES.register(eventBus);
     }
