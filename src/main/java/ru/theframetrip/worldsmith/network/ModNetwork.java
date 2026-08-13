@@ -24,12 +24,16 @@ public class ModNetwork {
         // FORGEMIND-EXTENSION:worldsmith.network.messages:END
     }
 
-    private static synchronized int nextMessageId() {
+    public static synchronized int nextMessageId() {
         return nextMessageId++;
     }
 
     public static void sendTo(ServerPlayer player, Object message) {
         CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), message);
+    }
+
+    public static void sendToServer(Object message) {
+        CHANNEL.sendToServer(message);
     }
 
     public static void sendPredelUse(){ CHANNEL.sendToServer(new UsePredelAbilityPacket()); }
