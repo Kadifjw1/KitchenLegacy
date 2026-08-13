@@ -26,6 +26,17 @@ This document defines the only shared Java surfaces that ForgeMind may extend au
 
 `PrahNetwork` is an existing feature-specific isolated channel. It remains valid for Prah, but it is not an automatic extension surface for unrelated features. ForgeMind must not choose `PrahNetwork` merely because it is another `SimpleChannel`.
 
+New feature networking must bind to the shared channel instead of creating another `SimpleChannel`. The contracted API is:
+
+- `ModNetwork.CHANNEL` — the canonical channel used for packet registration;
+- `ModNetwork.nextMessageId()` — synchronized allocation of message IDs after existing hand-owned IDs;
+- `ModNetwork.sendTo(ServerPlayer, Object)` — canonical S2C sending helper;
+- `ModNetwork.sendToServer(Object)` — canonical C2S sending helper.
+
+The existing Predel packet keeps message ID `0`. Contract-bound feature packets allocate IDs starting at `1` through `nextMessageId()` and must never hard-code their own shared-channel IDs.
+
+The `worldsmith.network.messages` marker is executed from `ModNetwork.register()`, which is already called by the Worldsmith mod entry point. Therefore a contract-bound feature must not add a second common-setup bootstrap solely to register its packets.
+
 ## Marker format
 
 ```java
