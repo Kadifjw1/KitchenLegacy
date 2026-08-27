@@ -15,5 +15,9 @@ public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, WorldsmithMod.MOD_ID);
     public static final RegistryObject<Block> VOID_PHASE_BLOCK = BLOCKS.register("void_phase_block", () -> new VoidPhaseBlock(
             BlockBehaviour.Properties.copy(Blocks.BARRIER).noCollission().noOcclusion().strength(-1.0F, 3600000.0F).noLootTable().sound(SoundType.EMPTY)));
+
+    // FORGEMIND-EXTENSION:worldsmith.blocks:BEGIN
+    // FORGEMIND-EXTENSION:worldsmith.blocks:END
+
     public static void register(IEventBus eventBus) { BLOCKS.register(eventBus); }
 }

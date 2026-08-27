@@ -49,6 +49,9 @@ public class ModItems {
     public static final RegistryObject<Item> SAVVA_SPAWNER = ITEMS.register("savva_spawner",
             () -> new SavvaSpawnerItem(new Item.Properties().stacksTo(16)));
 
+    // FORGEMIND-EXTENSION:worldsmith.items:BEGIN
+    // FORGEMIND-EXTENSION:worldsmith.items:END
+
     private static RegistryObject<Item> registerFood(String name, int nutrition, float saturation) {
         return ITEMS.register(name, () -> new Item(new Item.Properties().food(
                 new FoodProperties.Builder().nutrition(nutrition).saturationMod(saturation).build()
